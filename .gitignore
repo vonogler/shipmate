@@ -1,0 +1,62 @@
+# IDE and editor files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+local.properties
+
+# Temporary workspace files
+.codex-tmp/
+*.tmp
+*.temp
+
+# Logs
+*.log
+*.err.log
+*.combined.log
+log
+
+# Android / Gradle
+.gradle/
+build/
+**/.gradle/
+**/build/
+**/app/build/
+**/captures/
+**/externalNativeBuild/
+**/.cxx/
+*.apk
+*.aab
+
+# API local persistence
+shipmate-api/data/
+
+# Node / frontend
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+coverage/
+**/coverage/
+
+# Java / Kotlin build outputs
+out/
+target/
+*.class
+*.jar
+*.war
+
+# Misc generated reports
+**/build/reports/
+**/build/outputs/

@@ -1,0 +1,122 @@
+document:
+  title: "ShipMate Documentation Guidelines"
+  service_name_en: "ShipMate AI"
+  repository: "shipmate-doc"
+  root_path: "C:/Users/vonog/OneDrive/dev/workspace_list/shipmate_workspace/shipmate-doc"
+  updated_at: "2026-05-24"
+  doc_location_rule: "Common design documentation belongs under shipmate-doc/common/."
+  common_asset_rule: "Field names, master codes, and error code numbers belong under shipmate-common/."
+
+principles:
+  source_of_truth:
+    structured_docs: "YAML"
+    api_docs: "OpenAPI YAML"
+    tabular_data: "CSV or YAML"
+    view_docs: "HTML"
+  editing_rule:
+    - "YAML is the primary editable source."
+    - "HTML is for viewing and linking."
+    - "When YAML and HTML differ, YAML wins."
+    - "HTML files should be regenerated or updated from the YAML source."
+
+domain_doc_folders:
+  common:
+    root: "common"
+    rule: "All shared or common design documentation must be stored under shipmate-doc/common/."
+    yaml_source: "common/yaml"
+    html_view: "common/html"
+    examples:
+      - "common/yaml/doc-guidelines.yaml"
+      - "common/html/doc-guidelines.html"
+      - "common/yaml/project-structure.yaml"
+      - "common/html/project-structure.html"
+      - "common/yaml/product-overview.yaml"
+      - "common/html/product-overview.html"
+  android:
+    root: "android"
+    rule: "All Android app documentation must be stored under shipmate-doc/android/."
+    yaml_source: "android/yaml"
+    html_view: "android/html"
+    repository: "shipmate-android"
+    examples:
+      - "android/yaml/android-tech-stack.yaml"
+      - "android/html/android-tech-stack.html"
+      - "android/yaml/call-upload-screen.yaml"
+      - "android/html/call-upload-screen.html"
+  admin:
+    root: "admin"
+    rule: "All shipmate-admin documentation must be stored under shipmate-doc/admin/."
+    yaml_source: "admin/yaml"
+    html_view: "admin/html"
+    repository: "shipmate-admin"
+    examples:
+      - "admin/yaml/admin-tech-stack.yaml"
+      - "admin/html/admin-tech-stack.html"
+      - "admin/yaml/admin-menu-structure.yaml"
+      - "admin/html/admin-menu-structure.html"
+
+root_folders:
+  - path: "common"
+    purpose: "Shared and common design documentation"
+  - path: "android"
+    purpose: "shipmate-android documentation"
+  - path: "admin"
+    purpose: "shipmate-admin documentation"
+  - path: "api"
+    purpose: "Shared OpenAPI and API examples"
+  - path: "policies"
+    purpose: "Shared consent, privacy, recording retention, and terms"
+  - path: "html"
+    purpose: "Top-level documentation portal only"
+  - path: "scripts"
+    purpose: "Generate or validate documentation"
+
+legacy_folder_rule:
+  - "Do not add new source documents under root yaml/."
+  - "Do not add new domain documents under root html/."
+  - "Root html/ is reserved for index.html or lightweight portal pages."
+  - "Move common design docs to common/yaml and common/html."
+  - "Move Android-only docs to android/yaml and android/html."
+  - "Move Admin-only docs to admin/yaml and admin/html."
+  - "Do not store field name dictionaries, master codes, status code files, or error code number files under shipmate-doc/data/."
+  - "Store field name dictionaries, master codes, status code files, and error code number files under shipmate-common/data/yaml/."
+
+external_common_assets:
+  repository: "shipmate-common"
+  root_path: "C:/Users/vonog/OneDrive/dev/workspace_list/shipmate_workspace/shipmate-common"
+  rule: "Machine-readable shared assets belong in shipmate-common, not shipmate-doc."
+  files:
+    field_names:
+      path: "data/yaml/field-names.yaml"
+      purpose: "Canonical field names shared by Android, Admin, API, and future services."
+    master_codes:
+      path: "data/yaml/master-codes.yaml"
+      purpose: "Canonical business master code lists and future RDB table seed source."
+    error_codes:
+      path: "data/yaml/error-codes.yaml"
+      purpose: "Canonical error message codes and code numbers."
+
+html_link_guidelines:
+  entry_point: "html/index.html"
+  rule:
+    - "Use relative links inside HTML files."
+    - "Links from html/index.html to a Common HTML page should look like ../common/html/doc-guidelines.html."
+    - "Links from html/index.html to a Common YAML source should look like ../common/yaml/doc-guidelines.yaml."
+    - "Links from html/index.html to an Android HTML page should look like ../android/html/android-tech-stack.html."
+    - "Links from html/index.html to an Android YAML source should look like ../android/yaml/android-tech-stack.yaml."
+    - "Links from html/index.html to an Admin HTML page should look like ../admin/html/admin-tech-stack.html."
+    - "Links from html/index.html to an Admin YAML source should look like ../admin/yaml/admin-tech-stack.yaml."
+    - "Use UTF-8 encoding for every HTML file."
+
+recommended_html_pages:
+  - file: "html/index.html"
+    purpose: "Documentation portal"
+  - file: "common/html/doc-guidelines.html"
+    source: "common/yaml/doc-guidelines.yaml"
+    purpose: "Shared documentation rules"
+  - file: "android/html/android-tech-stack.html"
+    source: "android/yaml/android-tech-stack.yaml"
+    purpose: "Android app technology stack"
+  - file: "admin/html/admin-tech-stack.html"
+    source: "admin/yaml/admin-tech-stack.yaml"
+    purpose: "Admin app technology stack"

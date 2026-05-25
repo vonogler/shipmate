@@ -1,0 +1,69 @@
+document:
+  title: "ShipMate Field Names"
+  repository: "shipmate-common"
+  owner: "common"
+  updated_at: "2026-05-24"
+  rule: "Canonical shared field names are stored in shipmate-common/data/yaml/field-names.yaml."
+
+naming_policy:
+  api_json: "camelCase"
+  database: "snake_case"
+  kotlin: "camelCase"
+  display_label: "Defined separately per locale"
+
+fields:
+  call_recording:
+    - api_json: "recordingId"
+      database: "recording_id"
+      kotlin: "recordingId"
+      type: "string"
+      required: true
+      description: "Unique call recording identifier."
+    - api_json: "fileName"
+      database: "file_name"
+      kotlin: "fileName"
+      type: "string"
+      required: true
+      description: "Original or normalized audio file name."
+    - api_json: "contentType"
+      database: "content_type"
+      kotlin: "contentType"
+      type: "string"
+      required: true
+      description: "Audio MIME type."
+    - api_json: "fileSize"
+      database: "file_size"
+      kotlin: "fileSize"
+      type: "long"
+      required: true
+      description: "Audio file size in bytes. Use 0 when the Android content provider cannot expose the size."
+    - api_json: "uploadConsent"
+      database: "upload_consent"
+      kotlin: "uploadConsent"
+      type: "boolean"
+      required: true
+      description: "Whether the user agreed to upload and AI analysis."
+    - api_json: "source"
+      database: "source"
+      kotlin: "source"
+      type: "string"
+      required: true
+      description: "Upload source code such as android_manual."
+    - api_json: "status"
+      database: "status"
+      kotlin: "status"
+      type: "string"
+      required: true
+      description: "Current upload or analysis status."
+    - api_json: "objectKey"
+      database: "object_key"
+      kotlin: "objectKey"
+      type: "string"
+      required: false
+      description: "MinIO object key."
+    - api_json: "uploadedAt"
+      database: "uploaded_at"
+      kotlin: "uploadedAt"
+      type: "datetime"
+      required: false
+      description: "Upload completion timestamp."

@@ -1,0 +1,56 @@
+document:
+  title: "ShipMate Error Codes"
+  repository: "shipmate-common"
+  owner: "common"
+  updated_at: "2026-05-24"
+  rule: "Canonical shared error code numbers are stored in shipmate-common/data/yaml/error-codes.yaml."
+
+numbering_policy:
+  format: "SM-{domain}-{number}"
+  ranges:
+    common: "SM-COM-0001 to SM-COM-0999"
+    auth: "SM-AUTH-1000 to SM-AUTH-1999"
+    upload: "SM-UPL-2000 to SM-UPL-2999"
+    analysis: "SM-ANL-3000 to SM-ANL-3999"
+
+errors:
+  - code: "SM-COM-0001"
+    http_status: 400
+    message_en: "Invalid request."
+    client_action: "Check request fields and retry."
+  - code: "SM-COM-0002"
+    http_status: 500
+    message_en: "Unexpected server error."
+    client_action: "Retry later or contact support."
+  - code: "SM-UPL-2001"
+    http_status: 400
+    message_en: "Upload consent is required."
+    client_action: "Ask the user to agree before upload."
+  - code: "SM-UPL-2002"
+    http_status: 400
+    message_en: "Unsupported audio content type."
+    client_action: "Ask the user to select a supported audio file."
+  - code: "SM-UPL-2003"
+    http_status: 413
+    message_en: "Audio file is too large."
+    client_action: "Ask the user to select a smaller file."
+  - code: "SM-UPL-2004"
+    http_status: 410
+    message_en: "Upload URL has expired."
+    client_action: "Create a new upload session and retry."
+  - code: "SM-UPL-2005"
+    http_status: 502
+    message_en: "Object storage upload verification failed."
+    client_action: "Retry upload or contact support."
+  - code: "SM-UPL-2006"
+    http_status: 404
+    message_en: "Recording not found."
+    client_action: "Refresh the upload list and retry."
+  - code: "SM-UPL-2007"
+    http_status: 502
+    message_en: "Unable to create upload URL."
+    client_action: "Retry upload session creation."
+  - code: "SM-ANL-3001"
+    http_status: 500
+    message_en: "Audio analysis failed."
+    client_action: "Allow retry analysis."

@@ -1,0 +1,25 @@
+@apiBaseUrl = http://localhost:8080
+
+### Health
+GET {{apiBaseUrl}}/api/health
+
+### Create upload session
+POST {{apiBaseUrl}}/api/call-recordings/upload-sessions
+Content-Type: application/json
+
+{
+  "fileName": "sample-call.m4a",
+  "contentType": "audio/mp4",
+  "fileSize": 1024,
+  "uploadConsent": true,
+  "source": "android_manual",
+  "tenantId": "local-tenant",
+  "userId": "local-user"
+}
+
+### Complete upload
+@recordingId = rec_replace_me
+POST {{apiBaseUrl}}/api/call-recordings/{{recordingId}}/complete
+
+### Recent uploads
+GET {{apiBaseUrl}}/api/call-recordings/recent

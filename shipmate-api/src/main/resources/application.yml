@@ -1,0 +1,24 @@
+server:
+  address: 0.0.0.0
+  port: ${SHIPMATE_API_PORT:8080}
+
+spring:
+  application:
+    name: shipmate-api
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+shipmate:
+  cors:
+    allowed-origins: ${SHIPMATE_CORS_ALLOWED_ORIGINS:*}
+  storage:
+    bucket: ${SHIPMATE_MINIO_BUCKET:shipmate-call-recordings}
+    endpoint: ${SHIPMATE_MINIO_ENDPOINT:http://localhost:9000}
+    public-endpoint: ${SHIPMATE_MINIO_PUBLIC_ENDPOINT:http://localhost:9000}
+    access-key: ${SHIPMATE_MINIO_ACCESS_KEY:shipmate}
+    secret-key: ${SHIPMATE_MINIO_SECRET_KEY:shipmate-local-password}
+    presigned-url-expiry-seconds: ${SHIPMATE_PRESIGNED_EXPIRY_SECONDS:900}
