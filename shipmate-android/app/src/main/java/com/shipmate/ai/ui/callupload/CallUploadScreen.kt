@@ -1,5 +1,8 @@
 package com.shipmate.ai.ui.callupload
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -21,25 +25,89 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.shipmate.ai.data.upload.RecentCallRecordingResponse
 
 @Composable
 fun CallUploadScreen(
     viewModel: CallUploadViewModel
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
+    val audioPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        Manifest.permission.READ_MEDIA_AUDIO
+    } else {
+        Manifest.permission.READ_EXTERNAL_STORAGE
+    }
+    val autoUploadPermissions = buildList {
+        add(audioPermission)
+        add(Manifest.permission.READ_PHONE_STATE)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }.toTypedArray()
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { grants ->
+        if (autoUploadPermissions.all { grants[it] == true }) {
+            viewModel.startAutoUploadMonitor()
+        } else {
+            viewModel.onAutoUploadPermissionDenied()
+        }
+    }
     val filePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
         if (uri != null) {
             viewModel.selectFile(uri)
         }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.requestAutoUploadConsentIfNeeded()
+    }
+
+    LaunchedEffect(
+        uiState.autoUploadConsent,
+        uiState.autoUploadAttempted,
+        uiState.isAutoUploading
+    ) {
+        if (uiState.autoUploadConsent && !uiState.autoUploadAttempted && !uiState.isAutoUploading) {
+            val hasPermission = ContextCompat.checkSelfPermission(
+                context,
+                audioPermission
+            ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_PHONE_STATE
+            ) == PackageManager.PERMISSION_GRANTED && (
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+            )
+
+            if (hasPermission) {
+                viewModel.startAutoUploadMonitor()
+            } else {
+                permissionLauncher.launch(autoUploadPermissions)
+            }
+        }
+    }
+
+    if (uiState.showAutoUploadConsentDialog) {
+        AutoUploadConsentDialog(
+            onAgree = viewModel::acceptAutoUploadConsent,
+            onDismiss = viewModel::dismissAutoUploadConsentDialog
+        )
     }
 
     Scaffold { padding ->
@@ -58,14 +126,16 @@ fun CallUploadScreen(
                 item { Header() }
                 item {
                     ConsentCard(
-                        checked = uiState.uploadConsent,
-                        onCheckedChange = viewModel::setConsent
+                        uploadConsent = uiState.uploadConsent,
+                        autoUploadConsent = uiState.autoUploadConsent,
+                        onUploadConsentChange = viewModel::setConsent,
+                        onAutoUploadConsentChange = viewModel::setAutoUploadConsent
                     )
                 }
                 item {
                     FilePickerCard(
                         selectedFile = uiState.selectedFile,
-                        isUploading = uiState.isUploading,
+                        isUploading = uiState.isUploading || uiState.isAutoUploading,
                         onPickFile = { filePicker.launch(arrayOf("audio/*")) },
                         onUpload = viewModel::uploadSelectedFile
                     )
@@ -107,39 +177,115 @@ private fun Header() {
 }
 
 @Composable
+private fun AutoUploadConsentDialog(
+    onAgree: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Automatic upload consent",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Text(
+                text = "To upload call recordings automatically when the app starts, ShipMate needs your consent for automatic upload and audio file access. The uploaded recording can be analyzed by AI to prepare order candidates."
+            )
+        },
+        confirmButton = {
+            Button(onClick = onAgree) {
+                Text("Agree")
+            }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) {
+                Text("Not now")
+            }
+        }
+    )
+}
+
+@Composable
 private fun ConsentCard(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    uploadConsent: Boolean,
+    autoUploadConsent: Boolean,
+    onUploadConsentChange: (Boolean) -> Unit,
+    onAutoUploadConsentChange: (Boolean) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.Top
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Checkbox(
-                checked = checked,
-                onCheckedChange = onCheckedChange
+            Text(
+                text = "Upload consent",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold
             )
-            Column(
-                modifier = Modifier.padding(top = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = "I agree to upload and AI analysis.",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = "The selected audio file will be uploaded and analyzed to prepare order candidates.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+            ConsentRow(
+                checked = uploadConsent,
+                onCheckedChange = onUploadConsentChange,
+                title = "I agree to upload and AI analysis.",
+                description = "The selected audio file will be uploaded and analyzed to prepare order candidates."
+            )
+            ConsentRow(
+                checked = autoUploadConsent,
+                onCheckedChange = onAutoUploadConsentChange,
+                title = "I agree to automatic upload.",
+                description = "After this consent, call recordings can be uploaded automatically when Android auto-upload support is enabled."
+            )
+            Text(
+                text = if (autoUploadConsent) {
+                    "Auto upload ON"
+                } else {
+                    "Auto upload OFF"
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = if (autoUploadConsent) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ConsentRow(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    title: String,
+    description: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top
+    ) {
+        Checkbox(
+            checked = checked,
+            onCheckedChange = onCheckedChange
+        )
+        Column(
+            modifier = Modifier.padding(top = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

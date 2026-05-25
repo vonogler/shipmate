@@ -1,6 +1,8 @@
 package com.shipmate.api.callrecording;
 
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,5 +34,11 @@ public class CallRecordingController {
     @GetMapping("/recent")
     List<RecentCallRecordingResponse> recent() {
         return service.recent();
+    }
+
+    @DeleteMapping("/{recordingId}")
+    ResponseEntity<Void> delete(@PathVariable String recordingId) {
+        service.delete(recordingId);
+        return ResponseEntity.noContent().build();
     }
 }

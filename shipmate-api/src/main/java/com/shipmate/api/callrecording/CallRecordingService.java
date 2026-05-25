@@ -4,8 +4,11 @@ import com.shipmate.api.common.ApiRequestException;
 import com.shipmate.api.config.ShipmateStorageProperties;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
+import io.minio.RemoveObjectArgs;
 import io.minio.StatObjectArgs;
 import io.minio.http.Method;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,8 @@ import java.util.UUID;
 
 @Service
 public class CallRecordingService {
+    private static final Logger log = LoggerFactory.getLogger(CallRecordingService.class);
+
     private final CallRecordingRepository repository;
     private final MinioClient internalMinioClient;
     private final MinioClient publicMinioClient;
@@ -35,9 +40,20 @@ public class CallRecordingService {
 
     public UploadSessionResponse createUploadSession(CreateUploadSessionRequest request) {
         if (!request.uploadConsent()) {
+            log.warn(
+                    "UPLOAD_SESSION_REJECTED code=SM-UPL-2001 fileName={} source={} reason=missing_consent",
+                    request.fileName(),
+                    request.source()
+            );
             throw new ApiRequestException("SM-UPL-2001", HttpStatus.BAD_REQUEST, "Upload consent is required.");
         }
         if (!request.contentType().toLowerCase(Locale.ROOT).startsWith("audio/")) {
+            log.warn(
+                    "UPLOAD_SESSION_REJECTED code=SM-UPL-2002 fileName={} contentType={} source={} reason=unsupported_content_type",
+                    request.fileName(),
+                    request.contentType(),
+                    request.source()
+            );
             throw new ApiRequestException("SM-UPL-2002", HttpStatus.BAD_REQUEST, "Unsupported audio content type.");
         }
 
@@ -63,6 +79,15 @@ public class CallRecordingService {
         ).withUploadUrlIssued();
 
         repository.save(recording);
+        log.info(
+                "UPLOAD_SESSION_CREATED recordingId={} fileName={} source={} fileSize={} contentType={} objectKey={}",
+                recording.recordingId(),
+                recording.fileName(),
+                recording.source(),
+                recording.fileSize(),
+                recording.contentType(),
+                recording.objectKey()
+        );
 
         return new UploadSessionResponse(
                 recordingId,
@@ -73,12 +98,24 @@ public class CallRecordingService {
     }
 
     public CompleteUploadResponse completeUpload(String recordingId) {
+        log.info("UPLOAD_COMPLETE_REQUESTED recordingId={}", recordingId);
         CallRecording recording = repository.findById(recordingId)
-                .orElseThrow(() -> new ApiRequestException("SM-UPL-2006", HttpStatus.NOT_FOUND, "Recording not found."));
+                .orElseThrow(() -> {
+                    log.warn("UPLOAD_COMPLETE_FAILED code=SM-UPL-2006 recordingId={} reason=not_found", recordingId);
+                    return new ApiRequestException("SM-UPL-2006", HttpStatus.NOT_FOUND, "Recording not found.");
+                });
 
         verifyObjectExists(recording.objectKey());
         CallRecording uploaded = recording.withUploaded();
         repository.save(uploaded);
+        log.info(
+                "UPLOAD_COMPLETED recordingId={} fileName={} source={} objectKey={} uploadedAt={}",
+                uploaded.recordingId(),
+                uploaded.fileName(),
+                uploaded.source(),
+                uploaded.objectKey(),
+                uploaded.uploadedAt()
+        );
         return new CompleteUploadResponse(uploaded.recordingId(), uploaded.status());
     }
 
@@ -86,6 +123,25 @@ public class CallRecordingService {
         return repository.findRecent(50).stream()
                 .map(RecentCallRecordingResponse::from)
                 .toList();
+    }
+
+    public void delete(String recordingId) {
+        log.info("UPLOAD_DELETE_REQUESTED recordingId={}", recordingId);
+        CallRecording recording = repository.findById(recordingId)
+                .orElseThrow(() -> {
+                    log.warn("UPLOAD_DELETE_FAILED code=SM-UPL-2006 recordingId={} reason=not_found", recordingId);
+                    return new ApiRequestException("SM-UPL-2006", HttpStatus.NOT_FOUND, "Recording not found.");
+                });
+
+        deleteObjectIfExists(recording.objectKey());
+        repository.deleteById(recordingId);
+        log.info(
+                "UPLOAD_DELETED recordingId={} fileName={} source={} objectKey={}",
+                recording.recordingId(),
+                recording.fileName(),
+                recording.source(),
+                recording.objectKey()
+        );
     }
 
     private String presignedPutUrl(String objectKey) {
@@ -99,6 +155,7 @@ public class CallRecordingService {
                             .build()
             );
         } catch (Exception exception) {
+            log.warn("UPLOAD_SESSION_FAILED code=SM-UPL-2007 objectKey={} reason={}", objectKey, exception.getMessage());
             throw new ApiRequestException("SM-UPL-2007", HttpStatus.BAD_GATEWAY, "Unable to create upload URL.");
         }
     }
@@ -112,7 +169,22 @@ public class CallRecordingService {
                             .build()
             );
         } catch (Exception exception) {
+            log.warn("UPLOAD_VERIFY_FAILED code=SM-UPL-2005 objectKey={} reason={}", objectKey, exception.getMessage());
             throw new ApiRequestException("SM-UPL-2005", HttpStatus.BAD_GATEWAY, "Object storage upload verification failed.");
+        }
+    }
+
+    private void deleteObjectIfExists(String objectKey) {
+        try {
+            internalMinioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(storageProperties.bucket())
+                            .object(objectKey)
+                            .build()
+            );
+        } catch (Exception exception) {
+            log.warn("UPLOAD_DELETE_FAILED code=SM-UPL-2008 objectKey={} reason={}", objectKey, exception.getMessage());
+            throw new ApiRequestException("SM-UPL-2008", HttpStatus.BAD_GATEWAY, "Object storage delete failed.");
         }
     }
 

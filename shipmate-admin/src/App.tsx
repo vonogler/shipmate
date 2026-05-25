@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Button, Layout, Space, Table, Tag, Typography } from 'antd';
+import { Alert, Button, Layout, message, Popconfirm, Space, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { ReloadOutlined } from '@ant-design/icons';
+import { DeleteOutlined, ReloadOutlined } from '@ant-design/icons';
 
 type CallRecordingStatus =
   | 'CREATED'
@@ -39,6 +39,7 @@ const statusColors: Record<CallRecordingStatus, string> = {
 function App() {
   const [rows, setRows] = useState<RecentCallRecording[]>([]);
   const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const loadRecentUploads = useCallback(async () => {
@@ -61,6 +62,31 @@ function App() {
   useEffect(() => {
     loadRecentUploads();
   }, [loadRecentUploads]);
+
+  const deleteRecording = useCallback(
+    async (recordingId: string) => {
+      setDeletingId(recordingId);
+      setError(null);
+
+      try {
+        const response = await fetch(`${apiBaseUrl}/api/call-recordings/${recordingId}`, {
+          method: 'DELETE'
+        });
+        if (!response.ok) {
+          throw new Error(`Delete returned HTTP ${response.status}`);
+        }
+        setRows((currentRows) => currentRows.filter((row) => row.recordingId !== recordingId));
+        message.success('Call recording deleted.');
+      } catch (cause) {
+        const description = cause instanceof Error ? cause.message : 'Unable to delete recording.';
+        setError(description);
+        message.error(description);
+      } finally {
+        setDeletingId(null);
+      }
+    },
+    []
+  );
 
   const columns = useMemo<ColumnsType<RecentCallRecording>>(
     () => [
@@ -111,9 +137,32 @@ function App() {
         dataIndex: 'errorCode',
         width: 140,
         render: (errorCode: string | null) => errorCode || '-'
+      },
+      {
+        title: 'Actions',
+        key: 'actions',
+        width: 110,
+        fixed: 'right',
+        render: (_, row) => (
+          <Popconfirm
+            title="Delete recording?"
+            description="This removes the admin row and MinIO object."
+            okText="Delete"
+            okButtonProps={{ danger: true }}
+            cancelText="Cancel"
+            onConfirm={() => deleteRecording(row.recordingId)}
+          >
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              loading={deletingId === row.recordingId}
+              aria-label={`Delete ${row.fileName}`}
+            />
+          </Popconfirm>
+        )
       }
     ],
-    []
+    [deleteRecording, deletingId]
   );
 
   return (
@@ -140,7 +189,7 @@ function App() {
             columns={columns}
             dataSource={rows}
             loading={loading}
-            scroll={{ x: 1700 }}
+            scroll={{ x: 1810 }}
             pagination={{ pageSize: 20, showSizeChanger: false }}
           />
         </Space>

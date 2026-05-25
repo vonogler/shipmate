@@ -15,6 +15,7 @@ class CallRecordingUploadRepository(
         fileName: String,
         contentType: String,
         fileSize: Long,
+        source: String = "android_manual",
         onProgress: (Float) -> Unit
     ): RecentCallRecordingResponse {
         return withContext(Dispatchers.IO) {
@@ -22,7 +23,8 @@ class CallRecordingUploadRepository(
                 fileName = fileName,
                 contentType = normalizeAudioContentType(contentType),
                 fileSize = fileSize,
-                uploadConsent = true
+                uploadConsent = true,
+                source = source
             )
 
             val session = apiService.createUploadSession(request)
