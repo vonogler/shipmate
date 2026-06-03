@@ -189,12 +189,28 @@ public class CallRecordingService {
     }
 
     private String objectKey(String tenantId, String userId, String recordingId, String fileName) {
-        return "call-recordings/%s/%s/%s/original.%s".formatted(
+        return "call-recordings/%s/%s/%s_%s.%s".formatted(
                 sanitizePathPart(tenantId),
                 sanitizePathPart(userId),
-                sanitizePathPart(recordingId),
+                sanitizeFileNamePart(baseName(fileName)),
+                shortRecordingId(recordingId),
                 extension(fileName)
         );
+    }
+
+    private String baseName(String fileName) {
+        String normalized = fileName == null || fileName.isBlank() ? "call-recording" : fileName;
+        String nameOnly = normalized.replace("\\", "/");
+        int pathIndex = nameOnly.lastIndexOf('/');
+        if (pathIndex >= 0) {
+            nameOnly = nameOnly.substring(pathIndex + 1);
+        }
+
+        int extensionIndex = nameOnly.lastIndexOf('.');
+        if (extensionIndex <= 0) {
+            return nameOnly;
+        }
+        return nameOnly.substring(0, extensionIndex);
     }
 
     private String extension(String fileName) {
@@ -203,6 +219,22 @@ public class CallRecordingService {
             return "audio";
         }
         return sanitizePathPart(fileName.substring(index + 1).toLowerCase(Locale.ROOT));
+    }
+
+    private String sanitizeFileNamePart(String value) {
+        String sanitized = value
+                .replaceAll("[\\\\/:*?\"<>|]", "-")
+                .replaceAll("\\p{Cntrl}", "-")
+                .replaceAll("\\s+", "_")
+                .replaceAll("_+", "_")
+                .replaceAll("-+", "-")
+                .replaceAll("^[._-]+|[._-]+$", "");
+        return sanitized.isBlank() ? "call-recording" : sanitized;
+    }
+
+    private String shortRecordingId(String recordingId) {
+        String sanitized = sanitizePathPart(recordingId.replaceFirst("^rec_", ""));
+        return sanitized.substring(0, Math.min(8, sanitized.length()));
     }
 
     private String sanitizePathPart(String value) {

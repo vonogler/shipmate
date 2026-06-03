@@ -55,6 +55,32 @@ class CallRecordingUploadRepository(
         }
     }
 
+    suspend fun reportUploadFailure(
+        recordingId: String? = null,
+        fileName: String,
+        contentType: String,
+        fileSize: Long,
+        source: String,
+        errorCode: String,
+        errorMessage: String,
+        failureType: UploadFailureType
+    ): RecentCallRecordingResponse {
+        return withContext(Dispatchers.IO) {
+            apiService.reportUploadFailure(
+                ReportUploadFailureRequest(
+                    recordingId = recordingId,
+                    fileName = fileName,
+                    contentType = normalizeAudioContentType(contentType),
+                    fileSize = fileSize,
+                    source = source,
+                    errorCode = errorCode,
+                    errorMessage = errorMessage,
+                    failureType = failureType
+                )
+            )
+        }
+    }
+
     private fun normalizeAudioContentType(contentType: String): String {
         return if (contentType == "audio/*") "audio/mpeg" else contentType
     }

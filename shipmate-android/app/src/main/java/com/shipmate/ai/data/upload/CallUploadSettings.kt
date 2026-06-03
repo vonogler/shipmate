@@ -44,6 +44,10 @@ object CallUploadSettings {
     }
 
     fun setLastAutoUploadedUri(context: Context, uri: String) {
+        markAutoUploadProcessedUri(context, uri)
+    }
+
+    fun markAutoUploadProcessedUri(context: Context, uri: String) {
         val uploadedUris = preferences(context)
             .getStringSet(KEY_AUTO_UPLOADED_URIS, emptySet())
             .orEmpty()

@@ -34,7 +34,7 @@ class MinioPresignedUploader(
 
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) {
-                error("MinIO upload failed with HTTP ${response.code}")
+                error("MinIO 업로드에 실패했습니다. HTTP ${response.code}")
             }
         }
     }
@@ -66,6 +66,6 @@ private class ProgressRequestBody(
                 }
                 read = input.read(buffer)
             }
-        } ?: error("Unable to open selected file")
+        } ?: error("선택한 파일을 열 수 없습니다.")
     }
 }

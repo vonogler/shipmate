@@ -28,12 +28,12 @@ class BackgroundCallUploadWorker(
             return Result.success()
         }
 
-        val files = CallRecordingFileFinder(applicationContext.contentResolver)
+        val file = CallRecordingFileFinder(applicationContext.contentResolver)
             .findAudioFilesAddedSince(startedAtSeconds = callStartedAtSeconds)
-            .asReversed()
             .filterNot { CallUploadSettings.isLastAutoUploaded(applicationContext, it.uri.toString()) }
+            .firstOrNull()
 
-        if (files.isEmpty()) {
+        if (file == null) {
             val waitedSeconds = System.currentTimeMillis() / 1000L - callStartedAtSeconds
             if (waitedSeconds > RECORDING_SAVE_TIMEOUT_SECONDS) {
                 CallUploadSettings.setCallUploadPending(applicationContext, false)
@@ -42,27 +42,24 @@ class BackgroundCallUploadWorker(
             return Result.retry()
         }
 
-        var hadFailure = false
-        files.forEach { file ->
-            runCatching {
-                repository.uploadSelectedFile(
-                    contentResolver = applicationContext.contentResolver,
-                    uri = file.uri,
-                    fileName = file.name,
-                    contentType = file.contentType,
-                    fileSize = file.sizeBytes,
-                    source = "android_auto",
-                    onProgress = {}
-                )
-            }.onSuccess {
-                CallUploadSettings.setLastAutoUploadedUri(applicationContext, file.uri.toString())
-            }.onFailure {
-                hadFailure = true
-            }
+        CallUploadSettings.markAutoUploadProcessedUri(applicationContext, file.uri.toString())
+
+        runCatching {
+            repository.uploadSelectedFile(
+                contentResolver = applicationContext.contentResolver,
+                uri = file.uri,
+                fileName = file.name,
+                contentType = file.contentType,
+                fileSize = file.sizeBytes,
+                source = "android_auto",
+                onProgress = {}
+            )
+        }.onSuccess {
+            CallUploadSettings.setLastAutoUploadedUri(applicationContext, file.uri.toString())
         }
 
         CallUploadSettings.setCallUploadPending(applicationContext, false)
-        return if (hadFailure) Result.retry() else Result.success()
+        return Result.success()
     }
 
     private companion object {

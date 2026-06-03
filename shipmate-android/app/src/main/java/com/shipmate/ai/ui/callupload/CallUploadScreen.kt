@@ -50,6 +50,7 @@ fun CallUploadScreen(
     val autoUploadPermissions = buildList {
         add(audioPermission)
         add(Manifest.permission.READ_PHONE_STATE)
+        add(Manifest.permission.READ_CONTACTS)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             add(Manifest.permission.POST_NOTIFICATIONS)
         }
@@ -87,6 +88,9 @@ fun CallUploadScreen(
             ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.READ_PHONE_STATE
+            ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_CONTACTS
             ) == PackageManager.PERMISSION_GRANTED && (
                 Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
                     ContextCompat.checkSelfPermission(
@@ -98,7 +102,7 @@ fun CallUploadScreen(
             if (hasPermission) {
                 viewModel.startAutoUploadMonitor()
             } else {
-                permissionLauncher.launch(autoUploadPermissions)
+                viewModel.showAutoUploadPermissionExplanation()
             }
         }
     }
@@ -107,6 +111,16 @@ fun CallUploadScreen(
         AutoUploadConsentDialog(
             onAgree = viewModel::acceptAutoUploadConsent,
             onDismiss = viewModel::dismissAutoUploadConsentDialog
+        )
+    }
+
+    if (uiState.showAutoUploadPermissionDialog) {
+        AutoUploadPermissionDialog(
+            onContinue = {
+                viewModel.markAutoUploadPermissionRequestStarted()
+                permissionLauncher.launch(autoUploadPermissions)
+            },
+            onDismiss = viewModel::dismissAutoUploadPermissionExplanation
         )
     }
 
@@ -143,7 +157,7 @@ fun CallUploadScreen(
                 item { UploadProgressCard(uiState = uiState) }
                 item {
                     Text(
-                        text = "Recent uploads",
+                        text = "최근 업로드",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -164,12 +178,12 @@ fun CallUploadScreen(
 private fun Header() {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
-            text = "Call Recording Upload",
+            text = "통화녹음 업로드",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = "Upload a selected call recording directly to MinIO and track AI analysis status.",
+            text = "출고표 작성을 위해 통화녹음을 업로드하고 처리 상태를 확인합니다.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -185,24 +199,56 @@ private fun AutoUploadConsentDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Automatic upload consent",
+                text = "자동 업로드 동의",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
         },
         text = {
             Text(
-                text = "To upload call recordings automatically when the app starts, ShipMate needs your consent for automatic upload and audio file access. The uploaded recording can be analyzed by AI to prepare order candidates."
+                text = "통화 종료 후 새로 생성된 통화녹음만 자동 업로드됩니다. 이전 녹음이나 업로드할 녹음이 있다면 앱에서 수동으로 업로드해 주세요."
             )
         },
         confirmButton = {
             Button(onClick = onAgree) {
-                Text("Agree")
+                Text("동의")
             }
         },
         dismissButton = {
             OutlinedButton(onClick = onDismiss) {
-                Text("Not now")
+                Text("나중에")
+            }
+        }
+    )
+}
+
+@Composable
+private fun AutoUploadPermissionDialog(
+    onContinue: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "필요한 권한",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Text(
+                text = "출고비서는 통화녹음을 자동으로 찾기 위해 오디오 파일, 전화 상태, 연락처, 알림 권한이 필요합니다. 통화 종료 후 새로 생성된 녹음만 자동 업로드되며, 이전 녹음이나 업로드할 녹음이 있다면 앱에서 수동으로 업로드해 주세요."
+            )
+        },
+        confirmButton = {
+            Button(onClick = onContinue) {
+                Text("권한 허용")
+            }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) {
+                Text("나중에")
             }
         }
     )
@@ -224,27 +270,27 @@ private fun ConsentCard(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text(
-                text = "Upload consent",
+                text = "업로드 동의",
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold
             )
             ConsentRow(
                 checked = uploadConsent,
                 onCheckedChange = onUploadConsentChange,
-                title = "I agree to upload and AI analysis.",
-                description = "The selected audio file will be uploaded and analyzed to prepare order candidates."
+                title = "업로드 및 분석에 동의합니다.",
+                description = "선택한 오디오 파일을 업로드하고 출고표 초안 생성을 위해 분석합니다."
             )
             ConsentRow(
                 checked = autoUploadConsent,
                 onCheckedChange = onAutoUploadConsentChange,
-                title = "I agree to automatic upload.",
-                description = "After this consent, call recordings can be uploaded automatically when Android auto-upload support is enabled."
+                title = "자동 업로드에 동의합니다.",
+                description = "통화 종료 후 새로 생성된 통화녹음만 자동으로 업로드합니다."
             )
             Text(
                 text = if (autoUploadConsent) {
-                    "Auto upload ON"
+                    "자동 업로드 켜짐"
                 } else {
-                    "Auto upload OFF"
+                    "자동 업로드 꺼짐"
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = if (autoUploadConsent) {
@@ -306,7 +352,7 @@ private fun FilePickerCard(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
-                text = selectedFile?.name ?: "No file selected.",
+                text = selectedFile?.name ?: "선택한 파일이 없습니다.",
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold
             )
@@ -322,13 +368,13 @@ private fun FilePickerCard(
                     onClick = onPickFile,
                     enabled = !isUploading
                 ) {
-                    Text("Choose file")
+                    Text("파일 선택")
                 }
                 Button(
                     onClick = onUpload,
                     enabled = !isUploading
                 ) {
-                    Text(if (isUploading) "Uploading" else "Upload")
+                    Text(if (isUploading) "업로드 중" else "업로드")
                 }
             }
         }
@@ -350,12 +396,12 @@ private fun UploadProgressCard(uiState: CallUploadUiState) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Status",
+                    text = "상태",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    text = uiState.currentStatus?.label ?: "Idle",
+                    text = uiState.currentStatus?.label ?: "대기 중",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -382,7 +428,7 @@ private fun EmptyRecentUploads() {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Text(
-            text = "No call recordings have been uploaded yet.",
+            text = "아직 업로드된 통화녹음이 없습니다.",
             modifier = Modifier.padding(16.dp),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -416,7 +462,7 @@ private fun RecentUploadItem(upload: RecentCallRecordingResponse) {
                 )
             }
             Text(
-                text = upload.uploadedAt ?: upload.createdAt ?: "Upload time pending",
+                text = upload.uploadedAt ?: upload.createdAt ?: "업로드 시간 대기 중",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -425,7 +471,7 @@ private fun RecentUploadItem(upload: RecentCallRecordingResponse) {
 }
 
 private fun formatBytes(bytes: Long): String {
-    if (bytes <= 0) return "Unknown size"
+    if (bytes <= 0) return "크기 정보 없음"
     val mb = bytes / 1024.0 / 1024.0
     return "%.1f MB".format(mb)
 }

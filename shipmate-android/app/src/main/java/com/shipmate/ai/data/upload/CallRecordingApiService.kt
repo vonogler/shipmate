@@ -16,6 +16,11 @@ interface CallRecordingApiService {
         @Path("recordingId") recordingId: String
     ): CompleteUploadResponse
 
+    @POST("api/call-recordings/upload-failures")
+    suspend fun reportUploadFailure(
+        @Body request: ReportUploadFailureRequest
+    ): RecentCallRecordingResponse
+
     @GET("api/call-recordings/recent")
     suspend fun getRecentUploads(): List<RecentCallRecordingResponse>
 }
