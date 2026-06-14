@@ -38,9 +38,26 @@ jobs:
 
       - name: Run staging smoke
         env:
-          API_BASE_URL: ${{ secrets.STAGING_API_BASE_URL || 'http://localhost:18080' }}
+          API_BASE_URL: ${{ secrets.STAGING_API_BASE_URL }}
         run: |
-          bash shipmate-infra/scripts/smoke-staging.sh
+          if [[ -n "${API_BASE_URL}" ]]; then
+            bash shipmate-infra/scripts/smoke-staging.sh
+          else
+            mkdir -p shipmate-infra/reports/smoke
+            cat > shipmate-infra/smoke-report.json <<'REPORT'
+          {"status":"skipped","reason":"STAGING_API_BASE_URL secret이 없어 원격 runner smoke를 건너뜁니다. DNS 등록 전에는 self-hosted runner 또는 터널 URL secret을 사용하세요."}
+          REPORT
+            cat > shipmate-infra/smoke-report.xml <<'REPORT'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <testsuite name="shipmate-staging-smoke" tests="1" failures="0" errors="0" skipped="1">
+            <testcase classname="shipmate.staging" name="통합 시나리오">
+              <skipped message="STAGING_API_BASE_URL secret 없음" />
+            </testcase>
+          </testsuite>
+          REPORT
+            cp shipmate-infra/smoke-report.json shipmate-infra/reports/smoke/smoke-report-skipped.json
+            cp shipmate-infra/smoke-report.xml shipmate-infra/reports/smoke/smoke-report-skipped.xml
+          fi
 
       - name: Summarize staging reports
         if: always()
