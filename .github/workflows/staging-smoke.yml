@@ -1,0 +1,63 @@
+name: staging-smoke
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check temporary HTTPS
+        env:
+          STAGING_HTTPS_URL: ${{ secrets.STAGING_HTTPS_URL }}
+          API_HEALTH_URL: ${{ secrets.STAGING_API_HEALTH_URL }}
+          STAGING_RESOLVE_IP: ${{ secrets.STAGING_RESOLVE_IP }}
+          ALLOW_INSECURE_TLS: ${{ secrets.STAGING_ALLOW_INSECURE_TLS || 'false' }}
+        run: |
+          if [[ -n "${STAGING_HTTPS_URL}" || -n "${API_HEALTH_URL}" || -n "${STAGING_RESOLVE_IP}" ]]; then
+            bash shipmate-infra/scripts/check-staging-https.sh
+          else
+            mkdir -p shipmate-infra/reports/https
+            cat > shipmate-infra/staging-https-report.json <<'REPORT'
+          {"status":"skipped","reason":"STAGING_HTTPS_URL, STAGING_API_HEALTH_URL, STAGING_RESOLVE_IP secret이 없어 HTTPS 확인을 건너뜁니다."}
+          REPORT
+            cat > shipmate-infra/staging-https-report.xml <<'REPORT'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <testsuite name="shipmate-staging-https" tests="1" failures="0" errors="0" skipped="1">
+            <testcase classname="shipmate.staging" name="DNS 없는 HTTPS 확인">
+              <skipped message="HTTPS 확인 secret 없음" />
+            </testcase>
+          </testsuite>
+          REPORT
+            cp shipmate-infra/staging-https-report.json shipmate-infra/reports/https/staging-https-report-skipped.json
+            cp shipmate-infra/staging-https-report.xml shipmate-infra/reports/https/staging-https-report-skipped.xml
+          fi
+
+      - name: Run staging smoke
+        env:
+          API_BASE_URL: ${{ secrets.STAGING_API_BASE_URL || 'http://localhost:18080' }}
+        run: |
+          bash shipmate-infra/scripts/smoke-staging.sh
+
+      - name: Summarize staging reports
+        if: always()
+        run: |
+          bash shipmate-infra/scripts/summarize-staging-reports.sh
+
+      - name: Upload smoke reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shipmate-smoke-reports
+          path: |
+            shipmate-infra/smoke-report.json
+            shipmate-infra/smoke-report.xml
+            shipmate-infra/reports/smoke/
+            shipmate-infra/staging-https-report.json
+            shipmate-infra/staging-https-report.xml
+            shipmate-infra/reports/https/
+            shipmate-infra/reports/staging-check-summary.md
+            shipmate-infra/reports/staging-check-summary.html
