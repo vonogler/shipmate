@@ -7,6 +7,7 @@ HTTPS_URL="${STAGING_HTTPS_URL:-https://${STAGING_HOST}${MERCHANT_PATH}}"
 API_HEALTH_URL="${API_HEALTH_URL:-https://${STAGING_HOST}/actuator/health}"
 RESOLVE_IP="${STAGING_RESOLVE_IP:-}"
 ALLOW_INSECURE_TLS="${ALLOW_INSECURE_TLS:-false}"
+HTTPS_CHECK_MODE="${HTTPS_CHECK_MODE:-direct}"
 HTTPS_REPORT_FILE="${HTTPS_REPORT_FILE:-shipmate-infra/staging-https-report.json}"
 HTTPS_JUNIT_FILE="${HTTPS_JUNIT_FILE:-shipmate-infra/staging-https-report.xml}"
 HTTPS_REPORT_DIR="${HTTPS_REPORT_DIR:-shipmate-infra/reports/https}"
@@ -38,6 +39,7 @@ write_report() {
   "merchantUrl": "$(json_escape "${HTTPS_URL}")",
   "apiHealthUrl": "$(json_escape "${API_HEALTH_URL}")",
   "resolveIp": "$(json_escape "${RESOLVE_IP}")",
+  "httpsCheckMode": "$(json_escape "${HTTPS_CHECK_MODE}")",
   "allowInsecureTls": "${ALLOW_INSECURE_TLS}",
   "lastStep": "$(json_escape "${current_step}")",
   "finishedAt": "${finished_at}"
@@ -57,7 +59,8 @@ REPORT
     <system-out>stagingHost=$(xml_escape "${STAGING_HOST}")
 merchantUrl=$(xml_escape "${HTTPS_URL}")
 apiHealthUrl=$(xml_escape "${API_HEALTH_URL}")
-resolveIp=$(xml_escape "${RESOLVE_IP}")</system-out>
+resolveIp=$(xml_escape "${RESOLVE_IP}")
+httpsCheckMode=$(xml_escape "${HTTPS_CHECK_MODE}")</system-out>
   </testcase>
 </testsuite>
 REPORT

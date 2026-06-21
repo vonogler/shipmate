@@ -29,6 +29,7 @@ fi
 
 echo "workflow=${WORKFLOW_FILE}"
 echo "ref=${REF_NAME}"
+dispatch_started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 workflow_args=(workflow run "${WORKFLOW_FILE}" --ref "${REF_NAME}")
 if [[ -n "${RUNNER_LABEL}" ]]; then
   workflow_args+=(-f "runner_label=${RUNNER_LABEL}")
@@ -56,9 +57,9 @@ echo "원격 workflow 실행이 등록되었습니다. 최근 실행 상태를 �
 elapsed=0
 while (( elapsed <= MAX_WAIT_SECONDS )); do
   if [[ -n "${run_id}" ]]; then
-    run_row="$(gh run view "${run_id}" --json databaseId,status,conclusion,url)"
+    run_row="$(gh run view "${run_id}" --json databaseId,status,conclusion,url,createdAt)"
   else
-    run_row="$(gh run list --workflow "${WORKFLOW_FILE}" --branch "${REF_NAME}" --limit 1 --json databaseId,status,conclusion,url --jq '.[0]')"
+    run_row="$(gh run list --workflow "${WORKFLOW_FILE}" --branch "${REF_NAME}" --limit 10 --json databaseId,status,conclusion,url,createdAt --jq "[.[] | select(.createdAt >= \"${dispatch_started_at}\")] | .[0]")"
     run_id="$(printf "%s" "${run_row}" | sed -n 's/.*"databaseId":\([0-9][0-9]*\).*/\1/p')"
   fi
   status="$(printf "%s" "${run_row}" | sed -n 's/.*"status":"\([^"]*\)".*/\1/p')"
