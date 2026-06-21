@@ -2,19 +2,56 @@ name: staging-smoke
 
 on:
   workflow_dispatch:
+    inputs:
+      runner_label:
+        description: self-hosted runner label. 비우면 GitHub hosted runner를 사용합니다.
+        required: false
+        default: ubuntu-latest
+      api_base_url:
+        description: smoke API base URL. self-hosted runner에서는 http://shipmate-api:8080 사용 가능.
+        required: false
+        default: ''
+      run_stack_check:
+        description: self-hosted runner에서 로컬 스테이징 전체 점검 스크립트를 실행합니다.
+        required: false
+        default: 'false'
+      staging_https_url:
+        description: DNS 없는 HTTPS 확인용 Merchant URL. 비우면 repository secret을 사용합니다.
+        required: false
+        default: ''
+      staging_api_health_url:
+        description: DNS 없는 HTTPS 확인용 API health URL. 비우면 repository secret을 사용합니다.
+        required: false
+        default: ''
+      staging_resolve_ip:
+        description: staging host를 강제 매핑할 IP. 비우면 repository secret을 사용합니다.
+        required: false
+        default: ''
 
 jobs:
   smoke:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner_label || 'ubuntu-latest' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Check temporary HTTPS
+      - name: Run local staging stack check
+        if: ${{ inputs.run_stack_check == 'true' }}
         env:
-          STAGING_HTTPS_URL: ${{ secrets.STAGING_HTTPS_URL }}
-          API_HEALTH_URL: ${{ secrets.STAGING_API_HEALTH_URL }}
-          STAGING_RESOLVE_IP: ${{ secrets.STAGING_RESOLVE_IP }}
+          API_BASE_URL: ${{ inputs.api_base_url || 'http://shipmate-api:8080' }}
+          STAGING_HTTPS_URL: ${{ inputs.staging_https_url || secrets.STAGING_HTTPS_URL }}
+          API_HEALTH_URL: ${{ inputs.staging_api_health_url || secrets.STAGING_API_HEALTH_URL }}
+          STAGING_RESOLVE_IP: ${{ inputs.staging_resolve_ip || secrets.STAGING_RESOLVE_IP }}
+          ALLOW_INSECURE_TLS: ${{ secrets.STAGING_ALLOW_INSECURE_TLS || 'true' }}
+        run: |
+          bash shipmate-infra/scripts/check-staging-stack.sh
+
+      - name: Check temporary HTTPS
+        if: ${{ inputs.run_stack_check != 'true' }}
+        env:
+          STAGING_HTTPS_URL: ${{ inputs.staging_https_url || secrets.STAGING_HTTPS_URL }}
+          API_HEALTH_URL: ${{ inputs.staging_api_health_url || secrets.STAGING_API_HEALTH_URL }}
+          STAGING_RESOLVE_IP: ${{ inputs.staging_resolve_ip || secrets.STAGING_RESOLVE_IP }}
           ALLOW_INSECURE_TLS: ${{ secrets.STAGING_ALLOW_INSECURE_TLS || 'false' }}
         run: |
           if [[ -n "${STAGING_HTTPS_URL}" || -n "${API_HEALTH_URL}" || -n "${STAGING_RESOLVE_IP}" ]]; then
@@ -37,8 +74,9 @@ jobs:
           fi
 
       - name: Run staging smoke
+        if: ${{ inputs.run_stack_check != 'true' }}
         env:
-          API_BASE_URL: ${{ secrets.STAGING_API_BASE_URL }}
+          API_BASE_URL: ${{ inputs.api_base_url || secrets.STAGING_API_BASE_URL }}
         run: |
           if [[ -n "${API_BASE_URL}" ]]; then
             bash shipmate-infra/scripts/smoke-staging.sh
