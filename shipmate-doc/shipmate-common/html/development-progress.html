@@ -1,0 +1,461 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>개발 진행사항</title>
+  <style>
+    :root { color-scheme: light; --bg: #f7f8fa; --panel: #ffffff; --text: #20242a; --muted: #667085; --line: #d9dee7; --link: #2457c5; --code: #eef1f6; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.58; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 20px; letter-spacing: 0; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    ul { margin: 0 0 16px; padding-left: 22px; }
+    li { margin: 6px 0; }
+    code { padding: 2px 5px; background: var(--code); border-radius: 4px; font-size: 0.94em; }
+    a { color: var(--link); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+      .doc-nav { margin: 0 0 28px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    .doc-nav h2 { margin: 0 0 10px; font-size: 18px; }
+    .doc-nav ul { margin: 0; padding-left: 20px; }
+    .doc-nav .current { color: var(--text); font-weight: 700; }</style>
+</head>
+<body>
+  <main>
+    <!-- DOC_NAV_START -->
+    <nav class="doc-nav" aria-label="문서 목차">
+      <h2>문서 목차</h2>
+      <ul>
+      <li><span class="current">개발 진행사항</span></li>
+      <li><a href="doc-guidelines.html">ShipMate 문서 작성 가이드라인</a></li>
+      <li><a href="email-order-ingestion.html">이용자 전용 이메일 기반 발주 수집 구조</a></li>
+      <li><a href="field-dictionary.html">필드 딕셔너리</a></li>
+      <li><a href="database-column-dictionary.html">DB 컬럼 딕셔너리</a></li>
+      <li><a href="shared-field-names.html">공통 필드명</a></li>
+      <li><a href="master-codes.html">공통 마스터 코드</a></li>
+      <li><a href="error-codes.html">공통 오류 코드</a></li>
+      <li><a href="index.html">ShipMate 공통 문서</a></li>
+      </ul>
+    </nav>
+    <!-- DOC_NAV_END -->
+
+    <h1>개발 진행사항</h1>
+    <h2>현재 기준</h2>
+    <ul>
+      <li>날짜: 2026-06-21</li>
+      <li>세션 ID: <code>019e8c27-42d5-7790-8c52-4dfabe7cb8f6</code></li>
+      <li>전체 단계: 주문 입력 채널 MVP와 가맹점 검수 화면 기반을 확장하고, 내부관리자 1차 필수 기능을 구현한 상태</li>
+      <li>주문 채널 개발 우선순위: 카카오톡, 문자, 이메일, 전용 주문 페이지, 기타 채널 순서로 진행한다.</li>
+      <li>전화 및 통화녹음 기능: 더 이상 신규 개발 대상으로 진행하지 않는다. 사용자가 직접 전화 또는 통화녹음 기능 개발을 명시적으로 요청한 경우에만 해당 영역을 검토하거나 수정한다.</li>
+      <li>문서 원칙: Markdown 원본과 HTML 보기 파일을 함께 관리한다.</li>
+      <li>기본 언어: 문서와 사용자 화면 문구는 한국어를 기본으로 한다.</li>
+      <li>DB 기준: 로컬 운영 유사 환경은 Docker Compose + MySQL 8.4로 검증하며, 개발 계정/비밀번호/스키마는 임시로 모두 <code>shipmate</code>를 사용한다.</li>
+      <li>테이블 명명: 모든 업무 테이블명은 <code>tb_</code> prefix를 붙이고, 공통 마스터 코드 테이블은 <code>tb_code</code>로 단일화한다.</li>
+    </ul>
+    <h2>완료된 작업</h2>
+    <ul>
+      <li>워크스페이스 루트에 Codex 지속 지침 파일 <code>AGENTS.md</code>를 추가했다.</li>
+      <li>문서 작성 규칙을 <code>shipmate-doc/shipmate-common/doc-guidelines.md</code>에 정리했다.</li>
+      <li>개발 진행사항 문서 위치를 <code>shipmate-doc/shipmate-common/development-progress.md</code>로 정했다.</li>
+      <li>관리자 화면의 사용자 표시 문구를 한국어로 변경했다.</li>
+      <li>Android 자동 업로드 권한 알림 문구를 한국어로 변경했다.</li>
+      <li>API 오류 응답 설명 문구를 한국어로 변경했다.</li>
+      <li>주요 README 문서를 한국어 기준으로 정리했다.</li>
+      <li>문서 포털과 도메인별 HTML 인덱스를 한국어 기준으로 정리했다.</li>
+      <li>문서용 YAML 생성 흔적을 제거하고 Markdown/HTML 기준으로 정리했다.</li>
+      <li>API와 Android 빌드 검증을 임시 복사본에서 완료했다.</li>
+      <li><code>shipmate-doc</code> 아래 프로젝트별 문서 폴더명을 실제 프로젝트명과 일치하도록 정리했다.</li>
+      <li>모든 HTML 문서 상단에 같은 폴더 문서로 이동할 수 있는 목차를 적용했다.</li>
+      <li>루트 <code>README.md</code>에 주요 기능 방향 소개를 추가했다.</li>
+      <li>이용자별 브랜드 주문 채널 전략을 <code>shipmate-doc/shipmate-merchant</code>에 문서화했다.</li>
+      <li>문자 공유 기반 출고표 생성 구조를 <code>shipmate-doc/shipmate-merchant</code>에 문서화했다.</li>
+      <li>이메일 발주 MVP 방향을 이용자 전용 이메일 발급 방식으로 정하고 <code>shipmate-doc/shipmate-common</code>에 문서화했다.</li>
+      <li>공통 필드명, 마스터 코드, 오류 코드를 Markdown/HTML 문서로 전환하고 기존 YAML 자산을 제거했다.</li>
+      <li>전화 및 통화녹음 주문을 주문 채널 개발 우선순위의 마지막 단계로 조정했다.</li>
+      <li>AI 주문 후보 추출, 거래처별 단가 매칭, 택배 CSV 다운로드의 유효성과 추가 추천 기능을 <code>shipmate-doc/shipmate-merchant/order-processing-feature-roadmap.md</code>에 기록했다.</li>
+      <li>식자재 외 타깃 업종의 경쟁 강도와 적합도를 비교하고 <code>shipmate-doc/shipmate-merchant/target-industry-priority.md</code>에 기록했다.</li>
+      <li><code>포장재/판촉물/맞춤 제작 소모품</code> 채널 기록을 시작하고, 초기 영업은 포장재 주문제작에 집중하되 내부 구조는 세 업종을 확장 가능하게 설계하기로 정리했다.</li>
+      <li>업종별 프로젝트를 새로 만들지 않고 <code>shipmate-merchant</code> 안에서 <code>businessChannel</code> 업종 템플릿으로 나누며, 첫 구현은 <code>PACKAGING_CUSTOM</code>으로 진행하기로 정리했다.</li>
+      <li>필드 딕셔너리와 DB 컬럼 딕셔너리를 추가하고, 일반명 필드 제한과 code set 기반 마스터 코드 연계 지침을 기록했다.</li>
+      <li>도메인 모델, 상태 전이, API 계약, AI 추출 스키마 개발 지침을 공통 문서로 추가했다.</li>
+      <li><code>shipmate-api</code>에 주문 원문 저장용 <code>InboundMessage</code> 생성, 목록, 상세 조회 API를 추가했다.</li>
+      <li><code>shipmate-api</code>에 주문 원문에서 출고표 초안을 생성하는 <code>OrderDraft</code> 생성, 목록, 상세 조회 API를 추가했다.</li>
+      <li><code>shipmate-merchant</code> 화면 프로젝트를 추가하고 포장재 주문제작 기준 주문 원문 접수, 주문 원문 목록, 출고표 초안 생성, 초안 목록, 초안 검수 화면을 구현했다.</li>
+      <li><code>OrderDraft</code>에 품목 후보, 단가 후보, 납품 메모, 택배 메모 구조와 검수 저장 API를 추가했다.</li>
+      <li><code>shipmate-merchant</code> 초안 검수 화면에 품목 후보, 수량, 규격, 단가 후보, 메모 편집 UI와 저장 기능을 추가했다.</li>
+      <li><code>shipmate-api</code>에 검수된 출고표 초안을 제출 상태로 전환하는 API를 추가했다.</li>
+      <li><code>shipmate-merchant</code> 초안 검수 화면에 검수 내용 저장 후 출고표 제출까지 이어지는 버튼을 추가했다.</li>
+      <li><code>shipmate-api</code>에 제출된 출고표 목록과 상세 조회 API를 추가했다.</li>
+      <li><code>shipmate-merchant</code>에 제출된 출고표 목록과 상세 화면을 추가했다.</li>
+      <li><code>shipmate-api</code>에 제출된 출고표 기준 택배 CSV 다운로드 API를 추가했다.</li>
+      <li><code>shipmate-merchant</code> 출고표 상세 화면에 택배 CSV 다운로드 버튼을 추가했다.</li>
+      <li><code>OrderDraft</code>에 수취인, 연락처, 우편번호, 주소, 상세주소, 배송 요청사항 필드를 추가했다.</li>
+      <li><code>shipmate-merchant</code> 초안 검수 화면에 배송 정보 입력 UI를 추가했다.</li>
+      <li>택배 CSV 다운로드에 기본, CJ대한통운, 롯데택배, 한진택배 시작 템플릿 선택을 추가했다.</li>
+      <li><code>OrderDraftItemCandidate</code>에 포장재 주문제작 전용 필드와 판촉물/맞춤 제작 확장 필드를 추가했다.</li>
+      <li>주문 원문에서 규격과 수량을 품목 후보로 자동 추출하는 기본 규칙을 추가했다.</li>
+      <li>고객 목록, 고객별 기본 배송지, 자주 쓰는 품목, 고객별 단가표 API와 화면을 추가했다.</li>
+      <li>고객별 단가표 기준으로 품목 후보 단가를 자동 보강하는 기본 매칭을 추가했다.</li>
+      <li>제출된 출고표에서 출고표, 작업지시서, 납품서 인쇄 화면을 열 수 있게 했다.</li>
+      <li>Android 공유 인텐트로 문자/카카오톡 원문 텍스트를 받아 주문 원문 API로 전송하는 기본 흐름을 추가했다.</li>
+      <li>이메일 주문 본문을 주문 원문으로 저장하는 수신 API를 추가했다.</li>
+      <li><code>OPENAI_API_KEY</code>가 설정되면 OpenAI Responses API로 주문 후보를 추출하고, 키가 없거나 실패하면 규칙 기반 후보를 사용하는 AI 추출 API를 추가했다.</li>
+      <li>제출된 출고표 일괄 택배 CSV 다운로드 API와 화면 버튼을 추가했다.</li>
+      <li>로그인/사용자 등록 API, 변경 이력, 오류 로그, 백업 내보내기, 복구 스테이징 API를 추가했다.</li>
+      <li><code>shipmate-merchant</code>에 AI 후보 추출, 일괄 CSV, 운영 로그, 백업 미리보기 화면을 추가했다.</li>
+      <li>로그인 토큰 검증 인터셉터와 이용자별 데이터 조회 필터를 추가했다.</li>
+      <li>주문 원문, 출고표 초안, 고객/단가표, AI 추출, 백업 작업에 변경 이력 기록을 확대했다.</li>
+      <li>Android 공유 수신 화면에서 전송 전 주문 원문 확인/수정 UI를 추가했다.</li>
+      <li>택배 CSV 필수값 검증 API와 <code>shipmate-merchant</code> 검증 버튼을 추가했다.</li>
+      <li>백업 복구 staging 파일을 관리자 승인으로 운영 데이터에 반영하는 승인 API를 추가했다.</li>
+      <li><code>shipmate-merchant</code>에 로그인/계정 생성 화면과 운영 대시보드를 추가했다.</li>
+      <li>이메일 메일함 수집 설정 저장 API와 수집 준비 상태 확인 API를 추가했다.</li>
+      <li>AI 추출 결과에서 품목명이 없는 후보를 반영하지 않도록 기본 스키마 검증을 강화했다.</li>
+      <li>역할별 권한을 관리자, 운영자, 조회자 기준으로 분리하는 API 차단 규칙을 추가했다.</li>
+      <li>고객 보관 처리와 출고표 초안 취소 처리 API를 추가하고 변경 이력에 기록하도록 했다.</li>
+      <li>운영 대시보드에 오늘, 7일, 30일 기간 필터와 오류 코드 집계를 추가했다.</li>
+      <li>이메일 메일함 수집 설정으로 메일 서버 연결 확인을 실행하고 결과를 기록하는 API를 추가했다.</li>
+      <li>Android 공유 주문 원문을 전송 실패 후에도 임시 저장해 재시도할 수 있게 했다.</li>
+      <li>파일럿 초기 설정으로 기본 담당자, 기본 택배사, 기본 업종 채널을 저장하는 API와 화면을 추가했다.</li>
+      <li><code>shipmate-merchant</code>에 이메일 수집 설정, 메일 연결 확인, 고객 보관, 출고표 취소, 기간별 대시보드 화면을 추가했다.</li>
+      <li>Docker Compose 기반 로컬 운영 유사 환경에 MySQL, MinIO, <code>shipmate-api</code>, <code>shipmate-merchant</code>를 올렸다.</li>
+      <li>MySQL 첫 마이그레이션으로 공통 마스터 코드 테이블 <code>tb_code</code>를 생성하고 상태/선택 코드 seed를 넣었다.</li>
+      <li>DB 컬럼 딕셔너리에 모든 테이블명은 <code>tb_</code> prefix를 사용하고 공통 코드 마스터는 <code>tb_code</code>로 관리한다는 지침을 추가했다.</li>
+      <li>필드 딕셔너리와 DB 컬럼 딕셔너리 양쪽에 <code>tb_</code> prefix 업무 테이블 연결 기준을 반영했다.</li>
+      <li>MySQL V3 마이그레이션으로 핵심 업무 테이블 <code>tb_merchant_users</code>, <code>tb_customers</code>, <code>tb_customer_price_items</code>, <code>tb_inbound_messages</code>, <code>tb_order_drafts</code>, <code>tb_order_draft_item_candidates</code>, <code>tb_email_mailbox_configs</code>, <code>tb_audit_logs</code>, <code>tb_error_logs</code>, <code>tb_merchant_operation_settings</code> 생성을 추가했다.</li>
+      <li>로컬 스테이징용 <code>docker-compose.staging.yml</code>을 추가하고 API, Merchant, MySQL, MinIO를 별도 스테이징 포트로 올렸다.</li>
+      <li>스테이징 앞단 웹서버를 Nginx로 정하고 <code>https://staging-shipmate.com/merchant</code> 경로, TLS 1.3, <code>/api</code> 프록시 기준 설정을 추가했다.</li>
+      <li><code>shipmate-merchant</code>에 Airframe React 계열 관리자 템플릿 구조를 참고한 왼쪽 네비게이션바를 추가하고, 선택한 메뉴 화면만 표시되도록 전환했다.</li>
+      <li><code>shipmate-merchant</code>와 <code>shipmate-admin</code> 개발 서버를 별도 PowerShell 창에서 실행해 로그를 볼 수 있는 시작 스크립트를 추가했다.</li>
+      <li><code>shipmate-admin</code>을 출고비서 운영자와 사원이 접속하는 내부관리자 콘솔로 전면 개편했다.</li>
+      <li><code>shipmate-admin</code>에 내부관리자 로그인, 내부 계정 생성, 왼쪽 네비게이션, 운영 대시보드, 이용자/가맹점 관리, 내부 직원 계정 생성과 목록 조회 화면을 추가했다.</li>
+      <li><code>shipmate-admin</code>에 주문 원문 관리, 출고표 초안 관리, 제출 출고표 관리, 통화 녹음 관리, 오류 로그, 변경 이력, 백업 미리보기, 시스템 설정 조회 화면을 추가했다.</li>
+      <li><code>shipmate-api</code>에 내부관리자용 <code>/api/admin/overview</code>, <code>/api/admin/merchants</code>, <code>/api/admin/users</code>, <code>/api/admin/inbound-messages</code>, <code>/api/admin/order-drafts</code>, <code>/api/admin/shipping-orders</code>, <code>/api/admin/call-recordings</code>, <code>/api/admin/audit-logs</code>, <code>/api/admin/error-logs</code>, <code>/api/admin/settings</code>, <code>/api/admin/backup</code> API를 추가했다.</li>
+      <li><code>shipmate-api</code> 저장소에 내부관리자 전체 조회에 필요한 전체 목록 조회 메서드를 보강했다.</li>
+      <li><code>shipmate-admin</code> README, <code>shipmate-api</code> README, 루트 README, <code>shipmate-doc/shipmate-admin</code> 문서에 내부관리자 1차 기능과 API 목록을 반영했다.</li>
+      <li><code>shipmate-api</code>의 내부관리자 조회 기반 저장소를 MySQL <code>tb_</code> 업무 테이블 기준으로 전환했다.</li>
+      <li>사용자, 주문 원문, 고객/단가표, 출고표 초안/품목 후보, 이메일 수집 설정, 변경 이력, 오류 로그, 운영 설정 저장소를 JDBC 기반으로 전환했다.</li>
+      <li>내부관리자 인증 경로를 <code>/api/admin/auth/login</code>, <code>/api/admin/auth/register</code>로 분리하고 <code>shipmate_internal</code> 내부 계정만 <code>/api/admin/*</code>에 접근할 수 있도록 차단 규칙을 추가했다.</li>
+      <li><code>shipmate-admin</code> 로그인/내부 직원 계정 생성 화면에서 조직 ID 입력을 제거하고 내부관리자 전용 인증 API를 사용하도록 변경했다.</li>
+      <li>내부관리자 역할별 API 접근 범위를 관리자, 운영자, 조회자로 나누고 직원 계정/백업 API는 관리자 전용으로 제한했다.</li>
+      <li><code>shipmate-admin</code> 메뉴, 데이터 로딩, 화면 이동을 내부관리자 역할별로 분기하도록 변경했다.</li>
+      <li>전화 및 통화녹음 기능은 더 이상 신규 개발 대상에 포함하지 않고, 직접 언급이 있을 때만 개발하도록 지침에 기록했다.</li>
+      <li>내부관리자 이용자/가맹점 관리에 운영 상태 변경, 운영 메모 저장, 계정 잠금/해제, 임시 비밀번호 초기화 API와 화면 작업을 추가했다.</li>
+      <li>오류 로그에 미확인, 확인, 조치 완료 처리 상태와 담당자, 처리 메모, 조치 완료 시각을 저장하는 API와 내부관리자 화면을 추가했다.</li>
+      <li>이메일 수집 설정으로 IMAP 로그인, INBOX 선택, 최근 메일 본문 수집, 첨부 파일명 후보 탐지, 주문 원문 저장을 수행하는 최소 수집 흐름을 추가했다.</li>
+      <li>이메일 수집 실행 실패 시 오류 로그를 남기고, 메일 서버 연결 확인 결과를 변경 이력에 기록하도록 보강했다.</li>
+      <li>이메일 수집 결과를 <code>tb_email_mailbox_configs.collection_status</code>에 저장하고, 읽지 않은 메일 수집 후 IMAP <code>Seen</code> 플래그를 설정해 중복 수집을 줄이도록 보강했다.</li>
+      <li>Gmail/네이버 앱 비밀번호, OAuth, 첨부 원본 저장 정책을 이메일 수집 문서에 기록했다.</li>
+      <li>변경 이력 기록을 현재 요청자 기반 공통 헬퍼로 정리하고 고객, 출고표, AI 추출, 이메일, 백업, 운영 설정 호출부에 적용했다.</li>
+      <li>AI 추출 응답 검증을 공통 스키마 기준으로 강화해 <code>extractionConfidence</code>, <code>lineItems</code>, 품목명, 날짜 형식, confidence, 확인 필요 사유를 검증하도록 했다.</li>
+      <li>내부관리자 운영 대시보드에 기간 필터와 실패 원인 상세 집계, 오류 처리 상태 집계를 추가했다.</li>
+      <li>백업 export에서 과거 <code>data/*.json</code> 병행 export를 제거하고 MySQL 주요 업무 테이블 export 기준으로 정리했다. 전화 및 통화녹음 저장소는 직접 요청 전까지 제외한다.</li>
+      <li><code>shipmate-doc/html/index.html</code> 문서 포털 상대 링크의 파일 존재 여부를 확인했다.</li>
+      <li>스테이징에서 회원가입, 로그인, 고객 저장, 주문 원문 접수, 출고표 초안 생성/검수/제출/조회 흐름을 재현하는 HTTP 시나리오 파일 <code>shipmate-api/requests/staging-integration-scenario.http</code>를 추가했다.</li>
+      <li>택배사별 CSV 출력 컬럼을 CJ대한통운, 롯데택배, 한진택배 운영 업로드 양식에 가까운 필드 배열로 보정했다.</li>
+      <li>운영 대시보드에 실패 입력 채널 집계와 이용자 활동 집계를 추가했다.</li>
+      <li>내부관리자 이용자 운영 프로필과 오류 처리 필드를 위한 MySQL V4 마이그레이션을 추가했다.</li>
+      <li>백업 미리보기에 주요 MySQL 업무 테이블 export를 추가하고, JSON 파일 저장소와 병행해서 확인할 수 있게 했다.</li>
+      <li>DB 접근 방식은 <code>MySQL 8.4 + Flyway SQL migration + Spring JDBC JdbcTemplate</code>로 진행하고, JPA/QueryDSL은 테이블 구조 안정화 뒤 재검토하기로 DB 컬럼 딕셔너리에 기록했다.</li>
+      <li>출고표 초안 제출 전 수취인, 연락처, 주소, 품목명, 수량, 단위 필수값을 API에서 검증하고, <code>shipmate-merchant</code> 초안 목록에 상태/검색 필터와 검수 필수값 안내를 추가했다.</li>
+      <li>WSL 개발 도구 기준을 정리하고 Docker Desktop WSL integration 확인 스크립트와 공인 DNS 등록 전 임시 HTTPS 검증 절차를 <code>shipmate-infra</code> 문서에 추가했다.</li>
+      <li>제출된 출고표 목록 검색/기간/CSV 필수값 필터, 고객 기본 배송지 반영, 고객 단가표 후보 반영, 제출 출고표 재검수 전환 API와 화면 흐름을 추가했다.</li>
+      <li>내부관리자 초안/출고표 목록에 이용자, 거래처, 수취인, 품목, 원문, 상태, 기간, CSV 필수값 기준 필터를 추가했다.</li>
+      <li>WSL Docker Desktop integration 활성화 후 WSL Docker daemon 기준으로 로컬 컨테이너를 재빌드/기동하고, 재검수 전환부터 재제출, CSV 검증까지 통합 시나리오를 확인했다.</li>
+      <li>제출 후 수정은 직접 수정하지 않고 재검수 전환 후 재제출하는 운영 정책을 상태 전이 지침에 기록하고, 내부관리자 변경 이력의 출고표 액션 표시를 보강했다.</li>
+      <li>내부관리자 변경 이력 화면에 액션, 대상, 이용자, 기간, 키워드 필터를 추가했다.</li>
+      <li>제출 출고표 재검수 전환 요청에 <code>reopenReason</code>을 추가하고, 사유를 변경 이력 summary에 기록하도록 API와 화면을 연결했다.</li>
+      <li><code>shipmate-merchant</code> 제출 출고표 상세에 변경 이력과 제출 횟수를 표시해 원 제출 이력과 재제출 이력을 구분할 수 있게 했다.</li>
+      <li>택배 CSV 검증 결과를 일회성 알림이 아니라 제출 출고표 목록 화면의 상세 오류 목록으로 표시하도록 보강했다.</li>
+      <li>고객 기본 배송지와 고객 단가표 후보를 검수 화면에 바로 반영하기 전에 미리보기 모달로 확인하도록 변경했다.</li>
+      <li>WSL Docker 기반 스테이징 compose를 <code>.env.staging</code> 기준으로 재빌드/기동하고 <code>18080</code> API, <code>13001</code> Merchant, <code>443</code> nginx HTTPS 응답을 확인했다.</li>
+      <li>변경 이력 API에 액션, 대상, 이용자, 키워드, 기간, limit/offset 서버 사이드 필터를 추가하고 내부관리자 변경 이력 화면이 해당 API를 사용하도록 전환했다.</li>
+      <li><code>tb_audit_logs.metadata_json</code> 컬럼과 관련 index를 추가하고, 재검수 전환 사유를 summary와 metadata JSON 양쪽에 기록하도록 변경했다.</li>
+      <li>Merchant 출고표 상세 변경 이력을 제출 이력, 재검수 이력, 재제출 이후 변경 이력 그룹으로 표시하도록 보강했다.</li>
+      <li>CSV 검증을 선택 출고표 기준으로 실행할 수 있게 하고, 검증 오류 항목을 클릭하면 해당 출고표 상세로 이동하도록 했다.</li>
+      <li>고객 기본값 미리보기에서 현재 입력값과 반영 예정 값을 비교하고, 단가표 후보 미리보기에서 매칭 키워드와 미매칭 품목을 표시하도록 했다.</li>
+      <li>스테이징 compose 통합 smoke script <code>shipmate-infra/scripts/smoke-staging.sh</code>를 추가하고 회원가입, 로그인, 고객 저장, 주문 원문 접수, 초안 생성/검수/제출/조회 흐름을 자동 검증했다.</li>
+      <li>내부관리자 변경 이력 필터 옵션을 서버 distinct API 기준으로 제공하고, 변경 이력 metadata JSON을 key/value 형태로 표시하도록 했다.</li>
+      <li>Merchant 제출 출고표 변경 이력을 재제출 차수별 타임라인으로 표시하고, 재검수 사유 metadata를 key/value 형태로 표시하도록 했다.</li>
+      <li>택배 CSV 검증 응답을 구조화된 오류 DTO로 확장하고, Merchant 화면에서 출고표 ID, 필드명, 메시지를 분리 표시하도록 했다.</li>
+      <li>고객 기본값/단가표 후보 미리보기에서 변경되는 반영값을 강조 표시하도록 했다.</li>
+      <li>스테이징 smoke script에 재검수 전환, 재제출, CSV 검증, 변경 이력 metadata 확인을 추가했다.</li>
+      <li>공인 DNS 등록 전 <code>curl --resolve</code> 또는 터널 URL로 HTTPS와 API health를 확인하는 <code>shipmate-infra/scripts/check-staging-https.sh</code>를 추가했다.</li>
+      <li>내부관리자 변경 이력 테이블을 서버 total 기준 Ant Design Table pagination으로 통합했다.</li>
+      <li>로컬 관리자 dev 서버 CORS 허용 origin을 추가해 <code>http://localhost:3000</code>, <code>http://127.0.0.1:3000</code>에서 내부관리자 로그인이 가능하도록 했다.</li>
+      <li>내부관리자 변경 이력에 <code>metadataKey</code> 빠른 필터를 추가하고, 저장된 metadata key 목록을 서버 필터 옵션으로 제공하도록 했다.</li>
+      <li>Merchant 출고표 상세의 제출 차수별 타임라인에 품목/수량 snapshot 기반 변경 여부를 표시하도록 했다.</li>
+      <li>택배 CSV 검증을 <code>GENERIC</code>과 택배사별 업로드 양식 기준으로 분리하고, 택배사 양식에서는 우편번호와 수량을 더 엄격히 검증하도록 했다.</li>
+      <li>스테이징 smoke script가 성공/실패 JSON 리포트 <code>shipmate-infra/smoke-report.json</code>과 JUnit XML <code>shipmate-infra/smoke-report.xml</code>을 남기고, CI 수집용 <code>shipmate-infra/reports/smoke/</code> 복사본도 생성하도록 했다.</li>
+      <li>내부관리자 오류 로그에서 관련 변경 이력 검색 화면으로 이동하는 버튼을 추가했다.</li>
+      <li>Gmail polling 실패 알림에서 최근 주문 원문 화면으로 이동하는 버튼을 Merchant와 내부관리자 대시보드에 추가했다.</li>
+      <li>내부관리자 주문 원문 화면에 원문 ID 검색을 추가하고, Gmail 실패 알림에서 최근 원문 ID를 검색어로 넘기도록 했다.</li>
+      <li>내부관리자 오류 로그 화면에 요청 context metadata key 필터와 요청 정보 검색을 추가했다.</li>
+      <li>내부관리자에 Gmail polling 실행 이력 화면을 추가했다.</li>
+      <li>변경 이력 metadata key 검색을 MySQL JSON path quoted member 기준으로 보강했다.</li>
+      <li>Admin/Merchant Vite build에 React/Ant Design manual chunk를 추가해 대형 번들 경고를 완화했다.</li>
+      <li>제출 변경 이력 metadata에 품목 후보 snapshot 배열을 저장하고, Merchant 출고표 상세에서 품목명/수량/단가 단위 변경을 표시하도록 했다.</li>
+      <li>Gmail polling 실행 이력 조회 API와 내부관리자 화면에 이용자, 성공 여부, 기간 필터를 추가했다.</li>
+      <li>오류 로그 요청 context metadata 필터와 검색을 서버 사이드 API로 확장했다.</li>
+      <li>GitHub Actions 수동 smoke workflow를 추가해 JSON/JUnit XML 리포트를 artifact로 업로드하도록 했다.</li>
+      <li>택배사별 CSV 검증 규칙은 현재 코드 설정 기준으로 운영하며, DB 설정화 전까지 필수 필드와 업로드 컬럼명 매핑을 문서 기준으로 관리한다.</li>
+      <li>택배사별 CSV 검증 규칙을 <code>tb_courier_csv_validation_rules</code> DB 설정 테이블로 분리하고, 설정이 비어 있을 때만 코드 기본값으로 fallback하도록 했다.</li>
+      <li>오류 로그 검색 API와 내부관리자 화면에 처리 상태 필터와 서버 pagination을 추가했다.</li>
+      <li>Gmail polling 실행 이력 화면에 실패 상세 drawer와 최근 원문 이동 버튼을 추가했다.</li>
+      <li>Merchant 제출 변경 이력 diff에서 규격 변경과 품목 순서 변경을 별도 문구로 표시한다.</li>
+      <li>GitHub Actions smoke workflow는 <code>STAGING_API_BASE_URL</code> secret이 있으면 해당 주소로 실행하고, 없으면 GitHub hosted runner가 로컬 PC의 <code>localhost</code>에 접근할 수 없으므로 skipped 리포트를 남긴다.</li>
+      <li>공인 DNS 등록은 마지막 단계로 미루고, DNS 등록 전에는 hosts, 로컬 Nginx, 터널, 또는 임시 <code>API_BASE_URL</code> 기준으로 검증한다.</li>
+      <li>Admin과 Merchant 운영 대시보드를 별도 lazy module로 분리해 <code>DashboardScreen</code> chunk가 생성되도록 했다.</li>
+      <li>내부관리자 설정 화면에 택배 CSV 검증 규칙 관리 테이블을 추가하고, 규칙 수정 API를 연결했다.</li>
+      <li>오류 로그 목록에 선택 행 일괄 확인/조치 완료 처리 기능을 추가했다.</li>
+      <li>Gmail polling 실패 상세에 실패 코드/메시지 기반 운영 조치 안내를 표시한다.</li>
+      <li>Merchant 제출 변경 이력 diff를 품목 변경 접힘/펼침 UI로 정리했다.</li>
+      <li>택배 CSV 검증 규칙 추가/복제 기능을 내부관리자 설정 화면에 추가했다.</li>
+      <li>오류 로그 일괄 처리에 담당자/처리 메모 입력 모달을 추가했다.</li>
+      <li>Gmail polling 실패 유형별 조치 체크리스트를 이메일 수집 문서에 추가했다.</li>
+      <li>Merchant 변경 이력 diff를 품목, 항목, 이전 값, 현재 값 표 형태로 표시한다.</li>
+      <li>내부관리자 택배 CSV 검증 규칙에 변경 이력 상세 drawer를 추가했다.</li>
+      <li>Gmail polling 실패 상세에서 이메일 수집 체크리스트 문서 링크를 열 수 있도록 했다.</li>
+      <li>오류 로그 일괄 확인/조치 완료 모달에 선택 건수와 현재 처리 상태별 영향을 미리보기로 표시한다.</li>
+      <li>Merchant 제출 변경 이력 diff 표에 추가/삭제/수정/순서/최초 유형 색상과 항목 필터를 추가했다.</li>
+      <li>Admin 백업/복구 화면을 별도 lazy module로 분리해 route 단위 lazy loading을 확대했다.</li>
+      <li>GitHub Actions workflow가 호출하는 <code>shipmate-infra/scripts/smoke-staging.sh</code>를 로컬 스테이징 API 기준으로 재실행해 통합 시나리오를 통과했다.</li>
+      <li><code>gh</code> CLI 기반 원격 smoke workflow 실행 스크립트 <code>shipmate-infra/scripts/run-github-smoke-workflow.sh</code>를 추가했다.</li>
+      <li>DNS 등록 전 HTTPS 확인 스크립트가 JSON/JUnit 리포트를 남기고 GitHub Actions artifact에 포함되도록 했다.</li>
+      <li>Gmail polling 실패 상세에서 관련 오류 로그 화면으로 이동하고, 오류 로그 목록에 실패 코드별 운영 조치 안내를 표시하도록 했다.</li>
+      <li>택배 CSV 검증 규칙 생성/수정 감사 metadata에 변경 전/후 값을 저장하고, 내부관리자 drawer에서 필드 단위 비교를 표시하도록 했다.</li>
+      <li>Merchant 제출 변경 이력 diff 항목 필터를 localStorage에 보존하도록 했다.</li>
+      <li>Admin 시스템 설정 화면을 <code>SettingsScreen</code> lazy module로 분리했다.</li>
+      <li>Gmail polling 실패 상세에 관련 오류 확인/조치 완료 버튼을 추가해 오류 로그 일괄 처리 모달로 바로 연결했다.</li>
+      <li>택배 CSV 검증 규칙 변경 이력 drawer에서 metadata가 없는 기존 이력 fallback 문구를 표시하도록 했다.</li>
+      <li>Merchant 제출 변경 이력 diff 필터를 URL query <code>shippingDiffField</code>에도 보존하도록 했다.</li>
+      <li>스테이징 smoke/HTTPS 리포트를 <code>shipmate-infra/reports/staging-check-summary.md</code>로 요약하는 스크립트를 추가하고 GitHub Actions artifact에 포함했다.</li>
+      <li>Admin 오류 로그, Gmail 수집 이력, 변경 이력 화면을 <code>TableScreen</code> lazy module로 분리했다.</li>
+      <li>Gmail polling 실패 관련 오류 로그 매칭을 현재 화면 목록에서 찾지 못하면 서버 오류 로그 검색 결과까지 확장하도록 했다.</li>
+      <li>택배 CSV 검증 규칙 변경 이력 drawer에 변경 항목만 보기/전체 보기 토글을 추가했다.</li>
+      <li>Merchant 제출 변경 이력 diff URL query가 있으면 출고/문서 화면으로 바로 진입하도록 네비게이션 초기 상태와 연동했다.</li>
+      <li>스테이징 점검 요약 문서를 전체 문서 포털과 공통 문서 인덱스에 연결했다.</li>
+      <li>Merchant 운영 화면을 <code>OperationsScreen</code> lazy module로 분리했다.</li>
+      <li>Gmail polling 실패 관련 오류 로그 검색어를 실패 코드, 원문 ID, 메시지, 실행 ID 순서로 순차 검색하도록 정밀화했다.</li>
+      <li>택배 CSV 검증 규칙 변경 이력 drawer에 metadata 원문 접힘/펼침 표시를 추가했다.</li>
+      <li>Merchant 제출 변경 이력 diff URL query를 선택 출고표 ID <code>shippingOrderId</code>와도 연동했다.</li>
+      <li>스테이징 점검 요약 HTML 보기 파일 <code>shipmate-infra/reports/staging-check-summary.html</code>을 생성하고 문서 포털 링크를 HTML 기준으로 바꿨다.</li>
+      <li>Oracle Linux WSL 환경에 <code>git</code>과 <code>gh</code> CLI를 설치하고, GitHub Actions smoke artifact 다운로드 스크립트 <code>shipmate-infra/scripts/download-github-smoke-reports.sh</code>를 추가했다.</li>
+      <li>스테이징 smoke 실패 리포트에 마지막 HTTP 상태, curl 오류, 응답 본문 일부를 기록하고, 점검 요약 Markdown/HTML에도 실패 상세를 표시하도록 보강했다.</li>
+      <li>GitHub Actions smoke workflow를 원격에서 수동 실행하고, <code>shipmate-smoke-reports</code> artifact 다운로드와 요약 파일 확인을 완료했다.</li>
+      <li>GitHub repository secret 설정 helper <code>shipmate-infra/scripts/set-github-staging-smoke-secrets.sh</code>를 추가하고, hosted runner에서 실패하는 <code>localhost</code> 계열 URL을 기본 차단하도록 했다.</li>
+      <li>Windows Docker Desktop 4.78.0을 설치하고 Docker Desktop 엔진 기준으로 스테이징 compose를 재빌드/기동했다.</li>
+      <li>Docker Desktop 엔진에서 <code>shipmate-staging-api</code>, <code>shipmate-staging-merchant</code>, <code>shipmate-staging-nginx</code>, MySQL, MinIO 컨테이너 health를 확인했다.</li>
+      <li>Docker Desktop 스테이징 API health, Merchant 직접 포트, Windows curl 기준 <code>staging-shipmate.com</code> HTTPS 우회 접속을 확인했다.</li>
+      <li>Docker Desktop 스테이징 API 기준으로 <code>smoke-staging.sh</code> 12단계 통합 시나리오를 통과했다.</li>
+      <li>Docker 내부 Cloudflare quick tunnel을 스테이징 Docker network에 연결하고, GitHub Actions hosted runner가 해당 tunnel URL로 smoke를 실행하도록 <code>STAGING_API_BASE_URL</code> secret을 임시 설정했다.</li>
+      <li>GitHub Actions run <code>27662944474</code>에서 원격 smoke를 실데이터 흐름으로 통과하고 <code>shipmate-smoke-reports</code> artifact를 다운로드해 요약과 JSON/JUnit 리포트를 확인했다.</li>
+      <li>검증 후 Cloudflare quick tunnel을 종료하고 만료된 URL이 다음 실행을 실패시키지 않도록 임시 <code>STAGING_API_BASE_URL</code> secret을 삭제했다.</li>
+      <li><code>shipmate-infra/scripts/run-github-smoke-workflow.sh</code>가 workflow dispatch 응답의 새 run ID를 우선 추적하도록 보정했다.</li>
+      <li>Cloudflare quick tunnel 생성, GitHub secret 임시 설정, workflow 실행, artifact 다운로드, tunnel/secret 정리를 한 번에 처리하는 <code>shipmate-infra/scripts/run-github-smoke-with-quick-tunnel.sh</code>를 추가했다.</li>
+      <li>스테이징 점검 요약 Markdown/HTML에 최근 GitHub Actions artifact 링크와 로컬/HTTPS/원격 smoke 실행 명령을 표시하도록 했다.</li>
+      <li>공인 DNS 없이 반복 가능한 self-hosted runner 컨테이너 방식은 가능하지만 runner 등록 token과 network 내부 API 주소 연결이 필요하므로, 현재 단계에서는 quick tunnel 자동화 스크립트를 기본으로 둔다.</li>
+      <li>Merchant 초안 검수와 출고/문서 화면 lazy module 분리는 <code>App.tsx</code>가 상태와 이벤트를 직접 소유하는 구조라서 별도 hook/container 선행 분리 후 route 단위로 이동하는 것이 안전하다고 정리했다.</li>
+      <li>내부관리자 Gmail 실패 관련 오류 로그 일괄 처리 후 Gmail 수집 이력 drawer가 열린 상태면 같은 필터로 이력을 다시 조회하고 선택 실행 row를 갱신하도록 했다.</li>
+      <li>택배 CSV 검증 규칙 변경 이력 drawer의 metadata 원문에 복사 버튼을 추가했다.</li>
+      <li>Merchant 제출 변경 이력 diff URL query에 <code>shippingDiffSection=item-diff</code>를 추가하고, 링크 진입 시 품목 변경 영역으로 이동하도록 했다.</li>
+      <li>Docker Desktop WSL integration과 <code>docker</code> 그룹 권한을 정리한 뒤 WSL에서 Docker Desktop 4.78.0 서버 연결을 확인했다.</li>
+      <li><code>run-github-smoke-with-quick-tunnel.sh</code>를 실제 실행해 GitHub Actions run <code>27739146102</code> 원격 smoke를 통과했고 artifact를 <code>shipmate-infra/reports/github-actions/run-27739146102-20260618T053808Z</code>에 다운로드했다.</li>
+      <li>quick tunnel URL DNS 전파 지연에 대비해 tunnel health 확인을 재시도하도록 스크립트를 보강했다.</li>
+      <li>Merchant 제출 변경 이력 diff URL 상태를 <code>useShippingOrderDiffUrlState</code> hook으로 분리해 초안/출고 화면 route lazy module 분리 전 상태 표면을 줄였다.</li>
+      <li>Admin preview HTTP 200, Merchant staging HTTP 200, API health <code>UP</code>을 확인했다. Chromium/Playwright가 설치되어 있지 않아 클릭 기반 브라우저 자동화 검증은 수행하지 못했다.</li>
+      <li>다른 장비의 로컬 개발 DB 설치를 위해 Docker Compose 로컬 MySQL 8.4를 기동하고 API Flyway migration v1~v13 적용을 확인했다.</li>
+      <li>해당 장비에서 host <code>3306</code>, <code>8080</code> 포트가 충돌해 로컬 compose의 MySQL/API/Merchant host 포트를 환경변수로 바꿀 수 있게 했다. 이번 검증은 MySQL <code>localhost:13307</code>, API <code>localhost:18081</code>로 완료했다.</li>
+      <li><code>shipmate-admin</code> Dockerfile과 Nginx SPA 설정을 추가하고, 스테이징 compose에 <code>shipmate-staging-admin</code> 서비스를 <code>localhost:13000</code> 기준으로 포함했다.</li>
+      <li>스테이징 Nginx에 <code>/admin</code> 프록시를 추가하고 <code>/admin/</code>, <code>/merchant/</code>, <code>/api</code>, <code>/actuator</code> 경로를 같은 HTTPS front에서 제공하도록 정리했다.</li>
+      <li>스테이징 compose의 MySQL, API, Admin, Merchant, Nginx host 포트를 실행 시점 환경 변수로 바꿀 수 있게 하고, <code>check-local-ports.sh</code> 포트 점검 스크립트를 추가했다.</li>
+      <li><code>shipmate-infra</code>에 Playwright UI 검증 npm 패키지와 <code>check:ui</code> 스크립트, <code>check-shipmate-ui-playwright.js</code>를 추가해 Admin Gmail drawer 갱신, CSV metadata 복사, Merchant diff URL query 진입을 자동 검증할 수 있게 했다.</li>
+      <li>Docker Desktop을 기동해 스테이징 전체를 재빌드하고 <code>shipmate-staging-admin</code>, <code>shipmate-staging-api</code>, <code>shipmate-staging-merchant</code>, MySQL, MinIO, Nginx 컨테이너 상태와 API health를 확인했다.</li>
+      <li>스테이징 DB Flyway migration v1~v13 적용과 테이블 19개 생성을 확인하고, <code>shipmate / shipmate</code> 기본 내부관리자 계정을 생성해 내부관리자/가맹점 로그인 API 200 응답을 확인했다.</li>
+      <li>Playwright Chromium은 설치했지만 현재 WSL에 <code>libnspr4.so</code> 계열 시스템 라이브러리가 없어 클릭 기반 UI 검증 실행은 보류했다. sudo 비밀번호가 현재 사용자에 맞지 않아 OS 패키지 설치는 사용자 실행 필요 항목으로 남겼다.</li>
+      <li>Merchant 초안 검수 form 초기화/선택 초안 동기화 로직을 <code>useOrderDraftReviewFormState</code> hook으로 분리하고, 출고 변경 상세 URL query 진입 시 품목 변경 영역 스크롤 로직을 <code>useShippingOrderDiffSectionScroll</code> hook으로 분리했다.</li>
+      <li>스테이징 기본 내부관리자 계정 생성/로그인 확인을 반복 실행할 수 있도록 <code>seed-staging-default-account.sh</code>를 추가했다.</li>
+      <li>Merchant 초안 검수 저장, 출고표 제출, 고객 기본 배송지 반영, 고객 단가표 후보 반영 이벤트를 <code>useOrderDraftReviewActions</code> hook으로 분리했다.</li>
+      <li>스테이징 smoke script에 <code>SMOKE_SEED_DEFAULT_ACCOUNT=true</code> 옵션을 추가해 smoke 시작 전에 기본 계정 seed 스크립트를 함께 실행할 수 있게 했다.</li>
+      <li>스테이징 Nginx가 Admin/Merchant 컨테이너 재생성 뒤 오래된 Docker DNS 해석을 잡고 있어 <code>/admin</code>, <code>/merchant</code> 응답이 뒤바뀌는 문제를 확인하고, Docker DNS resolver 기반 동적 upstream 해석으로 보강했다.</li>
+      <li>Merchant 출고/문서 화면 본문을 <code>ShippingScreen</code> lazy module로 이동해 <code>ShippingScreen</code> chunk가 생성되도록 했고, 스테이징 Merchant/Nginx 재빌드 뒤 API health, <code>/admin</code>, <code>/merchant</code> 라우팅, 12단계 smoke를 재검증했다.</li>
+      <li>Merchant <code>ShippingScreen</code> props 타입을 실제 <code>OrderDraft</code> 구조에 맞춰 보강하고, 이동 완료된 기존 JSX 주석을 제거했다.</li>
+      <li>GitHub self-hosted runner 컨테이너 PoC용 Dockerfile, compose, 실행 스크립트를 추가하고, Actions 수동 workflow가 <code>runner_label</code>, <code>api_base_url</code> 입력으로 Docker network 내부 API smoke를 실행할 수 있게 했다.</li>
+      <li>스테이징 API health 대기 후 기본 계정을 확인하는 <code>check-staging-default-account.sh</code>를 추가하고 실행 결과 <code>shipmate</code> 로그인을 확인했다.</li>
+      <li>스테이징 기본 계정, DNS 없는 HTTPS, smoke, 점검 요약 생성을 한 번에 실행하는 <code>check-staging-stack.sh</code>를 추가하고 전체 점검을 통과했다.</li>
+      <li>Merchant 공통 API 타입을 <code>src/types.ts</code>로 승격하고 <code>App.tsx</code>, <code>DashboardScreen</code>, <code>ShippingScreen</code>이 공통 타입을 참조하도록 정리했다.</li>
+      <li>Merchant 초안 검수 화면 본문을 <code>DraftReviewScreen</code> lazy module로 분리해 <code>DraftReviewScreen</code> chunk가 생성되도록 했다.</li>
+      <li>Admin 스테이징 빌드의 asset base 경로가 <code>/assets</code>로 생성되어 <code>/admin</code> 프록시에서 빈 화면이 되는 문제를 <code>VITE_BASE_PATH</code> 기반 Vite base 설정으로 보정했다.</li>
+      <li>Playwright UI 검증 스크립트를 현재 Admin/Merchant lazy 화면 구조에 맞게 보강하고 Admin Gmail drawer 갱신, CSV metadata 복사, Merchant diff query 진입 검증을 통과했다.</li>
+      <li>Admin API 응답, 폼, 화면 키 타입을 <code>shipmate-admin/src/types.ts</code>로 분리하고 <code>DashboardScreen</code>이 공통 타입을 참조하도록 정리했다.</li>
+      <li>Merchant 초안 검수 품목 후보 입력 블록을 <code>DraftReviewItemFields</code> 컴포넌트로 분리해 <code>DraftReviewScreen</code> 파일 크기를 줄였다.</li>
+      <li>스테이징 점검 요약 생성 스크립트의 실행 명령 표에 self-hosted runner 등록 명령을 추가해 GitHub Actions artifact 문서와 운영 점검 절차 연결을 보강했다.</li>
+      <li>Merchant <code>DraftReviewScreen</code> props를 리스트, 상세, 액션 묶음으로 재구성해 lazy screen 호출 표면을 줄였다.</li>
+      <li>GitHub self-hosted runner 실행 스크립트가 token/env 파일 누락과 기동 상태를 JSON 리포트로 남기도록 보강하고, 스테이징 점검 요약 Markdown/HTML에 <code>Self-hosted runner</code> 섹션을 추가했다.</li>
+      <li><code>shipmate-infra</code> README에 GitHub self-hosted runner token 발급 위치, <code>.env.github-runner</code> 입력값, workflow 수동 실행 입력값을 단계별로 보강했다.</li>
+      <li><code>gh api</code>로 GitHub self-hosted runner 등록 token을 발급하고 <code>.env.github-runner</code>를 생성하는 helper <code>create-github-runner-env.sh</code>를 추가했다.</li>
+      <li>Playwright UI 검증 범위를 Admin 로그인, Merchant 로그인, 초안 검수 lazy 화면, 출고표 상세 diff query 진입까지 확대했다.</li>
+      <li>Admin 목록 컬럼 중 직원, 주문 원문, 출고표 초안, 변경 이력, Gmail 수집 이력, 운영 설정 컬럼을 <code>adminTableColumns.tsx</code>로 분리했다.</li>
+      <li>Playwright UI 검증에 초안 검수 저장 API 호출과 출고표 상세 CSV 검증 클릭/결과 표시 확인을 추가했다.</li>
+      <li>GitHub self-hosted runner 컨테이너 정지 스크립트 <code>stop-github-self-hosted-runner.sh</code>를 추가하고, 오래된 runner 제거/재등록 절차를 <code>shipmate-infra</code> README에 기록했다.</li>
+      <li>Admin Gmail 수집 실패 상세 drawer를 <code>GmailRunFailureDrawer</code> 컴포넌트로 분리했다.</li>
+      <li>GitHub self-hosted runner token helper가 <code>gh</code> 누락, token 요청 실패, 빈 token 상황을 JSON 리포트로 남기도록 보강했다.</li>
+      <li>Playwright Merchant diff section 위치 검증을 고정 대기에서 polling 방식으로 바꿔 lazy 렌더와 스크롤 타이밍 변동에 더 안정적으로 대응하게 했다.</li>
+      <li>Admin bulk 오류 처리 모달을 <code>BulkErrorHandlingModal</code> 컴포넌트로 분리했다.</li>
+      <li>Admin 택배 CSV 검증 규칙 변경 이력 drawer를 <code>CourierCsvRuleAuditDrawer</code> 컴포넌트로 분리했다.</li>
+      <li>Playwright UI 검증에 CSV metadata 복사 성공/실패 토스트와 CSV 검증 상세 목록 locator를 추가했다.</li>
+      <li>GitHub self-hosted runner 리포트에 <code>stage</code>를 추가해 <code>create-env</code>, <code>run</code>, <code>stop</code> 단계를 구분하도록 했다.</li>
+      <li>Admin 오류 로그 컬럼의 처리 상태, 담당자, 처리 메모 inline edit 렌더링을 <code>ErrorLogInlineFields</code> 컴포넌트로 분리했다.</li>
+      <li>Playwright UI 검증에 bulk 오류 처리 후 오류 로그 row 처리 메모 갱신 확인을 추가했다.</li>
+      <li>공인 DNS 없이 HTTPS를 반복 확인하는 간편 wrapper <code>check-staging-dnsless-https.sh</code>를 추가하고 <code>resolve</code>, <code>hosts</code>, <code>tunnel</code> 모드를 제공했다.</li>
+      <li>GitHub self-hosted runner token helper가 GitHub API 오류를 네트워크 제한, 인증 실패, 저장소 없음, 일반 실패 reason으로 분류하도록 보강했다.</li>
+      <li>Admin 택배 CSV 검증 규칙 컬럼의 CSV 컬럼명, 필수 여부, 오류 메시지, 순서, 사용 여부 inline edit 렌더링을 <code>CourierCsvRuleInlineFields</code> 컴포넌트로 분리했다.</li>
+      <li>Admin/Merchant Vite 빌드에서 의도적으로 분리된 Ant Design vendor chunk 기준을 <code>chunkSizeWarningLimit</code>으로 명시해 경고를 정리했다.</li>
+      <li>DNS 없는 HTTPS 리포트에 <code>httpsCheckMode</code>를 추가해 <code>dnsless-resolve</code>, <code>dnsless-hosts</code>, <code>dnsless-tunnel</code> 실행 유형이 스테이징 점검 요약에 표시되도록 했다.</li>
+      <li>quick tunnel 자동화와 DNS 없는 HTTPS wrapper가 공통 임시 HTTPS URL 변수 <code>TEMPORARY_HTTPS_URL</code>을 사용할 수 있도록 정리하고 기존 <code>STAGING_TUNNEL_URL</code>도 호환되게 했다.</li>
+      <li>사용자 측에서 빠르게 해결 가능한 인증, 외부 서비스 설정, GUI 토글, 로컬 보안 정책, 네트워크 허용 문제는 필요한 조치와 실행 위치를 정리해 요청하도록 <code>AGENTS.md</code> 지침을 추가했다.</li>
+      <li>Playwright UI 검증에 Admin 오류 로그 처리 상태, 담당자, 처리 메모 개별 inline 저장 payload 검증을 추가했다.</li>
+      <li>Playwright UI 검증에 Admin CSV 규칙 컬럼명, 필수 여부, 오류 메시지, 순서, 사용 여부 개별 inline 저장 payload 검증을 추가했다.</li>
+      <li>Playwright Chromium 실행에 WSL 시스템 라이브러리가 없으면 필요한 사용자 실행 명령을 출력하도록 검증 스크립트 오류 메시지를 보강했다.</li>
+      <li>GitHub Actions smoke workflow와 실행 helper가 <code>staging_https_url</code>, <code>staging_api_health_url</code>, <code>staging_resolve_ip</code> 입력을 받을 수 있도록 보강했다.</li>
+      <li>WSL에 Playwright Chromium 의존성을 설치하고 Admin/Merchant Playwright UI 검증을 통과했다.</li>
+      <li>스테이징 Docker Compose 스택을 재빌드/기동하고 API health, Admin/Merchant UI 자동 검증을 확인했다.</li>
+      <li>GitHub self-hosted runner를 <code>shipmate-staging</code> 라벨로 등록해 workflow run <code>27899951973</code>을 성공시켰고, Docker network 내부 API 주소 <code>http://shipmate-api:8080</code> 기준 smoke를 통과했다.</li>
+      <li>GitHub Actions smoke artifact를 다운로드해 <code>staging-https-report.json</code>과 스테이징 점검 요약에 HTTPS 실행 유형 <code>direct</code>가 포함되는 것을 확인했다.</li>
+      <li>self-hosted runner 컨테이너 검증 후 <code>stop-github-self-hosted-runner.sh</code>로 정리하고 <code>stop</code> 단계 리포트를 생성했다.</li>
+      <li><code>check-staging-stack.sh</code>, <code>check-staging-default-account.sh</code>, <code>seed-staging-default-account.sh</code>를 원격 workflow에서 사용할 수 있도록 커밋하고, self-hosted runner의 <code>run_stack_check=true</code> workflow run <code>27900208928</code>을 성공시켰다.</li>
+      <li><code>run_stack_check=true</code> artifact에서 smoke 마지막 HTTP 상태 <code>200</code>, HTTPS 실행 유형 <code>direct</code>, Docker network 내부 API 기준 URL <code>http://shipmate-api:8080</code>을 확인했다.</li>
+      <li>GitHub Actions artifact 다운로드 스크립트가 다운로드 직후 스테이징 점검 요약을 자동 재생성하도록 연결했다.</li>
+      <li>스테이징 점검 요약의 최근 GitHub Actions artifact 섹션에 최근 run ID, smoke 상태, smoke API 기준 URL, HTTPS 상태, HTTPS 실행 유형을 표시하도록 보강했다.</li>
+      <li>GitHub self-hosted runner <code>create-env</code>와 <code>run</code> 단계 리포트를 GitHub Actions artifact에 포함하도록 workflow 업로드 범위를 확장했다.</li>
+      <li>self-hosted runner workflow run <code>27901147270</code>을 실행해 <code>run-github-smoke-workflow.sh</code>가 dispatch 직후 최신 run ID를 안정적으로 추적하는 것을 확인했다.</li>
+      <li>GitHub Actions artifact <code>shipmate-infra/reports/github-actions/run-27901147270-20260621T102450Z</code>에서 <code>self-hosted-runner-create-env-report.json</code>, <code>self-hosted-runner-run-report.json</code>, smoke/HTTPS JSON/JUnit 리포트와 스테이징 점검 요약을 확인했다.</li>
+      <li>self-hosted runner 중지 후 <code>self-hosted-runner-stop-report.json</code>을 로컬 리포트로 남겼다. stop 리포트는 workflow artifact 업로드 이후 생성되므로 같은 run artifact에는 포함하지 않고 후속 실행 또는 로컬 점검 리포트로 확인한다.</li>
+    </ul>
+    <h2>진행 중인 작업</h2>
+    <ul>
+      <li>없음.</li>
+    </ul>
+    <h2>다음 작업</h2>
+    <ol>
+      <li>Admin/Merchant lazy screen 추가 분리가 필요한 화면을 빌드 산출물 기준으로 재점검한다.</li>
+      <li>스테이징 smoke 통과 후 생성된 테스트 데이터 정리 정책을 정한다.</li>
+      <li>GitHub secret으로 설정한 Docker network 내부 URL과 public/quick tunnel URL의 사용 기준을 README에 추가 보강한다.</li>
+      <li>self-hosted runner 컨테이너 재사용/매번 일회성 등록 중 운영 기준을 정한다.</li>
+      <li>GitHub Actions artifact 다운로드 디렉터리 보관/정리 기준을 정한다.</li>
+      <li>self-hosted runner stop 리포트를 같은 workflow 산출물이 아닌 후속 로컬/별도 산출물로 관리하는 정책을 문서화한다.</li>
+      <li>스테이징 smoke 테스트 데이터 seed와 cleanup을 분리할지 검토한다.</li>
+      <li>공인 DNS 구매와 A 레코드 등록은 마지막 단계로 유지한다.</li>
+    </ol>
+    <h2>보류 또는 결정 필요</h2>
+    <ul>
+      <li>없음.</li>
+    </ul>
+    <h2>변경 이력</h2>
+    <ul>
+      <li>2026-06-03: Codex 지속 지침과 개발 진행사항 문서 체계를 추가했다.</li>
+      <li>2026-06-03: 한글화 작업을 완료하고 API/Android 빌드 검증을 통과했다.</li>
+      <li>2026-06-03: 문서 폴더명을 실제 프로젝트명 기준으로 정리하고 HTML 상단 목차 규칙을 적용했다.</li>
+      <li>2026-06-03: 이용자별 브랜드 주문 채널과 문자 공유 기반 출고표 생성 구조를 문서화했다.</li>
+      <li>2026-06-03: 이메일 발주 수집은 이용자 전용 이메일 발급 방식으로 진행하기로 정리했다.</li>
+      <li>2026-06-12: 공통 데이터 자산은 Markdown/HTML 문서로 관리하기로 결정하고 기존 YAML 파일을 삭제했다.</li>
+      <li>2026-06-12: 전화 및 통화녹음 주문은 주문 채널 개발 우선순위에서 가장 마지막으로 진행하기로 정리했다.</li>
+      <li>2026-06-12: 주문 처리 기능 로드맵을 추가하고 AI 정리, 단가 매칭, 택배 CSV, 추가 추천 기능을 정리했다.</li>
+      <li>2026-06-12: 식자재 외 타깃 업종 우선순위를 정리하고 포장재/판촉물/맞춤 제작 소모품을 1순위로 기록했다.</li>
+      <li>2026-06-12: 포장재/판촉물/맞춤 제작 소모품 채널 문서를 추가하고, 초기 집중 타깃을 포장재 주문제작으로 정리했다.</li>
+      <li>2026-06-13: 업종별 프로젝트 분리 대신 <code>shipmate-merchant</code> 내부 업종 템플릿 구조로 개발하기로 정리하고 개발 순서를 기록했다.</li>
+      <li>2026-06-13: 필드/컬럼 명명 규칙과 code set 기반 마스터 코드 연계 지침을 문서화했다.</li>
+      <li>2026-06-13: 도메인 모델, 상태 전이, API 계약, AI 추출 스키마 지침을 추가했다.</li>
+      <li>2026-06-13: <code>shipmate-api</code>에 주문 원문 저장 API와 출고표 초안 생성 API를 추가했다.</li>
+      <li>2026-06-13: <code>shipmate-merchant</code>에 포장재 주문제작 기준 주문 원문과 출고표 초안 검수 화면을 추가했다.</li>
+      <li>2026-06-13: <code>OrderDraft</code> 검수 저장 API와 <code>shipmate-merchant</code> 품목 후보 편집 UI를 추가했다.</li>
+      <li>2026-06-13: <code>OrderDraft</code> 제출 API와 <code>shipmate-merchant</code> 출고표 제출 버튼을 추가했다.</li>
+      <li>2026-06-13: 제출된 출고표 목록/상세 API와 <code>shipmate-merchant</code> 조회 화면을 추가했다.</li>
+      <li>2026-06-13: 제출된 출고표 기준 택배 CSV 다운로드 API와 화면 버튼을 추가했다.</li>
+      <li>2026-06-13: 배송 정보 필드와 택배사별 CSV 시작 템플릿 선택을 추가했다.</li>
+      <li>2026-06-13: 포장재/판촉물/맞춤 제작 필드, 기본 후보 추출, 고객/단가표, 단가 매칭, 인쇄 화면, Android 공유 수신, 이메일 주문 수신 API를 추가했다.</li>
+      <li>2026-06-13: OpenAI 연동형 AI 후보 추출 API, 일괄 CSV, 로그인/변경 이력/오류/백업 운영 API, 운영 화면을 추가했다.</li>
+      <li>2026-06-13: 토큰 검증, 이용자별 데이터 필터, Android 공유 확인 UI, CSV 검증, 백업 복구 승인, 운영 대시보드, 이메일 수집 설정 API를 추가했다.</li>
+      <li>2026-06-13: 역할별 권한 차단, 고객 보관, 출고표 취소, 기간별 대시보드, 메일 서버 연결 확인, Android 공유 임시 저장, 파일럿 초기 설정 화면을 추가했다.</li>
+      <li>2026-06-13: Docker Compose + MySQL 8.4 로컬 환경을 구성하고, 공통 마스터 코드 테이블명을 <code>tb_code</code>로 확정했다.</li>
+      <li>2026-06-13: 모든 업무 테이블명에 <code>tb_</code> prefix를 붙이는 DB 명명 지침을 추가했다.</li>
+      <li>2026-06-13: 두 사전에 <code>field -&gt; tb_ table -&gt; column</code> 연결 기준을 반영하고 V3 업무 테이블 생성 마이그레이션을 추가했다.</li>
+      <li>2026-06-13: 로컬 스테이징 Docker Compose를 추가하고 <code>shipmate-staging-*</code> 컨테이너 기준으로 통합 실행을 확인했다.</li>
+      <li>2026-06-13: 스테이징 앞단을 Nginx로 구성하고 TLS 1.3, <code>/merchant</code>, <code>/api</code> 프록시 설정을 검증했다.</li>
+      <li>2026-06-13: <code>shipmate-merchant</code> 왼쪽 네비게이션과 선택 화면 단독 표시 구조를 추가했다.</li>
+      <li>2026-06-13: <code>shipmate-admin</code> 내부관리자 1차 필수 화면과 <code>/api/admin/*</code> 조회/관리 API를 구현했다.</li>
+      <li>2026-06-13: <code>shipmate-admin</code> Windows 기준 빌드와 <code>shipmate-api</code> Windows 임시 복사본 compileJava 검증을 통과했다.</li>
+      <li>2026-06-13: 내부관리자 조회에 쓰이는 핵심 저장소를 JSON 파일 기반에서 MySQL <code>tb_</code> 업무 테이블 기반으로 전환하고 <code>shipmate-api</code> 임시 복사본 compileJava 검증을 통과했다.</li>
+      <li>2026-06-13: 내부관리자 인증 경로를 일반 가맹점 인증 경로와 분리하고, 내부 계정 전용 <code>/api/admin/*</code> 접근 차단 규칙과 <code>shipmate-admin</code> 화면 연동을 추가했다.</li>
+      <li>2026-06-13: 내부관리자 역할별 API 접근 범위와 <code>shipmate-admin</code> 메뉴/데이터 로딩 분기를 추가하고 API compileJava 및 Admin 빌드를 통과했다.</li>
+      <li>2026-06-13: 전화 및 통화녹음 기능은 더 이상 신규 개발하지 않고, 직접 언급이 있을 때만 개발하도록 지침을 갱신했다.</li>
+      <li>2026-06-13: 내부관리자 이용자/가맹점 운영 처리, 오류 로그 처리 상태, IMAP 메일 수집, CSV 양식 보정, 대시보드 집계, MySQL 백업 export, V4 운영 마이그레이션을 추가했다.</li>
+      <li>2026-06-13: Docker Desktop을 기동해 로컬 API 서버를 띄우고 Gmail 메일함 설정 저장과 수집 API 호출까지 검증했다. Gmail 서버는 현재 계정 인증을 거절해 실제 메일 수집은 앱 비밀번호 또는 IMAP 설정 보정 후 재검증이 필요하다.</li>
+      <li>2026-06-13: Docker 기반 스테이징 컨테이너를 실제 기동하고 회원가입, 로그인, 고객 저장, 주문 원문 접수, 출고표 초안 생성/검수/제출/조회 통합 시나리오를 통과했다.</li>
+      <li>2026-06-13: <code>staging-shipmate.com</code> 로컬 hosts 매핑, 80/443 포트 개방, HTTP to HTTPS 리다이렉트, Nginx 프록시 로그를 확인하고 Windows 클라이언트 호환성을 위해 스테이징 TLS 허용 버전을 TLS 1.2/1.3으로 조정했다.</li>
+      <li>2026-06-13: Google OAuth 시작 URL 생성, 콜백 token 교환, token 저장 테이블, Gmail API polling 수집 스케줄러와 수동 실행 API를 추가했다.</li>
+      <li>2026-06-13: Gmail OAuth polling 중복 방지용 <code>tb_google_gmail_collected_messages</code> 마이그레이션을 추가하고, 읽지 않은 Gmail을 주문 원문으로 저장한 뒤 <code>UNREAD</code> 라벨을 제거하도록 구현했다.</li>
+      <li>2026-06-13: Gmail OAuth 토큰을 AES-GCM 암호화 저장으로 전환하고, 기존 평문 토큰은 서버 기동 시 암호화 값으로 재저장되도록 했다.</li>
+      <li>2026-06-13: <code>shipmate-merchant</code> 설정 화면에 Google Gmail 연결, 연결 상태 확인, Gmail 수동 수집 버튼을 추가했다.</li>
+      <li>2026-06-13: Gmail API 활성화 후 OAuth polling 수동 실행을 검증했고, 연결 계정 1개에서 읽지 않은 메일 3건을 중복 제외로 처리했다.</li>
+      <li>2026-06-13: Gmail OAuth polling 신규 수집 메일에서 출고표 초안을 자동 생성하고, 실패 시 <code>SM-GML-9106</code> 오류 로그로 분리 기록하도록 했다.</li>
+      <li>2026-06-13: Gmail OAuth polling 첨부 원본 저장용 <code>tb_email_attachments</code> 마이그레이션과 객체 저장 경로 <code>email-attachments/{merchantId}/{inboundMessageId}/...</code>를 추가했다.</li>
+      <li>2026-06-14: Gmail OAuth 읽음 처리 실패가 수집 완료 응답을 막지 않도록 <code>SM-GML-9108</code> 오류 로그로 분리하고, 신규 OAuth 연결 scope를 <code>gmail.modify</code>로 보정했다.</li>
+      <li>2026-06-14: 이미 수집된 Gmail 최신 이력 2건을 읽음 처리하는 <code>/api/oauth/google/mark-latest-collected-read</code> 운영 API를 추가하고, 테스트 메일 2건을 읽음 처리했다.</li>
+      <li>2026-06-14: 개발 지침에 새 field 생성 전 필드 딕셔너리 확인, 새 DB column 생성 전 DB 컬럼 딕셔너리 확인 규칙을 추가했다.</li>
+      <li>2026-06-14: Gmail/IMAP 첨부 원본 목록 조회와 presigned 다운로드 URL API를 추가하고, <code>shipmate-merchant</code> 주문 원문/초안 화면에서 첨부파일 다운로드를 제공했다.</li>
+      <li>2026-06-14: Gmail polling 운영 상태 API와 <code>shipmate-merchant</code> 설정 화면의 자동 수집 상태, 주기, 누적 수집/첨부 건수, 마지막 수집 시각 표시를 추가했다.</li>
+      <li>2026-06-14: Gmail 제목/본문/첨부 파일명과 IMAP 제목/발신자/첨부 파일명 디코딩을 보강하고, IMAP base64 첨부 원본 저장을 추가했다.</li>
+      <li>2026-06-14: MinIO presigned URL 생성을 위해 MinIO client region을 <code>us-east-1</code>로 고정하고, 첨부 다운로드 URL 발급과 range GET 접근을 검증했다.</li>
+      <li>2026-06-14: staging compose의 Google OAuth redirect 설정을 <code>STAGING_GOOGLE_OAUTH_REDIRECT_URI</code>로 분리해 로컬 <code>GOOGLE_OAUTH_REDIRECT_URI</code>가 섞이지 않게 했고, 로컬 hosts 방식에서 <code>https://staging-shipmate.com/api/oauth/google/callback</code> redirect URL 생성을 검증했다.</li>
+      <li>2026-06-14: Gmail polling 실행 이력 테이블 <code>tb_gmail_polling_runs</code>를 추가하고, 수동/스케줄 실행의 성공/실패, 처리 건수, 실패 코드와 메시지를 기록하도록 했다.</li>
+      <li>2026-06-14: Merchant와 내부관리자 대시보드에 Gmail 수집 실행/실패 건수, 최근 실패 메시지, 실패 코드별 집계를 추가했다.</li>
+      <li>2026-06-14: 이메일 첨부 다운로드 URL 발급 변경 이력과 첨부 보관 기간 설정 <code>SHIPMATE_EMAIL_ATTACHMENT_RETENTION_DAYS</code>를 추가했다.</li>
+      <li>2026-06-14: DNS 등록 전 Cloudflare Tunnel/ngrok 임시 HTTPS OAuth 검증 절차와 Gmail/첨부 포함 스테이징 HTTP 시나리오를 보강했다.</li>
+      <li>2026-06-14: Gmail OAuth polling에서 Google 보안 알림과 <code>no-reply</code> 계열 안내 메일을 비주문 메일로 제외하고 실행 이력과 Merchant/Admin 대시보드에 비주문 제외 건수를 표시하도록 했다.</li>
+      <li>2026-06-14: 이메일 첨부 보관 기간이 지난 객체와 메타데이터를 정리하는 배치와 수동 API <code>/api/email-orders/attachments/cleanup-expired</code>를 추가했다.</li>
+      <li>2026-06-14: 이메일 주문 원문에서 <code>품목:</code> 라벨을 우선 추출하도록 기본 초안 생성 규칙을 보정해 메일 헤더가 품목명으로 들어가는 문제를 수정했다.</li>
+      <li>2026-06-14: Gmail 수집으로 생성된 출고표 초안에 AI 후보 추출을 자동 적용하고, AI 신뢰도가 낮거나 검수 사유가 있으면 <code>NEEDS_REVIEW</code> 상태로 분리하도록 했다.</li>
+      <li>2026-06-14: 출고표 초안 제출 전 필수값 API 검증, 초안 목록 상태/검색 필터, 검수 화면 필수값 안내를 추가했다.</li>
+      <li>2026-06-14: 제출 출고표 필터, 고객 기본값/단가표 반영, 재검수 전환, 내부관리자 초안/출고표 필터, WSL Docker 확인 스크립트와 DNS 전 임시 외부 접속 절차를 추가했다.</li>
+      <li>2026-06-14: WSL Docker daemon 기준 로컬 compose 기동과 재검수 통합 시나리오를 검증하고, 출고표 수정 정책과 변경 이력 표시를 보강했다.</li>
+      <li>2026-06-14: 내부관리자 변경 이력 필터, 재검수 사유 입력/변경 이력 기록, Merchant 출고표 상세 변경 이력, CSV 검증 상세 UI, 고객 기본값/단가표 미리보기를 추가하고 WSL Docker 스테이징 compose 응답을 확인했다.</li>
+      <li>2026-06-14: 변경 이력 서버 필터/페이지네이션, 변경 이력 metadata JSON 저장, Merchant 변경 이력 그룹 표시, 선택 CSV 검증과 오류 클릭 이동, 스테이징 smoke script를 추가하고 API/Admin/Merchant 빌드와 로컬/스테이징 검증을 통과했다.</li>
+      <li>2026-06-14: 변경 이력 필터 옵션, metadata 표시, 재제출 타임라인, 구조화 CSV 검증 오류, 미리보기 변경 강조, 확장 smoke script, DNS 없는 HTTPS 확인 스크립트, 관리자 감사 페이지네이션 정리를 완료했다.</li>
+      <li>2026-06-14: 변경 이력 metadata key 필터, 제출 차수별 품목 snapshot diff, 택배사별 CSV 검증 분리, smoke JSON 리포트, 오류 로그 감사 검색 이동, Gmail 실패 원문 화면 이동을 추가했다.</li>
+      <li>2026-06-14: 택배 CSV 규칙 이력 drawer, Gmail 실패 체크리스트 링크, 오류 로그 일괄 처리 미리보기, Merchant diff 색상/필터, Admin 백업 lazy screen을 추가했다.</li>
+      <li>2026-06-14: 로컬 스테이징 API 대상으로 smoke script를 재실행해 workflow 본체 통합 시나리오를 통과했고, 원격 runner 실행 검증은 <code>gh</code> CLI 또는 GitHub 웹 UI 작업으로 남겼다.</li>
+      <li>2026-06-14: 원격 smoke workflow 실행 helper, DNS 없는 HTTPS JSON/JUnit 리포트와 artifact 업로드, Gmail 실패 오류 로그 연동, CSV 규칙 변경 전/후 감사 metadata, Merchant diff 필터 보존을 추가했다.</li>
+      <li>2026-06-14: Admin 설정 lazy screen, Gmail 실패 오류 일괄 처리 버튼, CSV 이력 fallback, Merchant diff URL query 보존, 스테이징 점검 요약 스크립트를 추가하고 API/Admin/Merchant 빌드 및 HTTPS/smoke 검증을 통과했다.</li>
+      <li>2026-06-14: Admin 목록성 화면 lazy table 분리, Gmail 실패 오류 서버 검색 확장, CSV 이력 변경 항목 토글, Merchant diff query 네비게이션 연동, 스테이징 점검 요약 문서 포털 링크를 추가했다.</li>
+      <li>2026-06-14: Merchant 운영 화면 lazy 분리, Gmail 실패 오류 순차 검색, CSV 이력 metadata 원문 표시, Merchant 선택 출고표 URL query 연동, 스테이징 점검 요약 HTML 생성을 추가하고 API/Admin/Merchant 빌드 및 HTTPS/smoke 검증을 통과했다.</li>
+      <li>2026-06-16: Oracle Linux WSL에 <code>git</code>과 <code>gh</code> CLI를 설치하고, GitHub Actions smoke artifact 다운로드 스크립트와 smoke 실패 상세 리포트를 추가했다.</li>
+      <li>2026-06-16: GitHub Actions smoke workflow 원격 실행과 artifact 다운로드를 검증하고, staging smoke secret 설정 helper를 추가했다.</li>
+      <li>2026-06-17: Windows Docker Desktop 엔진 기준 스테이징 compose를 재빌드/기동하고, Cloudflare quick tunnel URL로 GitHub Actions 원격 smoke 실데이터 흐름을 통과했다.</li>
+      <li>2026-06-17: Cloudflare quick tunnel 원격 smoke 자동화 스크립트, 스테이징 점검 요약 artifact/명령 표시, Gmail 수집 이력 drawer 자동 갱신, CSV metadata 원문 복사, Merchant diff section query 이동을 추가했다.</li>
+      <li>2026-06-18: WSL Docker Desktop 연결을 복구하고 quick tunnel 원격 smoke run <code>27739146102</code>를 통과했으며, Merchant diff URL 상태 hook 분리와 Admin/Merchant 화면 응답 검증을 완료했다.</li>
+      <li>2026-06-18: 로컬 MySQL 8.4 DB를 Docker Compose로 설치하고 Flyway migration v13까지 적용했으며, 포트 충돌 장비용 host 포트 환경변수를 추가했다.</li>
+      <li>2026-06-18: Admin 스테이징 compose 서비스와 <code>/admin</code> Nginx 프록시, 스테이징 host 포트 환경변수, 포트 점검 스크립트, Playwright UI 검증 스크립트를 추가하고 스테이징 빌드/health/로그인 API를 확인했다.</li>
+      <li>2026-06-18: Merchant 초안 검수 form 동기화와 출고 변경 상세 스크롤을 hook으로 분리하고, 스테이징 기본 계정 seed 스크립트를 추가했다.</li>
+      <li>2026-06-18: Merchant 초안 검수 저장/제출/고객 기본값 반영 이벤트를 action hook으로 분리하고, smoke script에 기본 계정 seed 옵션을 연결했다.</li>
+      <li>2026-06-18: 스테이징 Nginx 프론트의 Admin/Merchant upstream DNS cache 문제를 확인하고 Docker DNS resolver 기반 프록시 설정으로 보정했다.</li>
+      <li>2026-06-18: Merchant 출고/문서 화면을 <code>ShippingScreen</code> lazy module로 이동하고, 스테이징 재빌드와 health/라우팅/smoke 검증을 통과했다.</li>
+      <li>2026-06-18: Merchant <code>ShippingScreen</code> 타입과 중복 JSX 주석을 정리하고, GitHub self-hosted runner PoC와 기본 계정 health 대기 점검 스크립트를 추가했다.</li>
+      <li>2026-06-18: 기본 계정, DNS 없는 HTTPS, smoke, 점검 요약을 묶은 스테이징 전체 점검 스크립트를 추가하고 실행 검증을 통과했다.</li>
+      <li>2026-06-19: Merchant 공통 타입과 초안 검수 lazy screen을 분리하고, Admin <code>/admin</code> asset base 문제를 보정한 뒤 Playwright UI 검증과 스테이징 전체 점검을 통과했다.</li>
+      <li>2026-06-19: Admin 공통 타입 분리, Merchant 초안 검수 품목 입력 컴포넌트 분리, self-hosted runner 점검 명령 문서 연결 보강을 완료하고 Admin/Merchant 빌드를 통과했다.</li>
+      <li>2026-06-19: Merchant 초안 검수 props 묶음 정리, self-hosted runner JSON 리포트와 점검 요약 섹션, runner token helper/절차 문서화, Playwright 로그인/초안 검수 검증 확대를 완료했다.</li>
+      <li>2026-06-19: Admin 컬럼 정의 일부 분리, Playwright 초안 저장/CSV 검증 확대, self-hosted runner 정지 스크립트와 재등록 절차 문서화를 완료했다.</li>
+      <li>2026-06-19: Admin Gmail 실패 drawer 분리, runner token helper 실패 리포트 보강, Playwright diff 위치 polling 안정화를 완료했다.</li>
+      <li>2026-06-19: Admin bulk 오류 처리 모달과 CSV 규칙 이력 drawer 분리, Playwright 복사/CSV 검증 locator 확대, runner 리포트 stage 구분을 완료했다.</li>
+      <li>2026-06-19: Admin 오류 로그 inline field 분리, Playwright bulk 처리 row 갱신 검증, DNS 없는 HTTPS wrapper, runner token 실패 reason 세분화를 완료했다.</li>
+      <li>2026-06-21: self-hosted runner create-env/run 리포트를 GitHub Actions artifact에 포함하고, workflow run <code>27901147270</code>에서 smoke, HTTPS, 스테이징 전체 점검, artifact 다운로드를 통과했다.</li>
+    </ul>
+    <section>
+      <h2>원본</h2>
+      <p><a href="../development-progress.md">Markdown 원본</a></p>
+    </section>
+  </main>
+</body>
+</html>
