@@ -129,7 +129,36 @@ bash shipmate-infra/scripts/smoke-staging.sh
 SMOKE_SEED_DEFAULT_ACCOUNT=true bash shipmate-infra/scripts/smoke-staging.sh
 ```
 
+seed와 cleanup은 분리해서 운영한다. `SMOKE_SEED_DEFAULT_ACCOUNT=true`는 로그인 검증용 기본 계정만 준비하고, smoke 시나리오가 생성한 `merchant_smoke_%` 테스트 데이터는 삭제하지 않는다. 테스트 데이터 정리는 `cleanup-staging-smoke-data.sh` dry-run 확인 뒤 별도 apply로 실행한다.
+
 실행 결과는 기본적으로 `shipmate-infra/smoke-report.json`, `shipmate-infra/smoke-report.xml`에 남기고, CI 수집용 복사본은 `shipmate-infra/reports/smoke/smoke-report-{timestamp}.json`, `shipmate-infra/reports/smoke/smoke-report-{timestamp}.xml`에 남긴다. 실패 시에는 마지막 단계, 마지막 HTTP 상태, curl 오류, 응답 본문 일부를 리포트에 포함한다. CI에서 별도 산출물 경로가 필요하면 `SMOKE_REPORT_DIR`을 지정한다.
+
+스테이징 smoke는 `merchant_smoke_{timestamp}`, `customer_smoke_{timestamp}`, `smoke-{timestamp}` 패턴의 테스트 데이터를 생성한다. 공용 스테이징 DB에서는 smoke 통과 후 바로 삭제하지 않고, 실패 재현과 artifact 추적을 위해 우선 dry-run으로 삭제 대상을 확인한다.
+
+```bash
+bash shipmate-infra/scripts/cleanup-staging-smoke-data.sh
+```
+
+실제 삭제는 명시적으로 apply를 켠 경우에만 수행한다. 이 스크립트는 스테이징 전용이며 운영 DB에 사용하지 않는다.
+
+```bash
+SMOKE_CLEANUP_APPLY=true \
+SMOKE_CLEANUP_CONFIRM='merchant_smoke_%' \
+bash shipmate-infra/scripts/cleanup-staging-smoke-data.sh
+```
+
+삭제 대상은 `merchant_id like 'merchant_smoke_%'` 업무 데이터로 제한한다. 통합 실패 분석을 위해 최근 artifact에 기록된 `merchantId`, `inboundMessageId`, `orderDraftId`를 확인한 뒤 실행한다. 실제 삭제 시에는 `SMOKE_CLEANUP_CONFIRM` 값이 삭제 pattern과 일치해야 한다.
+
+운영 타이밍은 다음 기준으로 둔다.
+
+| 상황 | 기준 |
+|---|---|
+| 기능 개발 중 반복 smoke | 삭제하지 않고 누적 보관한다. 실패 재현과 비교를 우선한다. |
+| 하루 개발 종료 또는 20건 이상 누적 | dry-run으로 대상 row 수를 확인한 뒤 필요하면 apply를 1회 실행한다. |
+| GitHub Actions artifact 분석 중 | 해당 run의 `merchantId`, `orderDraftId` 확인이 끝날 때까지 삭제하지 않는다. |
+| 공용 스테이징 DB 용량/목록 노이즈 증가 | dry-run 리포트를 staging summary에 남긴 뒤 apply를 실행한다. |
+
+cleanup 실행 결과는 `shipmate-infra/reports/cleanup/staging-smoke-cleanup-report.json`과 JUnit XML에 남기며, staging summary에도 표시된다.
 
 스모크와 HTTPS 확인 리포트를 운영 점검용 Markdown으로 요약하려면 다음을 실행한다.
 
@@ -193,7 +222,39 @@ bash shipmate-infra/scripts/download-github-smoke-reports.sh
 
 기본적으로 현재 branch의 최신 성공 run에서 `shipmate-smoke-reports` artifact를 내려받아 `shipmate-infra/reports/github-actions/run-{runId}-{timestamp}/`에 저장하고, `artifact-summary.md`에 run URL과 주요 리포트 파일 경로를 정리한다. 특정 실행을 내려받으려면 `RUN_ID=27503312344 bash shipmate-infra/scripts/download-github-smoke-reports.sh`처럼 실행한다.
 
+다운로드한 GitHub Actions artifact는 로컬 `reports/` 아래에만 보관하고 git에는 포함하지 않는다. 기본 보관 기준은 최신 10개 run 디렉터리다. 정리 전에는 dry-run으로 삭제 후보를 먼저 확인한다.
+
+```bash
+bash shipmate-infra/scripts/cleanup-github-smoke-reports.sh
+```
+
+실제 삭제는 명시적으로 apply를 켠 경우에만 수행한다.
+
+```bash
+REPORT_CLEANUP_APPLY=true bash shipmate-infra/scripts/cleanup-github-smoke-reports.sh
+```
+
+보관 개수를 바꿀 때는 `KEEP_LATEST=20`처럼 지정한다. 실패 분석 중인 run은 별도 위치에 복사하지 않고, 필요한 경우 `RUN_ID=... download-github-smoke-reports.sh`로 다시 내려받는다.
+
+중요 run은 보관 개수 밖으로 밀려도 삭제 후보에서 제외할 수 있다.
+
+```bash
+PROTECT_RUN_IDS=27901147270,27900208928 \
+bash shipmate-infra/scripts/cleanup-github-smoke-reports.sh
+```
+
 원격 runner에서 실제 smoke를 실행하려면 GitHub repository secret `STAGING_API_BASE_URL`에 runner가 접근 가능한 HTTPS API 주소를 넣는다. GitHub hosted runner는 개발 PC의 `localhost`, `127.0.0.1`, WSL 내부 주소에 접근할 수 없으므로 Cloudflare Tunnel, ngrok, 공인 staging 주소, 또는 self-hosted runner에서 접근 가능한 주소를 사용한다.
+
+GitHub Actions smoke 대상 URL은 runner 위치에 따라 다르게 둔다.
+
+| 실행 위치 | `runner_label` | `api_base_url` 또는 secret | 사용 기준 |
+|---|---|---|---|
+| GitHub hosted runner | 비움 또는 `ubuntu-latest` | Cloudflare Tunnel/ngrok/공인 HTTPS URL | 로컬 PC와 Docker network에 직접 접근할 수 없으므로 외부에서 접근 가능한 URL만 사용한다. |
+| self-hosted runner 컨테이너 | `shipmate-staging` | `http://shipmate-api:8080` | runner가 `shipmate-staging_default` Docker network 안에서 실행될 때 사용한다. secret에 넣지 않고 workflow input으로 전달하는 것을 기본으로 한다. |
+| self-hosted runner 호스트 | `shipmate-staging` | `http://host.docker.internal:18080` 또는 `http://localhost:18080` | runner가 Docker network 밖의 WSL/Windows 호스트에서 실행될 때만 사용한다. |
+| 공인 스테이징 | 필요에 따라 선택 | `https://staging-shipmate.com` 계열 | DNS와 TLS가 준비된 마지막 단계에서 사용한다. |
+
+`STAGING_API_BASE_URL` repository secret에는 외부 runner가 접근해야 하는 URL만 넣는다. Docker network 내부 URL인 `http://shipmate-api:8080`은 GitHub hosted runner에서 실패하므로 secret으로 상시 저장하지 않는다.
 
 Docker Desktop 스테이징 network에 Cloudflare quick tunnel을 임시로 연결해 secret 설정, workflow 실행, artifact 다운로드, tunnel/secret 정리까지 한 번에 처리하려면 다음을 실행한다.
 
@@ -256,6 +317,16 @@ bash shipmate-infra/scripts/run-github-self-hosted-runner.sh
 bash shipmate-infra/scripts/stop-github-self-hosted-runner.sh
 ```
 
+운영 기준은 `짧은 검증용 일회성 등록`을 기본으로 둔다.
+
+| 방식 | 기준 | 이유 |
+|---|---|---|
+| 일회성 등록 후 중지 | 로컬 PC/WSL에서 스테이징 smoke를 검증할 때 기본값 | runner token과 로컬 Docker socket 노출 시간을 줄이고, GitHub에 오래된 offline runner가 쌓이는 문제를 줄인다. |
+| 컨테이너 재사용 | 같은 장비에서 짧은 시간 안에 여러 workflow를 반복 실행할 때만 사용 | 재등록 시간을 줄일 수 있지만, 검증 종료 후 반드시 stop script로 내린다. |
+| 장기 상주 runner | 공인 스테이징 서버와 전용 runner 계정이 준비된 뒤 검토 | 개인 개발 PC에서는 보안과 상태 관리 부담이 크므로 기본으로 사용하지 않는다. |
+
+일회성 검증 절차는 `create-github-runner-env.sh` 실행, `run-github-self-hosted-runner.sh` 실행, workflow 완료 확인, artifact 다운로드, `stop-github-self-hosted-runner.sh` 실행 순서다. 재사용할 때도 하루 작업이 끝나면 runner 컨테이너를 중지한다.
+
 GitHub 저장소 화면에 남은 오래된 runner는 다음 위치에서 제거한다.
 
 ```text
@@ -270,6 +341,16 @@ vonogler/shipmate 저장소
 등록 token이 만료되었거나 runner가 오프라인으로 남아 있으면 GitHub 화면에서 기존 runner를 제거한 뒤 `create-github-runner-env.sh`를 다시 실행해 재등록한다.
 
 실행 스크립트는 결과를 `shipmate-infra/reports/github-runner/self-hosted-runner-report.json`에 남긴다. 이후 `bash shipmate-infra/scripts/summarize-staging-reports.sh`를 실행하면 스테이징 점검 요약 Markdown/HTML의 `Self-hosted runner` 섹션에서도 최근 상태를 확인할 수 있다.
+
+runner 리포트는 단계별 복사본도 남긴다.
+
+```text
+shipmate-infra/reports/github-runner/self-hosted-runner-create-env-report.json
+shipmate-infra/reports/github-runner/self-hosted-runner-run-report.json
+shipmate-infra/reports/github-runner/self-hosted-runner-stop-report.json
+```
+
+GitHub Actions artifact에는 workflow 실행 전에 이미 존재하는 `create-env`, `run` 리포트를 포함한다. `stop` 리포트는 workflow가 끝나고 artifact 업로드가 완료된 뒤 로컬에서 runner를 중지할 때 생성되므로 같은 run artifact에 포함하지 않는다. stop 상태는 로컬 `self-hosted-runner-stop-report.json`과 다음 실행의 artifact 또는 스테이징 점검 요약으로 확인한다.
 
 GitHub Actions 수동 실행에서는 다음 값을 입력한다.
 

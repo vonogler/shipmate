@@ -16,6 +16,7 @@ services:
       GITHUB_RUNNER_WORKDIR: ${GITHUB_RUNNER_WORKDIR:-_work}
     volumes:
       - ./reports/github-runner:/host-reports/github-runner:ro
+      - ./reports/cleanup:/host-reports/cleanup:ro
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:

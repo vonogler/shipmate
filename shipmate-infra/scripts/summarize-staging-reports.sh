@@ -7,6 +7,7 @@ SUMMARY_FILE="${SUMMARY_FILE:-shipmate-infra/reports/staging-check-summary.md}"
 SUMMARY_HTML_FILE="${SUMMARY_HTML_FILE:-shipmate-infra/reports/staging-check-summary.html}"
 GITHUB_REPORT_ROOT="${GITHUB_REPORT_ROOT:-shipmate-infra/reports/github-actions}"
 GITHUB_RUNNER_REPORT_FILE="${GITHUB_RUNNER_REPORT_FILE:-shipmate-infra/reports/github-runner/self-hosted-runner-report.json}"
+SMOKE_CLEANUP_REPORT_FILE="${SMOKE_CLEANUP_REPORT_FILE:-shipmate-infra/reports/cleanup/staging-smoke-cleanup-report.json}"
 
 json_value() {
   local file_path="$1"
@@ -58,6 +59,23 @@ runner_container_name="$(json_value "${GITHUB_RUNNER_REPORT_FILE}" containerName
 runner_container_status="$(json_value "${GITHUB_RUNNER_REPORT_FILE}" containerStatus)"
 runner_label="$(json_value "${GITHUB_RUNNER_REPORT_FILE}" runnerLabel)"
 runner_finished_at="$(json_value "${GITHUB_RUNNER_REPORT_FILE}" finishedAt)"
+
+cleanup_status="$(json_value "${SMOKE_CLEANUP_REPORT_FILE}" status)"
+cleanup_mode="$(json_value "${SMOKE_CLEANUP_REPORT_FILE}" mode)"
+cleanup_reason="$(json_value "${SMOKE_CLEANUP_REPORT_FILE}" reason)"
+cleanup_merchant_pattern="$(json_value "${SMOKE_CLEANUP_REPORT_FILE}" merchantPattern)"
+cleanup_total_rows="$(json_value "${SMOKE_CLEANUP_REPORT_FILE}" totalRows)"
+cleanup_remaining_rows="$(json_value "${SMOKE_CLEANUP_REPORT_FILE}" remainingRows)"
+cleanup_finished_at="$(json_value "${SMOKE_CLEANUP_REPORT_FILE}" finishedAt)"
+
+artifact_cleanup_report_file="${ARTIFACT_CLEANUP_REPORT_FILE:-shipmate-infra/reports/cleanup/github-smoke-artifact-cleanup-report.json}"
+artifact_cleanup_status="$(json_value "${artifact_cleanup_report_file}" status)"
+artifact_cleanup_mode="$(json_value "${artifact_cleanup_report_file}" mode)"
+artifact_cleanup_keep_latest="$(json_value "${artifact_cleanup_report_file}" keepLatest)"
+artifact_cleanup_protect_run_ids="$(json_value "${artifact_cleanup_report_file}" protectRunIds)"
+artifact_cleanup_total_dirs="$(json_value "${artifact_cleanup_report_file}" totalRunDirs)"
+artifact_cleanup_delete_candidates="$(json_value "${artifact_cleanup_report_file}" deleteCandidates)"
+artifact_cleanup_finished_at="$(json_value "${artifact_cleanup_report_file}" finishedAt)"
 
 latest_artifact_summary=""
 latest_artifact_summary_link="-"
@@ -137,6 +155,30 @@ cat > "${SUMMARY_FILE}" <<REPORT
 | 컨테이너 상태 | ${runner_container_status:-"-"} |
 | runner label | ${runner_label:-"-"} |
 | 완료 시각 | ${runner_finished_at:-"-"} |
+
+## Smoke 테스트 데이터 정리
+
+| 항목 | 값 |
+|---|---|
+| 상태 | ${cleanup_status:-"-"} |
+| 실행 유형 | ${cleanup_mode:-"-"} |
+| 사유 | ${cleanup_reason:-"-"} |
+| 이용자 ID pattern | ${cleanup_merchant_pattern:-"-"} |
+| 대상 row 수 | ${cleanup_total_rows:-"-"} |
+| 잔여 row 수 | ${cleanup_remaining_rows:-"-"} |
+| 완료 시각 | ${cleanup_finished_at:-"-"} |
+
+## GitHub Actions artifact 정리
+
+| 항목 | 값 |
+|---|---|
+| 상태 | ${artifact_cleanup_status:-"-"} |
+| 실행 유형 | ${artifact_cleanup_mode:-"-"} |
+| 최신 보관 개수 | ${artifact_cleanup_keep_latest:-"-"} |
+| 보호 run ID | ${artifact_cleanup_protect_run_ids:-"-"} |
+| 전체 run 디렉터리 | ${artifact_cleanup_total_dirs:-"-"} |
+| 삭제 후보 | ${artifact_cleanup_delete_candidates:-"-"} |
+| 완료 시각 | ${artifact_cleanup_finished_at:-"-"} |
 
 ## 실행 명령
 
@@ -220,6 +262,28 @@ cat > "${SUMMARY_HTML_FILE}" <<REPORT
       <tr><td>컨테이너 상태</td><td>${runner_container_status:-"-"}</td></tr>
       <tr><td>runner label</td><td>${runner_label:-"-"}</td></tr>
       <tr><td>완료 시각</td><td>${runner_finished_at:-"-"}</td></tr>
+    </table>
+    <h2>Smoke 테스트 데이터 정리</h2>
+    <table>
+      <tr><th>항목</th><th>값</th></tr>
+      <tr><td>상태</td><td>${cleanup_status:-"-"}</td></tr>
+      <tr><td>실행 유형</td><td>${cleanup_mode:-"-"}</td></tr>
+      <tr><td>사유</td><td>${cleanup_reason:-"-"}</td></tr>
+      <tr><td>이용자 ID pattern</td><td>${cleanup_merchant_pattern:-"-"}</td></tr>
+      <tr><td>대상 row 수</td><td>${cleanup_total_rows:-"-"}</td></tr>
+      <tr><td>잔여 row 수</td><td>${cleanup_remaining_rows:-"-"}</td></tr>
+      <tr><td>완료 시각</td><td>${cleanup_finished_at:-"-"}</td></tr>
+    </table>
+    <h2>GitHub Actions artifact 정리</h2>
+    <table>
+      <tr><th>항목</th><th>값</th></tr>
+      <tr><td>상태</td><td>${artifact_cleanup_status:-"-"}</td></tr>
+      <tr><td>실행 유형</td><td>${artifact_cleanup_mode:-"-"}</td></tr>
+      <tr><td>최신 보관 개수</td><td>${artifact_cleanup_keep_latest:-"-"}</td></tr>
+      <tr><td>보호 run ID</td><td>${artifact_cleanup_protect_run_ids:-"-"}</td></tr>
+      <tr><td>전체 run 디렉터리</td><td>${artifact_cleanup_total_dirs:-"-"}</td></tr>
+      <tr><td>삭제 후보</td><td>${artifact_cleanup_delete_candidates:-"-"}</td></tr>
+      <tr><td>완료 시각</td><td>${artifact_cleanup_finished_at:-"-"}</td></tr>
     </table>
     <h2>실행 명령</h2>
     <table>
