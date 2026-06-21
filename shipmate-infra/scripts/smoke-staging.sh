@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 API_BASE_URL="${API_BASE_URL:-http://localhost:18080}"
 STAMP="$(date +%s)"
 MERCHANT_ID="${MERCHANT_ID:-merchant_smoke_${STAMP}}"
@@ -10,11 +11,17 @@ CUSTOMER_ID="${CUSTOMER_ID:-customer_smoke_${STAMP}}"
 SMOKE_REPORT_FILE="${SMOKE_REPORT_FILE:-shipmate-infra/smoke-report.json}"
 SMOKE_JUNIT_FILE="${SMOKE_JUNIT_FILE:-shipmate-infra/smoke-report.xml}"
 SMOKE_REPORT_DIR="${SMOKE_REPORT_DIR:-shipmate-infra/reports/smoke}"
+SMOKE_DIAGNOSTIC_DIR="${SMOKE_DIAGNOSTIC_DIR:-/tmp/shipmate-smoke-${STAMP}}"
 current_step="준비"
 smoke_status="failed"
 
+if [[ "${SMOKE_SEED_DEFAULT_ACCOUNT:-false}" == "true" ]]; then
+  echo "[0/12] 기본 계정 확인"
+  API_BASE_URL="${API_BASE_URL}" bash "${SCRIPT_DIR}/seed-staging-default-account.sh"
+fi
+
 json_escape() {
-  printf "%s" "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+  printf "%s" "$1" | tr '\r\n\t' '   ' | sed 's/\\/\\\\/g; s/"/\\"/g'
 }
 
 xml_escape() {
@@ -24,10 +31,30 @@ xml_escape() {
 write_report() {
   local finished_at
   local failures
+  local last_http_status
+  local last_curl_error
+  local last_response_excerpt
+  local failure_detail
   finished_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   failures="1"
   if [[ "${smoke_status}" == "ok" ]]; then
     failures="0"
+  fi
+  last_http_status=""
+  last_curl_error=""
+  last_response_excerpt=""
+  failure_detail=""
+  if [[ -f "${SMOKE_DIAGNOSTIC_DIR}/last-http-status.txt" ]]; then
+    last_http_status="$(cat "${SMOKE_DIAGNOSTIC_DIR}/last-http-status.txt")"
+  fi
+  if [[ -f "${SMOKE_DIAGNOSTIC_DIR}/last-curl-error.txt" ]]; then
+    last_curl_error="$(cat "${SMOKE_DIAGNOSTIC_DIR}/last-curl-error.txt")"
+  fi
+  if [[ -f "${SMOKE_DIAGNOSTIC_DIR}/last-response.txt" ]]; then
+    last_response_excerpt="$(head -c 2000 "${SMOKE_DIAGNOSTIC_DIR}/last-response.txt")"
+  fi
+  if [[ "${smoke_status}" != "ok" ]]; then
+    failure_detail="httpStatus=${last_http_status:-unknown}; curlError=${last_curl_error:-none}; response=${last_response_excerpt:-none}"
   fi
   mkdir -p "$(dirname "${SMOKE_REPORT_FILE}")" "$(dirname "${SMOKE_JUNIT_FILE}")" "${SMOKE_REPORT_DIR}"
   cat > "${SMOKE_REPORT_FILE}" <<REPORT
@@ -38,6 +65,8 @@ write_report() {
   "inboundMessageId": "$(json_escape "${inbound_message_id:-}")",
   "orderDraftId": "$(json_escape "${order_draft_id:-}")",
   "lastStep": "$(json_escape "${current_step}")",
+  "lastHttpStatus": "$(json_escape "${last_http_status}")",
+  "failureDetail": "$(json_escape "${failure_detail}")",
   "finishedAt": "${finished_at}"
 }
 REPORT
@@ -48,7 +77,8 @@ REPORT
 REPORT
   if [[ "${smoke_status}" != "ok" ]]; then
     cat >> "${SMOKE_JUNIT_FILE}" <<REPORT
-    <failure message="$(xml_escape "${current_step}")">마지막 단계: $(xml_escape "${current_step}")</failure>
+    <failure message="$(xml_escape "${current_step}")">마지막 단계: $(xml_escape "${current_step}")
+$(xml_escape "${failure_detail}")</failure>
 REPORT
   fi
   cat >> "${SMOKE_JUNIT_FILE}" <<REPORT
@@ -71,7 +101,26 @@ extract_json_string() {
 }
 
 request_json() {
-  curl -fsS "$@"
+  local http_status
+  local curl_exit
+  mkdir -p "${SMOKE_DIAGNOSTIC_DIR}"
+  set +e
+  http_status="$(curl -sS -o "${SMOKE_DIAGNOSTIC_DIR}/last-response.txt" -w "%{http_code}" "$@" 2>"${SMOKE_DIAGNOSTIC_DIR}/last-curl-error.txt")"
+  curl_exit=$?
+  set -e
+  printf "%s" "${http_status}" > "${SMOKE_DIAGNOSTIC_DIR}/last-http-status.txt"
+  if (( curl_exit != 0 )); then
+    echo "HTTP 요청 실패: ${current_step}" >&2
+    cat "${SMOKE_DIAGNOSTIC_DIR}/last-curl-error.txt" >&2
+    exit "${curl_exit}"
+  fi
+  if [[ ! "${http_status}" =~ ^2[0-9][0-9]$ ]]; then
+    echo "API가 HTTP ${http_status}를 반환했습니다: ${current_step}" >&2
+    head -c 2000 "${SMOKE_DIAGNOSTIC_DIR}/last-response.txt" >&2
+    echo >&2
+    exit 1
+  fi
+  cat "${SMOKE_DIAGNOSTIC_DIR}/last-response.txt"
 }
 
 current_step="[1/12] 회원가입"
