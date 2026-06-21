@@ -160,6 +160,8 @@ bash shipmate-infra/scripts/cleanup-staging-smoke-data.sh
 
 cleanup 실행 결과는 `shipmate-infra/reports/cleanup/staging-smoke-cleanup-report.json`과 JUnit XML에 남기며, staging summary에도 표시된다.
 
+GitHub Actions workflow는 cleanup JSON/JUnit 리포트를 artifact로 업로드하고, `GITHUB_STEP_SUMMARY`에도 Smoke 테스트 데이터 정리와 artifact 정리 요약 표를 표시한다. GitHub Actions의 기본 테스트 탭에 JUnit을 별도 테스트로 노출하는 reporter는 아직 추가하지 않았으므로, 현재 기준의 표준 확인 위치는 workflow summary와 `shipmate-smoke-reports` artifact다.
+
 스모크와 HTTPS 확인 리포트를 운영 점검용 Markdown으로 요약하려면 다음을 실행한다.
 
 ```bash
@@ -263,6 +265,15 @@ bash shipmate-infra/scripts/run-github-smoke-with-quick-tunnel.sh
 ```
 
 기본값은 `shipmate-staging_default` network에서 `http://shipmate-api:8080`을 외부 임시 URL로 노출한다. WSL `docker`가 Docker Desktop integration에 연결되지 않은 환경에서는 스크립트가 Windows Docker Desktop CLI를 PowerShell 경유로 호출한다. 기존 `STAGING_API_BASE_URL` secret이 있으면 실수로 덮어쓰지 않도록 중단하며, 임시 tunnel URL로 덮어써도 되는 경우에만 `ALLOW_OVERWRITE_SECRET=true`를 지정한다. 검증 후 기본적으로 tunnel 컨테이너와 임시 `STAGING_API_BASE_URL` secret을 정리한다. 임시 URL을 유지해야 할 때만 `KEEP_TUNNEL=true CLEANUP_SECRET=false`를 사용한다.
+
+quick tunnel workflow가 실패하거나 artifact 자동 다운로드가 실패하면 `gh run view --log-failed` 출력을 로컬 리포트로 저장한다.
+
+```text
+shipmate-infra/reports/quick-tunnel/quick-tunnel-workflow-report.txt
+shipmate-infra/reports/quick-tunnel/quick-tunnel-workflow-{runId}-failed-log.txt
+```
+
+이 리포트에는 run ID, run URL, workflow exit code, artifact 다운로드 상태, 실패 로그 파일 경로를 기록한다. 성공한 실행도 `quick-tunnel-workflow-report.txt`에 마지막 성공 상태를 남긴다.
 
 공인 DNS 없이 반복 검증을 더 안정화하려면 GitHub self-hosted runner를 스테이징 Docker network 또는 같은 WSL/Windows 호스트에서 실행하는 방식이 가능하다. 이 경우 GitHub hosted runner가 외부 URL로 접근하지 않아도 되므로 quick tunnel과 `STAGING_API_BASE_URL` 임시 secret을 생략할 수 있다. 다만 runner 등록 token은 GitHub 웹 UI 또는 `gh` 권한이 필요하다.
 

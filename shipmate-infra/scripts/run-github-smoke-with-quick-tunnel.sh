@@ -12,7 +12,9 @@ KEEP_TUNNEL="${KEEP_TUNNEL:-false}"
 CLEANUP_SECRET="${CLEANUP_SECRET:-true}"
 DOCKER_MODE="${DOCKER_MODE:-auto}"
 ALLOW_OVERWRITE_SECRET="${ALLOW_OVERWRITE_SECRET:-false}"
+QUICK_TUNNEL_REPORT_DIR="${QUICK_TUNNEL_REPORT_DIR:-shipmate-infra/reports/quick-tunnel}"
 secret_created_by_script="false"
+failed_log_file=""
 
 if [[ -z "${REF_NAME}" ]]; then
   REF_NAME="main"
@@ -79,6 +81,42 @@ print_tunnel_diagnostics() {
 - GitHub hosted runner 검증은 trycloudflare/ngrok/공인 HTTPS URL만 사용할 수 있습니다.
 - Docker Desktop WSL integration이 끊겼으면 bash shipmate-infra/scripts/check-wsl-docker.sh로 먼저 확인합니다.
 MESSAGE
+}
+
+write_quick_tunnel_report() {
+  local status="$1"
+  local run_id_value="$2"
+  local run_url_value="$3"
+  local workflow_exit_value="$4"
+  local artifact_download_status="$5"
+  local reason="$6"
+  mkdir -p "${QUICK_TUNNEL_REPORT_DIR}"
+  {
+    echo "status=${status}"
+    echo "reason=${reason}"
+    echo "workflowFile=${WORKFLOW_FILE}"
+    echo "refName=${REF_NAME}"
+    echo "runId=${run_id_value:-"-"}"
+    echo "runUrl=${run_url_value:-"-"}"
+    echo "workflowExit=${workflow_exit_value}"
+    echo "artifactDownloadStatus=${artifact_download_status}"
+    echo "failedLogFile=${failed_log_file:-"-"}"
+    echo "finishedAt=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  } > "${QUICK_TUNNEL_REPORT_DIR}/quick-tunnel-workflow-report.txt"
+}
+
+capture_failed_workflow_log() {
+  local run_id_value="$1"
+  if [[ -z "${run_id_value}" || -n "${failed_log_file}" ]]; then
+    return 0
+  fi
+  mkdir -p "${QUICK_TUNNEL_REPORT_DIR}"
+  failed_log_file="${QUICK_TUNNEL_REPORT_DIR}/quick-tunnel-workflow-${run_id_value}-failed-log.txt"
+  if ! gh run view "${run_id_value}" --log-failed > "${failed_log_file}" 2>&1; then
+    echo "gh run view --log-failed 출력 저장에 실패했습니다: ${failed_log_file}" >&2
+  else
+    echo "failedLogFile=${failed_log_file}"
+  fi
 }
 
 cleanup() {
@@ -158,7 +196,11 @@ if [[ -z "${run_id}" ]]; then
   exit 1
 fi
 
+artifact_download_status="ok"
 if ! RUN_ID="${run_id}" bash shipmate-infra/scripts/download-github-smoke-reports.sh; then
+  artifact_download_status="failed"
+  capture_failed_workflow_log "${run_id}"
+  write_quick_tunnel_report "failed" "${run_id}" "${run_url}" "${workflow_exit}" "${artifact_download_status}" "artifact-download-failed"
   cat >&2 <<MESSAGE
 workflow artifact 자동 다운로드가 실패했습니다.
 
@@ -171,6 +213,10 @@ MESSAGE
 fi
 
 if (( workflow_exit != 0 )); then
+  capture_failed_workflow_log "${run_id}"
+  write_quick_tunnel_report "failed" "${run_id}" "${run_url}" "${workflow_exit}" "${artifact_download_status}" "workflow-failed"
   echo "workflow가 실패했습니다. runId=${run_id} runUrl=${run_url:-"-"}" >&2
   exit "${workflow_exit}"
 fi
+
+write_quick_tunnel_report "ok" "${run_id}" "${run_url}" "${workflow_exit}" "${artifact_download_status}" "workflow-succeeded"

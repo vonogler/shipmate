@@ -332,6 +332,37 @@
       <li>self-hosted runner workflow run <code>27901147270</code>을 실행해 <code>run-github-smoke-workflow.sh</code>가 dispatch 직후 최신 run ID를 안정적으로 추적하는 것을 확인했다.</li>
       <li>GitHub Actions artifact <code>shipmate-infra/reports/github-actions/run-27901147270-20260621T102450Z</code>에서 <code>self-hosted-runner-create-env-report.json</code>, <code>self-hosted-runner-run-report.json</code>, smoke/HTTPS JSON/JUnit 리포트와 스테이징 점검 요약을 확인했다.</li>
       <li>self-hosted runner 중지 후 <code>self-hosted-runner-stop-report.json</code>을 로컬 리포트로 남겼다. stop 리포트는 workflow artifact 업로드 이후 생성되므로 같은 run artifact에는 포함하지 않고 후속 실행 또는 로컬 점검 리포트로 확인한다.</li>
+      <li>Admin 빌드 산출물 기준으로 직원 계정 화면을 <code>UsersScreen</code> lazy module로 분리하고 <code>UsersScreen-D7GN9f3N.js</code> 별도 chunk 생성을 확인했다.</li>
+      <li>Merchant 빌드 산출물 기준으로 <code>DashboardScreen</code>, <code>DraftReviewScreen</code>, <code>ShippingScreen</code>, <code>OperationsScreen</code> lazy chunk가 유지되는 것을 확인했다.</li>
+      <li>Admin/Merchant lazy screen 재점검 후 Admin build, Merchant build, Playwright UI 검증 <code>npm run check:ui</code>를 통과했다.</li>
+      <li>스테이징 smoke 테스트 데이터는 <code>merchant_smoke_%</code> 패턴 기준으로 dry-run 확인 후 명시적 apply에서만 삭제하는 정책으로 정리했다.</li>
+      <li>스테이징 smoke 테스트 데이터 정리 스크립트 <code>shipmate-infra/scripts/cleanup-staging-smoke-data.sh</code>를 추가하고 dry-run에서 테이블별 삭제 대상 집계를 확인했다.</li>
+      <li>GitHub Actions smoke 대상 URL을 hosted runner, self-hosted runner 컨테이너, self-hosted runner 호스트, 공인 스테이징 기준으로 구분해 <code>shipmate-infra/README.md</code>에 정리했다.</li>
+      <li>self-hosted runner 컨테이너는 로컬 PC/WSL 검증에서 일회성 등록 후 중지를 기본으로 하고, 짧은 반복 검증 때만 재사용하는 운영 기준을 README에 기록했다.</li>
+      <li>GitHub Actions artifact 다운로드 디렉터리는 최신 10개 run 보관을 기본으로 하고, dry-run 확인 후 명시적 apply에서만 삭제하는 정책과 정리 스크립트를 추가했다.</li>
+      <li>self-hosted runner <code>stop</code> 리포트는 workflow artifact 업로드 이후 생성되므로 같은 run artifact가 아니라 로컬 리포트와 후속 점검 요약에서 관리하도록 README에 기록했다.</li>
+      <li>스테이징 smoke seed는 기본 계정 준비만 담당하고, 테스트 데이터 cleanup은 별도 dry-run/apply 스크립트로 실행하는 분리 기준을 README에 기록했다.</li>
+      <li>Admin의 남은 직접 렌더링 화면은 공통 <code>DataPanel</code>에 rows/columns/filter toolbar만 전달하는 단순 화면이고, Admin 앱 본문 chunk가 약 50KB라서 추가 route 분리 효과가 작다고 판단해 현 구조를 유지하기로 했다.</li>
+      <li>smoke cleanup apply 실행 전 <code>SMOKE_CLEANUP_CONFIRM</code>이 삭제 pattern과 일치해야만 실제 삭제가 가능하도록 guard를 추가하고, confirm 누락 시 차단되는 것을 확인했다.</li>
+      <li>quick tunnel URL 탐지 또는 health 확인 실패 시 Docker mode, tunnel container, network, logs, 조치 기준을 출력하도록 <code>run-github-smoke-with-quick-tunnel.sh</code> 진단 메시지를 보강했다.</li>
+      <li>self-hosted runner 장기 상주 방식은 개인 개발 PC가 아니라 공인 스테이징 서버와 전용 runner 계정이 준비된 뒤 재검토하는 것으로 운영 기준을 정리했다.</li>
+      <li>GitHub Actions artifact 정리 스크립트에 <code>PROTECT_RUN_IDS</code> 옵션을 추가해 중요 run ID는 보관 개수 밖이어도 삭제 후보에서 제외되도록 했다.</li>
+      <li>smoke cleanup dry-run/apply 결과를 JSON 리포트로 남기고, staging-check-summary Markdown/HTML의 <code>Smoke 테스트 데이터 정리</code> 섹션에 표시하도록 연결했다.</li>
+      <li>smoke cleanup 스크립트가 <code>tb_error_logs.metadata_json</code>의 smoke 관련 패턴까지 삭제 후보로 집계하도록 확장했다.</li>
+      <li>quick tunnel workflow가 실패해도 run ID를 추출해 artifact 다운로드를 시도하고, 자동 다운로드 실패 시 수동 확인 명령을 안내하도록 보강했다.</li>
+      <li>smoke cleanup 리포트에 삭제 전 대상 row 수와 삭제 후 잔여 row 수를 함께 기록하도록 보강했다.</li>
+      <li>GitHub Actions artifact cleanup 리포트를 추가하고 보호 run ID, 전체 run 디렉터리, 삭제 후보 수를 staging-check-summary Markdown/HTML에 표시하도록 연결했다.</li>
+      <li>quick tunnel workflow 실패 메시지에 GitHub run URL을 별도 값으로 출력하도록 보강했다.</li>
+      <li>smoke cleanup dry-run 표를 <code>tables</code> JSON 배열로 저장하도록 보강했다.</li>
+      <li>smoke cleanup 실행 결과를 JUnit XML로도 남기도록 추가했다.</li>
+      <li>GitHub Actions smoke artifact 업로드 경로에 cleanup 리포트 폴더를 포함했다.</li>
+      <li>quick tunnel workflow artifact 다운로드 실패 안내에 <code>gh run view --log-failed</code> 명령을 추가했다.</li>
+      <li>smoke cleanup apply 운영 타이밍은 반복 개발 중 보관, 하루 종료 또는 20건 이상 누적 시 dry-run 후 필요 apply로 정리했다.</li>
+      <li>self-hosted runner workflow run <code>27904791494</code>를 실행해 cleanup JSON/JUnit 리포트가 GitHub Actions artifact에 실제 포함되는 것을 확인했다.</li>
+      <li>run <code>27904791494</code> artifact에서 <code>reports/cleanup/staging-smoke-cleanup-report.json</code>, <code>reports/cleanup/staging-smoke-cleanup-report.xml</code>, <code>reports/cleanup/github-smoke-artifact-cleanup-report.json</code>을 확인했다.</li>
+      <li>GitHub Actions workflow summary에 smoke cleanup과 artifact cleanup 요약 표를 표시하도록 <code>staging-smoke.yml</code>을 보강했다.</li>
+      <li>quick tunnel workflow 실패 또는 artifact 다운로드 실패 시 <code>gh run view --log-failed</code> 출력을 <code>shipmate-infra/reports/quick-tunnel/</code> 로컬 리포트로 저장하도록 보강했다.</li>
+      <li>cleanup 리포트 보관은 작업 트리 최신 상태 파일과 GitHub Actions artifact 보관을 기준으로 두고, 별도 장기 archive는 필요해질 때 추가하기로 README에 기록했다.</li>
     </ul>
     <h2>진행 중인 작업</h2>
     <ul>
@@ -339,13 +370,13 @@
     </ul>
     <h2>다음 작업</h2>
     <ol>
-      <li>Admin/Merchant lazy screen 추가 분리가 필요한 화면을 빌드 산출물 기준으로 재점검한다.</li>
-      <li>스테이징 smoke 통과 후 생성된 테스트 데이터 정리 정책을 정한다.</li>
-      <li>GitHub secret으로 설정한 Docker network 내부 URL과 public/quick tunnel URL의 사용 기준을 README에 추가 보강한다.</li>
-      <li>self-hosted runner 컨테이너 재사용/매번 일회성 등록 중 운영 기준을 정한다.</li>
-      <li>GitHub Actions artifact 다운로드 디렉터리 보관/정리 기준을 정한다.</li>
-      <li>self-hosted runner stop 리포트를 같은 workflow 산출물이 아닌 후속 로컬/별도 산출물로 관리하는 정책을 문서화한다.</li>
-      <li>스테이징 smoke 테스트 데이터 seed와 cleanup을 분리할지 검토한다.</li>
+      <li>smoke cleanup apply를 실제로 실행할지 결정한다. 현재 dry-run 기준 대상 row 수는 385건이며, 실제 삭제는 명시 요청 전까지 보류한다.</li>
+      <li>GitHub Actions JUnit 리포트를 workflow summary가 아니라 Actions 테스트 탭에 노출할 reporter 도입 여부를 검토한다.</li>
+      <li>quick tunnel 실패 로그 로컬 리포트를 실제 실패 run에서 한 번 검증한다.</li>
+      <li>cleanup 리포트가 오래 누적되면 별도 archive 보관 개수 정책을 추가할지 검토한다.</li>
+      <li>Admin index chunk가 다시 커지면 DataPanel 단순 화면을 route module로 분리한다.</li>
+      <li>self-hosted runner 장기 상주는 공인 스테이징 서버 준비 후 전용 계정으로 재검토한다.</li>
+      <li>cleanup 리포트 artifact 포함은 self-hosted runner 기준으로 통과했으므로 hosted runner/quick tunnel 기준에서도 필요 시 재확인한다.</li>
       <li>공인 DNS 구매와 A 레코드 등록은 마지막 단계로 유지한다.</li>
     </ol>
     <h2>보류 또는 결정 필요</h2>
@@ -451,6 +482,24 @@
       <li>2026-06-19: Admin bulk 오류 처리 모달과 CSV 규칙 이력 drawer 분리, Playwright 복사/CSV 검증 locator 확대, runner 리포트 stage 구분을 완료했다.</li>
       <li>2026-06-19: Admin 오류 로그 inline field 분리, Playwright bulk 처리 row 갱신 검증, DNS 없는 HTTPS wrapper, runner token 실패 reason 세분화를 완료했다.</li>
       <li>2026-06-21: self-hosted runner create-env/run 리포트를 GitHub Actions artifact에 포함하고, workflow run <code>27901147270</code>에서 smoke, HTTPS, 스테이징 전체 점검, artifact 다운로드를 통과했다.</li>
+      <li>2026-06-21: Admin 직원 계정 화면을 <code>UsersScreen</code> lazy module로 분리하고 Admin/Merchant 빌드와 Playwright UI 검증을 통과했다.</li>
+      <li>2026-06-21: 스테이징 smoke 테스트 데이터 cleanup 정책과 dry-run 우선 cleanup 스크립트를 추가했다.</li>
+      <li>2026-06-21: GitHub Actions smoke URL 사용 기준을 runner 위치별로 README에 정리했다.</li>
+      <li>2026-06-21: self-hosted runner 컨테이너는 일회성 등록 후 중지를 기본 운영 기준으로 정리했다.</li>
+      <li>2026-06-21: GitHub Actions artifact 다운로드 디렉터리 보관/정리 정책과 dry-run 우선 cleanup 스크립트를 추가했다.</li>
+      <li>2026-06-21: self-hosted runner stop 리포트는 로컬/후속 점검 리포트로 관리하도록 문서화했다.</li>
+      <li>2026-06-21: 스테이징 smoke seed와 cleanup을 분리 운영하는 기준을 문서화했다.</li>
+      <li>2026-06-21: Admin 남은 DataPanel 단순 화면은 추가 lazy 분리 효과가 작아 현 구조 유지로 정리했다.</li>
+      <li>2026-06-21: smoke cleanup apply 실행 전 confirm guard를 추가하고 차단 동작을 검증했다.</li>
+      <li>2026-06-21: quick tunnel 실패 시 Docker/network/logs 진단 메시지를 출력하도록 보강했다.</li>
+      <li>2026-06-21: self-hosted runner 장기 상주 방식은 공인 스테이징 서버 준비 후 재검토하기로 정리했다.</li>
+      <li>2026-06-21: GitHub Actions artifact cleanup에 중요 run ID 보호 옵션을 추가하고 dry-run으로 검증했다.</li>
+      <li>2026-06-21: smoke cleanup 결과 JSON 리포트와 staging summary 표시를 추가하고, error log metadata 정리 후보까지 확장했다.</li>
+      <li>2026-06-21: quick tunnel workflow 실패 시 artifact 다운로드 재시도와 수동 확인 안내를 추가했다.</li>
+      <li>2026-06-21: smoke cleanup 잔여 row 수와 artifact cleanup 보호 run ID를 staging summary에 표시하도록 보강했다.</li>
+      <li>2026-06-21: cleanup dry-run 표 JSON 배열, JUnit XML, GitHub Actions artifact 업로드 경로, 운영 타이밍 기준을 보강했다.</li>
+      <li>2026-06-21: self-hosted runner run <code>27904791494</code>에서 cleanup 리포트의 GitHub Actions artifact 포함을 검증했다.</li>
+      <li>2026-06-21: GitHub Actions summary cleanup 표와 quick tunnel 실패 로그 로컬 리포트 저장을 추가했다.</li>
     </ul>
     <section>
       <h2>원본</h2>
