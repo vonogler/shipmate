@@ -1,0 +1,26 @@
+name: shipmate-github-runner
+
+services:
+  github-runner:
+    build:
+      context: ..
+      dockerfile: shipmate-infra/github-runner/Dockerfile
+      args:
+        RUNNER_VERSION: ${GITHUB_RUNNER_VERSION:-2.328.0}
+    container_name: shipmate-github-runner
+    environment:
+      GITHUB_REPOSITORY_URL: ${GITHUB_REPOSITORY_URL:?GITHUB_REPOSITORY_URL is required}
+      GITHUB_RUNNER_TOKEN: ${GITHUB_RUNNER_TOKEN:?GITHUB_RUNNER_TOKEN is required}
+      GITHUB_RUNNER_NAME: ${GITHUB_RUNNER_NAME:-shipmate-staging-runner}
+      GITHUB_RUNNER_LABELS: ${GITHUB_RUNNER_LABELS:-shipmate-staging,self-hosted,linux,x64}
+      GITHUB_RUNNER_WORKDIR: ${GITHUB_RUNNER_WORKDIR:-_work}
+    volumes:
+      - ./reports/github-runner:/host-reports/github-runner:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - shipmate-staging_default
+
+networks:
+  shipmate-staging_default:
+    external: true

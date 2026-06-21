@@ -100,6 +100,10 @@ jobs:
       - name: Summarize staging reports
         if: always()
         run: |
+          if [[ -d /host-reports/github-runner ]]; then
+            mkdir -p shipmate-infra/reports/github-runner
+            cp -R /host-reports/github-runner/. shipmate-infra/reports/github-runner/
+          fi
           bash shipmate-infra/scripts/summarize-staging-reports.sh
 
       - name: Upload smoke reports
@@ -114,5 +118,6 @@ jobs:
             shipmate-infra/staging-https-report.json
             shipmate-infra/staging-https-report.xml
             shipmate-infra/reports/https/
+            shipmate-infra/reports/github-runner/
             shipmate-infra/reports/staging-check-summary.md
             shipmate-infra/reports/staging-check-summary.html
