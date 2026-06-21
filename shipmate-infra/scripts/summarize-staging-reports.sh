@@ -62,11 +62,22 @@ runner_finished_at="$(json_value "${GITHUB_RUNNER_REPORT_FILE}" finishedAt)"
 latest_artifact_summary=""
 latest_artifact_summary_link="-"
 latest_artifact_run_url="-"
+latest_artifact_run_id="-"
+latest_artifact_smoke_status="-"
+latest_artifact_smoke_api_base_url="-"
+latest_artifact_https_status="-"
+latest_artifact_https_check_mode="-"
 if [[ -d "${GITHUB_REPORT_ROOT}" ]]; then
   latest_artifact_summary="$(find "${GITHUB_REPORT_ROOT}" -path '*/artifact-summary.md' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n 1 | cut -d' ' -f2-)"
   if [[ -n "${latest_artifact_summary}" ]]; then
     latest_artifact_summary_link="${latest_artifact_summary#shipmate-infra/reports/}"
+    latest_artifact_run_id="$(sed -n 's/.*| runId | \([^|]*\) |.*/\1/p' "${latest_artifact_summary}" | head -n 1)"
     latest_artifact_run_url="$(sed -n 's/.*| run URL | \([^|]*\) |.*/\1/p' "${latest_artifact_summary}" | head -n 1)"
+    latest_artifact_dir="$(dirname "${latest_artifact_summary}")"
+    latest_artifact_smoke_status="$(json_value "${latest_artifact_dir}/smoke-report.json" status)"
+    latest_artifact_smoke_api_base_url="$(json_value "${latest_artifact_dir}/smoke-report.json" apiBaseUrl)"
+    latest_artifact_https_status="$(json_value "${latest_artifact_dir}/staging-https-report.json" status)"
+    latest_artifact_https_check_mode="$(json_value "${latest_artifact_dir}/staging-https-report.json" httpsCheckMode)"
   fi
 fi
 
@@ -108,7 +119,12 @@ cat > "${SUMMARY_FILE}" <<REPORT
 | 항목 | 값 |
 |---|---|
 | 최근 artifact 요약 | ${latest_artifact_summary_link:-"-"} |
+| 최근 run ID | ${latest_artifact_run_id:-"-"} |
 | 최근 run URL | ${latest_artifact_run_url:-"-"} |
+| 최근 smoke 상태 | ${latest_artifact_smoke_status:-"-"} |
+| 최근 smoke API 기준 URL | ${latest_artifact_smoke_api_base_url:-"-"} |
+| 최근 HTTPS 상태 | ${latest_artifact_https_status:-"-"} |
+| 최근 HTTPS 실행 유형 | ${latest_artifact_https_check_mode:-"-"} |
 
 ## Self-hosted runner
 
@@ -187,7 +203,12 @@ cat > "${SUMMARY_HTML_FILE}" <<REPORT
     <table>
       <tr><th>항목</th><th>값</th></tr>
       <tr><td>최근 artifact 요약</td><td><a href="${latest_artifact_summary_link:-"#"}">${latest_artifact_summary_link:-"-"}</a></td></tr>
+      <tr><td>최근 run ID</td><td>${latest_artifact_run_id:-"-"}</td></tr>
       <tr><td>최근 run URL</td><td>${latest_artifact_run_url:-"-"}</td></tr>
+      <tr><td>최근 smoke 상태</td><td>${latest_artifact_smoke_status:-"-"}</td></tr>
+      <tr><td>최근 smoke API 기준 URL</td><td>${latest_artifact_smoke_api_base_url:-"-"}</td></tr>
+      <tr><td>최근 HTTPS 상태</td><td>${latest_artifact_https_status:-"-"}</td></tr>
+      <tr><td>최근 HTTPS 실행 유형</td><td>${latest_artifact_https_check_mode:-"-"}</td></tr>
     </table>
     <h2>Self-hosted runner</h2>
     <table>
