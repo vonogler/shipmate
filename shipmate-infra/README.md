@@ -390,6 +390,7 @@ bash shipmate-infra/scripts/set-github-staging-smoke-secrets.sh
 ```
 
 `localhost` 계열 URL은 기본적으로 막는다. self-hosted runner처럼 같은 장비에서 실행하는 특수 상황에서는 `ALLOW_LOCALHOST_SECRET=true`를 명시해서 우회한다.
+`shipmate-api`, `shipmate-staging-nginx` 같은 Docker network 내부 URL도 GitHub hosted runner가 접근할 수 없으므로 기본 차단 대상이다. 이런 URL은 repository secret으로 상시 저장하지 않고, self-hosted runner workflow input으로만 전달한다.
 
 스테이징 서버 로그를 PowerShell 창에서 계속 보려면 워크스페이스 루트의 `start_shipmate_staging_stack_logs.bat`를 실행한다.
 

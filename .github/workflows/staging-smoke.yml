@@ -49,12 +49,39 @@ jobs:
       - name: Check temporary HTTPS
         if: ${{ inputs.run_stack_check != 'true' }}
         env:
+          RUNNER_LABEL: ${{ inputs.runner_label || 'ubuntu-latest' }}
           STAGING_HTTPS_URL: ${{ inputs.staging_https_url || secrets.STAGING_HTTPS_URL }}
           API_HEALTH_URL: ${{ inputs.staging_api_health_url || secrets.STAGING_API_HEALTH_URL }}
           STAGING_RESOLVE_IP: ${{ inputs.staging_resolve_ip || secrets.STAGING_RESOLVE_IP }}
           ALLOW_INSECURE_TLS: ${{ secrets.STAGING_ALLOW_INSECURE_TLS || 'false' }}
         run: |
-          if [[ -n "${STAGING_HTTPS_URL}" || -n "${API_HEALTH_URL}" || -n "${STAGING_RESOLVE_IP}" ]]; then
+          is_docker_internal_url() {
+            case "$1" in
+              http://shipmate-*|https://shipmate-*|http://*.docker.internal*|https://*.docker.internal*)
+                return 0
+                ;;
+              *)
+                return 1
+                ;;
+            esac
+          }
+
+          if [[ "${RUNNER_LABEL}" == "ubuntu-latest" ]] && { is_docker_internal_url "${STAGING_HTTPS_URL}" || is_docker_internal_url "${API_HEALTH_URL}"; }; then
+            mkdir -p shipmate-infra/reports/https
+            cat > shipmate-infra/staging-https-report.json <<'REPORT'
+          {"status":"skipped","reason":"GitHub hosted runner는 Docker 내부 HTTPS URL에 접근할 수 없어 HTTPS 확인을 건너뜁니다."}
+          REPORT
+            cat > shipmate-infra/staging-https-report.xml <<'REPORT'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <testsuite name="shipmate-staging-https" tests="1" failures="0" errors="0" skipped="1">
+            <testcase classname="shipmate.staging" name="DNS 없는 HTTPS 확인">
+              <skipped message="hosted runner Docker 내부 URL 접근 불가" />
+            </testcase>
+          </testsuite>
+          REPORT
+            cp shipmate-infra/staging-https-report.json shipmate-infra/reports/https/staging-https-report-skipped.json
+            cp shipmate-infra/staging-https-report.xml shipmate-infra/reports/https/staging-https-report-skipped.xml
+          elif [[ -n "${STAGING_HTTPS_URL}" || -n "${API_HEALTH_URL}" || -n "${STAGING_RESOLVE_IP}" ]]; then
             bash shipmate-infra/scripts/check-staging-https.sh
           else
             mkdir -p shipmate-infra/reports/https
