@@ -162,6 +162,15 @@ cleanup 실행 결과는 `shipmate-infra/reports/cleanup/staging-smoke-cleanup-r
 
 GitHub Actions workflow는 cleanup JSON/JUnit 리포트를 artifact로 업로드하고, `GITHUB_STEP_SUMMARY`에도 Smoke 테스트 데이터 정리, artifact 정리, cleanup JUnit testcase 요약 표를 표시한다. GitHub Actions의 기본 테스트 탭에 JUnit을 별도 테스트로 노출하는 외부 reporter는 아직 추가하지 않았으므로, 현재 기준의 표준 확인 위치는 workflow summary와 `shipmate-smoke-reports` artifact다.
 
+JUnit 외부 reporter는 아직 도입하지 않는다. smoke 검증은 운영 배포 전 확인 절차에 가까우며, 외부 Action을 추가하면 GitHub token 권한과 supply chain 검토 대상이 늘어난다. GitHub Actions 테스트 탭 노출이 꼭 필요해지면 다음 조건을 만족하는 reporter만 검토한다.
+
+| 조건 | 기준 |
+|---|---|
+| 출처 | GitHub 공식 또는 널리 검증된 Action만 사용한다. |
+| 버전 | branch tag가 아니라 commit SHA 또는 고정 버전으로 pin 한다. |
+| 권한 | `checks: write` 등 추가 권한이 필요한지 README와 workflow에 명시한다. |
+| 실패 처리 | smoke 실패 artifact 업로드와 summary 생성이 reporter 실패에 막히지 않아야 한다. |
+
 스모크와 HTTPS 확인 리포트를 운영 점검용 Markdown으로 요약하려면 다음을 실행한다.
 
 ```bash
