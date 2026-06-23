@@ -325,6 +325,7 @@
 - self-hosted runner workflow run `27905545859`를 실행해 변경된 workflow summary 단계, smoke, HTTPS, 스테이징 전체 점검, cleanup artifact 포함을 통과했다.
 - run `27905545859` artifact를 `shipmate-infra/reports/github-actions/run-27905545859-20260621T141126Z`로 내려받아 cleanup JSON/JUnit 리포트와 staging summary를 확인했다.
 - 검증 후 self-hosted runner 컨테이너를 중지하고 제거했다.
+- GitHub Actions summary 출력을 `append-github-smoke-summary.sh`로 분리하고 cleanup JUnit testsuite/testcase 요약 표를 표시하도록 보강했다.
 
 ## 진행 중인 작업
 
@@ -333,9 +334,9 @@
 ## 다음 작업
 
 1. smoke cleanup apply를 실제로 실행할지 결정한다. 현재 dry-run 기준 대상 row 수는 385건이며, 실제 삭제는 명시 요청 전까지 보류한다.
-2. GitHub Actions JUnit 리포트를 workflow summary가 아니라 Actions 테스트 탭에 노출할 reporter 도입 여부를 검토한다.
+2. GitHub Actions JUnit 리포트를 Actions 테스트 탭에 노출하는 외부 reporter 도입 여부를 검토한다.
 3. quick tunnel 실패 로그 로컬 리포트를 실제 실패 run에서 한 번 검증한다.
-4. cleanup summary 표는 self-hosted runner 기준으로 통과했으므로 hosted runner/quick tunnel 기준에서도 필요 시 재확인한다.
+4. cleanup JUnit summary 표는 self-hosted runner 기준으로 다시 검증한다.
 5. cleanup 리포트가 오래 누적되면 별도 archive 보관 개수 정책을 추가할지 검토한다.
 6. Admin index chunk가 다시 커지면 DataPanel 단순 화면을 route module로 분리한다.
 7. self-hosted runner 장기 상주는 공인 스테이징 서버 준비 후 전용 계정으로 재검토한다.
@@ -463,3 +464,4 @@
 - 2026-06-21: self-hosted runner run `27904791494`에서 cleanup 리포트의 GitHub Actions artifact 포함을 검증했다.
 - 2026-06-21: GitHub Actions summary cleanup 표와 quick tunnel 실패 로그 로컬 리포트 저장을 추가했다.
 - 2026-06-21: self-hosted runner run `27905545859`에서 변경된 workflow summary 단계와 cleanup artifact 포함을 검증했다.
+- 2026-06-23: GitHub Actions summary 생성 스크립트를 분리하고 cleanup JUnit testcase 요약 표를 추가했다.

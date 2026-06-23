@@ -160,7 +160,7 @@ bash shipmate-infra/scripts/cleanup-staging-smoke-data.sh
 
 cleanup 실행 결과는 `shipmate-infra/reports/cleanup/staging-smoke-cleanup-report.json`과 JUnit XML에 남기며, staging summary에도 표시된다.
 
-GitHub Actions workflow는 cleanup JSON/JUnit 리포트를 artifact로 업로드하고, `GITHUB_STEP_SUMMARY`에도 Smoke 테스트 데이터 정리와 artifact 정리 요약 표를 표시한다. GitHub Actions의 기본 테스트 탭에 JUnit을 별도 테스트로 노출하는 reporter는 아직 추가하지 않았으므로, 현재 기준의 표준 확인 위치는 workflow summary와 `shipmate-smoke-reports` artifact다.
+GitHub Actions workflow는 cleanup JSON/JUnit 리포트를 artifact로 업로드하고, `GITHUB_STEP_SUMMARY`에도 Smoke 테스트 데이터 정리, artifact 정리, cleanup JUnit testcase 요약 표를 표시한다. GitHub Actions의 기본 테스트 탭에 JUnit을 별도 테스트로 노출하는 외부 reporter는 아직 추가하지 않았으므로, 현재 기준의 표준 확인 위치는 workflow summary와 `shipmate-smoke-reports` artifact다.
 
 스모크와 HTTPS 확인 리포트를 운영 점검용 Markdown으로 요약하려면 다음을 실행한다.
 
