@@ -13,6 +13,7 @@ CLEANUP_SECRET="${CLEANUP_SECRET:-true}"
 DOCKER_MODE="${DOCKER_MODE:-auto}"
 ALLOW_OVERWRITE_SECRET="${ALLOW_OVERWRITE_SECRET:-false}"
 QUICK_TUNNEL_REPORT_DIR="${QUICK_TUNNEL_REPORT_DIR:-shipmate-infra/reports/quick-tunnel}"
+QUICK_TUNNEL_FORCE_WORKFLOW_FAILURE="${QUICK_TUNNEL_FORCE_WORKFLOW_FAILURE:-false}"
 secret_created_by_script="false"
 failed_log_file=""
 
@@ -183,7 +184,11 @@ STAGING_API_BASE_URL="${tunnel_url}" bash shipmate-infra/scripts/set-github-stag
 secret_created_by_script="true"
 
 set +e
-workflow_output="$(WORKFLOW_FILE="${WORKFLOW_FILE}" REF_NAME="${REF_NAME}" bash shipmate-infra/scripts/run-github-smoke-workflow.sh)"
+if [[ "${QUICK_TUNNEL_FORCE_WORKFLOW_FAILURE}" == "true" ]]; then
+  workflow_output="$(API_BASE_URL="https://127.0.0.1:1" WORKFLOW_FILE="${WORKFLOW_FILE}" REF_NAME="${REF_NAME}" bash shipmate-infra/scripts/run-github-smoke-workflow.sh)"
+else
+  workflow_output="$(WORKFLOW_FILE="${WORKFLOW_FILE}" REF_NAME="${REF_NAME}" bash shipmate-infra/scripts/run-github-smoke-workflow.sh)"
+fi
 workflow_exit=$?
 set -e
 printf "%s\n" "${workflow_output}"

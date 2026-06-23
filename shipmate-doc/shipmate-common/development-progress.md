@@ -331,6 +331,8 @@
 - hosted runner workflow run `28002212362`를 실행해 Docker 내부 HTTPS secret skip 처리와 smoke skipped 리포트, staging summary artifact 생성을 통과했다.
 - self-hosted runner workflow run `28004149126`을 실행해 cleanup JUnit 리포트가 artifact에 포함되고 summary 생성 단계가 통과하는 것을 확인했다.
 - cleanup 리포트는 최신 파일을 유지하면서 `reports/cleanup/archive/{timestamp}/`에 실행 시점 복사본을 남기고 최신 20개를 보관하도록 archive 스크립트를 추가했다.
+- quick tunnel 실패 로그 저장을 실제 실패 run으로 검증할 수 있도록 `QUICK_TUNNEL_FORCE_WORKFLOW_FAILURE` 모드를 추가했다.
+- quick tunnel 의도 실패 workflow run `28006461269`를 실행해 `quick-tunnel-workflow-report.txt`와 `quick-tunnel-workflow-28006461269-failed-log.txt` 생성, artifact 다운로드, tunnel 컨테이너 정리, 임시 `STAGING_API_BASE_URL` secret 삭제를 확인했다.
 
 ## 진행 중인 작업
 
@@ -338,14 +340,11 @@
 
 ## 다음 작업
 
-1. smoke cleanup apply를 실제로 실행할지 결정한다. 현재 dry-run 기준 대상 row 수는 385건이며, 실제 삭제는 명시 요청 전까지 보류한다.
+1. smoke cleanup apply를 실제로 실행할지 결정한다. 현재 dry-run 기준 대상 row 수는 90건이며, 실제 삭제는 명시 요청 전까지 보류한다.
 2. GitHub Actions JUnit 리포트를 Actions 테스트 탭에 노출하는 외부 reporter 도입 여부를 검토한다.
-3. quick tunnel 실패 로그 로컬 리포트를 실제 실패 run에서 한 번 검증한다.
-4. quick tunnel 실패 로그 로컬 리포트를 실제 실패 run에서 한 번 검증한다.
-5. GitHub Actions JUnit 리포트를 Actions 테스트 탭에 노출하는 외부 reporter 도입 여부를 검토한다.
-6. Admin index chunk가 다시 커지면 DataPanel 단순 화면을 route module로 분리한다.
-7. self-hosted runner 장기 상주는 공인 스테이징 서버 준비 후 전용 계정으로 재검토한다.
-8. 공인 DNS 구매와 A 레코드 등록은 마지막 단계로 유지한다.
+3. Admin index chunk가 다시 커지면 DataPanel 단순 화면을 route module로 분리한다.
+4. self-hosted runner 장기 상주는 공인 스테이징 서버 준비 후 전용 계정으로 재검토한다.
+5. 공인 DNS 구매와 A 레코드 등록은 마지막 단계로 유지한다.
 
 ## 보류 또는 결정 필요
 
@@ -473,3 +472,5 @@
 - 2026-06-23: hosted runner가 Docker 내부 HTTPS secret을 만나면 skipped 리포트로 처리하도록 workflow와 secret helper를 보강했다.
 - 2026-06-23: hosted runner run `28002212362`에서 Docker 내부 HTTPS secret skip 처리와 artifact 생성을 검증했다.
 - 2026-06-23: self-hosted runner run `28004149126`에서 cleanup JUnit summary 경로를 검증하고 cleanup 리포트 archive 보관 정책을 추가했다.
+- 2026-06-23: quick tunnel 실패 로그 저장 검증용 `QUICK_TUNNEL_FORCE_WORKFLOW_FAILURE` 모드를 추가했다.
+- 2026-06-23: quick tunnel 의도 실패 run `28006461269`에서 실패 로그 로컬 리포트 저장과 임시 secret/tunnel 정리를 검증했다.

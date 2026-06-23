@@ -275,6 +275,14 @@ shipmate-infra/reports/quick-tunnel/quick-tunnel-workflow-{runId}-failed-log.txt
 
 이 리포트에는 run ID, run URL, workflow exit code, artifact 다운로드 상태, 실패 로그 파일 경로를 기록한다. 성공한 실행도 `quick-tunnel-workflow-report.txt`에 마지막 성공 상태를 남긴다.
 
+실패 로그 저장 동작만 검증할 때는 터널과 secret 설정은 정상 수행하되 workflow 입력 API URL만 실패 주소로 바꿀 수 있다. 이 검증은 실패 run을 의도적으로 만들므로 일반 smoke 성공 검증과 분리해서 실행한다.
+
+```bash
+ALLOW_OVERWRITE_SECRET=true \
+QUICK_TUNNEL_FORCE_WORKFLOW_FAILURE=true \
+bash shipmate-infra/scripts/run-github-smoke-with-quick-tunnel.sh
+```
+
 공인 DNS 없이 반복 검증을 더 안정화하려면 GitHub self-hosted runner를 스테이징 Docker network 또는 같은 WSL/Windows 호스트에서 실행하는 방식이 가능하다. 이 경우 GitHub hosted runner가 외부 URL로 접근하지 않아도 되므로 quick tunnel과 `STAGING_API_BASE_URL` 임시 secret을 생략할 수 있다. 다만 runner 등록 token은 GitHub 웹 UI 또는 `gh` 권한이 필요하다.
 
 self-hosted runner 컨테이너 PoC는 다음 파일로 준비되어 있다.
