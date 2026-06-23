@@ -12,6 +12,7 @@ SMOKE_CLEANUP_APPLY="${SMOKE_CLEANUP_APPLY:-false}"
 SMOKE_CLEANUP_CONFIRM="${SMOKE_CLEANUP_CONFIRM:-}"
 SMOKE_CLEANUP_REPORT_FILE="${SMOKE_CLEANUP_REPORT_FILE:-shipmate-infra/reports/cleanup/staging-smoke-cleanup-report.json}"
 SMOKE_CLEANUP_JUNIT_FILE="${SMOKE_CLEANUP_JUNIT_FILE:-shipmate-infra/reports/cleanup/staging-smoke-cleanup-report.xml}"
+ARCHIVE_CLEANUP_REPORTS_SCRIPT="${ARCHIVE_CLEANUP_REPORTS_SCRIPT:-shipmate-infra/scripts/archive-cleanup-reports.sh}"
 
 json_escape() {
   printf "%s" "$1" | tr '\r\n\t' '   ' | sed 's/\\/\\\\/g; s/"/\\"/g'
@@ -75,6 +76,12 @@ write_cleanup_outputs() {
   local reason="$5"
   write_cleanup_report "${status}" "${mode}" "${total_rows}" "${remaining_rows}" "${reason}"
   write_cleanup_junit "${status}" "${mode}" "${total_rows}" "${remaining_rows}" "${reason}"
+}
+
+archive_cleanup_reports() {
+  if [[ -x "${ARCHIVE_CLEANUP_REPORTS_SCRIPT}" ]]; then
+    bash "${ARCHIVE_CLEANUP_REPORTS_SCRIPT}"
+  fi
 }
 
 mysql_exec() {
@@ -149,6 +156,7 @@ if [[ "${SMOKE_CLEANUP_APPLY}" != "true" ]]; then
     print
   }' "${SMOKE_CLEANUP_REPORT_FILE}" > "${tmp_report}"
   mv "${tmp_report}" "${SMOKE_CLEANUP_REPORT_FILE}"
+  archive_cleanup_reports
   echo "실제 삭제는 SMOKE_CLEANUP_APPLY=true SMOKE_CLEANUP_CONFIRM='${SMOKE_MERCHANT_PATTERN}' bash shipmate-infra/scripts/cleanup-staging-smoke-data.sh 로 실행합니다."
   echo "report=${SMOKE_CLEANUP_REPORT_FILE}"
   exit 0
@@ -212,3 +220,4 @@ awk -v tables_json="${tables_json}" '{
   print
 }' "${SMOKE_CLEANUP_REPORT_FILE}" > "${tmp_report}"
 mv "${tmp_report}" "${SMOKE_CLEANUP_REPORT_FILE}"
+archive_cleanup_reports

@@ -8,6 +8,7 @@ KEEP_LATEST="${KEEP_LATEST:-10}"
 REPORT_CLEANUP_APPLY="${REPORT_CLEANUP_APPLY:-false}"
 PROTECT_RUN_IDS="${PROTECT_RUN_IDS:-}"
 ARTIFACT_CLEANUP_REPORT_FILE="${ARTIFACT_CLEANUP_REPORT_FILE:-shipmate-infra/reports/cleanup/github-smoke-artifact-cleanup-report.json}"
+ARCHIVE_CLEANUP_REPORTS_SCRIPT="${ARCHIVE_CLEANUP_REPORTS_SCRIPT:-shipmate-infra/scripts/archive-cleanup-reports.sh}"
 
 json_escape() {
   printf "%s" "$1" | tr '\r\n\t' '   ' | sed 's/\\/\\\\/g; s/"/\\"/g'
@@ -35,11 +36,18 @@ write_report() {
 REPORT
 }
 
+archive_cleanup_reports() {
+  if [[ -x "${ARCHIVE_CLEANUP_REPORTS_SCRIPT}" ]]; then
+    bash "${ARCHIVE_CLEANUP_REPORTS_SCRIPT}"
+  fi
+}
+
 if [[ ! -d "${REPORT_ROOT}" ]]; then
   echo "reportRoot=${REPORT_ROOT}"
   echo "status=skipped"
   echo "reason=report-root-missing"
   write_report "skipped" "dry-run" "0" "0" "report-root-missing"
+  archive_cleanup_reports
   exit 0
 fi
 
@@ -53,6 +61,7 @@ echo "total=${#report_dirs[@]}"
 if (( ${#report_dirs[@]} <= KEEP_LATEST )); then
   echo "deleteCandidates=0"
   write_report "ok" "dry-run" "${#report_dirs[@]}" "0" "-"
+  archive_cleanup_reports
   echo "report=${ARTIFACT_CLEANUP_REPORT_FILE}"
   exit 0
 fi
@@ -86,6 +95,7 @@ fi
 if [[ "${REPORT_CLEANUP_APPLY}" != "true" ]]; then
   echo "mode=dry-run"
   write_report "ok" "dry-run" "${#report_dirs[@]}" "${#delete_candidates[@]}" "-"
+  archive_cleanup_reports
   echo "실제 삭제는 REPORT_CLEANUP_APPLY=true bash shipmate-infra/scripts/cleanup-github-smoke-reports.sh 로 실행합니다."
   echo "report=${ARTIFACT_CLEANUP_REPORT_FILE}"
   exit 0
@@ -96,4 +106,5 @@ for report_dir in "${delete_candidates[@]}"; do
   rm -rf "${report_dir}"
 done
 write_report "ok" "apply" "${#report_dirs[@]}" "${#delete_candidates[@]}" "-"
+archive_cleanup_reports
 echo "report=${ARTIFACT_CLEANUP_REPORT_FILE}"

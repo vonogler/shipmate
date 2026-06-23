@@ -370,6 +370,8 @@
       <li>hosted runner가 <code>shipmate-staging-nginx</code> 같은 Docker 내부 HTTPS secret을 만나면 실패하지 않고 skipped HTTPS 리포트를 남기도록 workflow를 보정했다.</li>
       <li>GitHub secret 설정 helper가 Docker 내부 URL을 hosted runner 차단 대상 URL로 처리하도록 보강했다.</li>
       <li>hosted runner workflow run <code>28002212362</code>를 실행해 Docker 내부 HTTPS secret skip 처리와 smoke skipped 리포트, staging summary artifact 생성을 통과했다.</li>
+      <li>self-hosted runner workflow run <code>28004149126</code>을 실행해 cleanup JUnit 리포트가 artifact에 포함되고 summary 생성 단계가 통과하는 것을 확인했다.</li>
+      <li>cleanup 리포트는 최신 파일을 유지하면서 <code>reports/cleanup/archive/{timestamp}/</code>에 실행 시점 복사본을 남기고 최신 20개를 보관하도록 archive 스크립트를 추가했다.</li>
     </ul>
     <h2>진행 중인 작업</h2>
     <ul>
@@ -380,8 +382,7 @@
       <li>smoke cleanup apply를 실제로 실행할지 결정한다. 현재 dry-run 기준 대상 row 수는 385건이며, 실제 삭제는 명시 요청 전까지 보류한다.</li>
       <li>GitHub Actions JUnit 리포트를 Actions 테스트 탭에 노출하는 외부 reporter 도입 여부를 검토한다.</li>
       <li>quick tunnel 실패 로그 로컬 리포트를 실제 실패 run에서 한 번 검증한다.</li>
-      <li>cleanup JUnit summary 표는 WSL Docker integration 복구 후 self-hosted runner 기준으로 다시 검증한다.</li>
-      <li>cleanup 리포트가 오래 누적되면 별도 archive 보관 개수 정책을 추가할지 검토한다.</li>
+      <li>GitHub Actions JUnit 리포트를 Actions 테스트 탭에 노출하는 외부 reporter 도입 여부를 검토한다.</li>
       <li>Admin index chunk가 다시 커지면 DataPanel 단순 화면을 route module로 분리한다.</li>
       <li>self-hosted runner 장기 상주는 공인 스테이징 서버 준비 후 전용 계정으로 재검토한다.</li>
       <li>공인 DNS 구매와 A 레코드 등록은 마지막 단계로 유지한다.</li>
@@ -511,6 +512,7 @@
       <li>2026-06-23: GitHub Actions summary 생성 스크립트를 분리하고 cleanup JUnit testcase 요약 표를 추가했다.</li>
       <li>2026-06-23: hosted runner가 Docker 내부 HTTPS secret을 만나면 skipped 리포트로 처리하도록 workflow와 secret helper를 보강했다.</li>
       <li>2026-06-23: hosted runner run <code>28002212362</code>에서 Docker 내부 HTTPS secret skip 처리와 artifact 생성을 검증했다.</li>
+      <li>2026-06-23: self-hosted runner run <code>28004149126</code>에서 cleanup JUnit summary 경로를 검증하고 cleanup 리포트 archive 보관 정책을 추가했다.</li>
     </ul>
     <section>
       <h2>원본</h2>

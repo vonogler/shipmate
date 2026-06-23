@@ -158,7 +158,7 @@ bash shipmate-infra/scripts/cleanup-staging-smoke-data.sh
 | GitHub Actions artifact 분석 중 | 해당 run의 `merchantId`, `orderDraftId` 확인이 끝날 때까지 삭제하지 않는다. |
 | 공용 스테이징 DB 용량/목록 노이즈 증가 | dry-run 리포트를 staging summary에 남긴 뒤 apply를 실행한다. |
 
-cleanup 실행 결과는 `shipmate-infra/reports/cleanup/staging-smoke-cleanup-report.json`과 JUnit XML에 남기며, staging summary에도 표시된다.
+cleanup 실행 결과는 `shipmate-infra/reports/cleanup/staging-smoke-cleanup-report.json`과 JUnit XML에 남기며, staging summary에도 표시된다. 최신 cleanup 리포트는 같은 경로에 덮어쓰고, 실행 시점 복사본은 `shipmate-infra/reports/cleanup/archive/{timestamp}/`에 남긴다. 기본 보관 개수는 최신 20개이며 `CLEANUP_ARCHIVE_KEEP_LATEST`로 조정한다.
 
 GitHub Actions workflow는 cleanup JSON/JUnit 리포트를 artifact로 업로드하고, `GITHUB_STEP_SUMMARY`에도 Smoke 테스트 데이터 정리, artifact 정리, cleanup JUnit testcase 요약 표를 표시한다. GitHub Actions의 기본 테스트 탭에 JUnit을 별도 테스트로 노출하는 외부 reporter는 아직 추가하지 않았으므로, 현재 기준의 표준 확인 위치는 workflow summary와 `shipmate-smoke-reports` artifact다.
 
