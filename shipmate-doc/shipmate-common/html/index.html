@@ -1,0 +1,79 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShipMate 공통 문서</title>
+  <style>
+    :root { color-scheme: light; --bg: #f7f8fa; --panel: #ffffff; --text: #20242a; --muted: #667085; --line: #d9dee7; --link: #2457c5; --code: #eef1f6; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.58; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 20px; letter-spacing: 0; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    ul { margin: 0 0 16px; padding-left: 22px; }
+    li { margin: 6px 0; }
+    code { padding: 2px 5px; background: var(--code); border-radius: 4px; font-size: 0.94em; }
+    a { color: var(--link); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+      .doc-nav { margin: 0 0 28px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    .doc-nav h2 { margin: 0 0 10px; font-size: 18px; }
+    .doc-nav ul { margin: 0; padding-left: 20px; }
+    .doc-nav .current { color: var(--text); font-weight: 700; }</style>
+</head>
+<body>
+  <main>
+    <!-- DOC_NAV_START -->
+    <nav class="doc-nav" aria-label="문서 목차">
+      <h2>문서 목차</h2>
+      <ul>
+      <li><a href="development-progress.html">개발 진행사항</a></li>
+      <li><a href="doc-guidelines.html">ShipMate 문서 작성 가이드라인</a></li>
+      <li><a href="domain-model-guidelines.html">도메인 모델 지침</a></li>
+      <li><a href="status-transition-guidelines.html">상태 전이 지침</a></li>
+      <li><a href="api-contract-guidelines.html">API 계약 지침</a></li>
+      <li><a href="ai-extraction-schema-guidelines.html">AI 추출 스키마 지침</a></li>
+      <li><a href="email-order-ingestion.html">이용자 전용 이메일 기반 발주 수집 구조</a></li>
+      <li><a href="field-dictionary.html">필드 딕셔너리</a></li>
+      <li><a href="database-column-dictionary.html">DB 컬럼 딕셔너리</a></li>
+      <li><a href="shared-field-names.html">공통 필드명</a></li>
+      <li><a href="master-codes.html">공통 마스터 코드</a></li>
+      <li><a href="error-codes.html">공통 오류 코드</a></li>
+      <li><span class="current">ShipMate 공통 문서</span></li>
+      </ul>
+    </nav>
+    <!-- DOC_NAV_END -->
+
+    <h1>ShipMate 공통 문서</h1>
+    <p>공유 설계 문서와 프로젝트 전반의 운영 기준을 모아 둡니다.</p>
+    <h2>문서 목록</h2>
+    <ul>
+      <li><a href="development-progress.html">개발 진행사항</a> / <a href="../development-progress.md">Markdown 원본</a></li>
+      <li><a href="doc-guidelines.html">문서 작성 가이드라인</a> / <a href="../doc-guidelines.md">Markdown 원본</a></li>
+      <li><a href="domain-model-guidelines.html">도메인 모델 지침</a> / <a href="../domain-model-guidelines.md">Markdown 원본</a></li>
+      <li><a href="status-transition-guidelines.html">상태 전이 지침</a> / <a href="../status-transition-guidelines.md">Markdown 원본</a></li>
+      <li><a href="api-contract-guidelines.html">API 계약 지침</a> / <a href="../api-contract-guidelines.md">Markdown 원본</a></li>
+      <li><a href="ai-extraction-schema-guidelines.html">AI 추출 스키마 지침</a> / <a href="../ai-extraction-schema-guidelines.md">Markdown 원본</a></li>
+      <li><a href="email-order-ingestion.html">이용자 전용 이메일 기반 발주 수집 구조</a> / <a href="../email-order-ingestion.md">Markdown 원본</a></li>
+      <li><a href="field-dictionary.html">필드 딕셔너리</a> / <a href="../field-dictionary.md">Markdown 원본</a></li>
+      <li><a href="database-column-dictionary.html">DB 컬럼 딕셔너리</a> / <a href="../database-column-dictionary.md">Markdown 원본</a></li>
+      <li><a href="shared-field-names.html">공통 필드명</a> / <a href="../shared-field-names.md">Markdown 원본</a></li>
+      <li><a href="master-codes.html">공통 마스터 코드</a> / <a href="../master-codes.md">Markdown 원본</a></li>
+      <li><a href="error-codes.html">공통 오류 코드</a> / <a href="../error-codes.md">Markdown 원본</a></li>
+      <li><a href="../../../shipmate-infra/reports/staging-check-summary.html">스테이징 점검 요약</a> / <a href="../../../shipmate-infra/reports/staging-check-summary.md">Markdown 원본</a></li>
+    </ul>
+    <h2>폴더 규칙</h2>
+    <ul>
+      <li>공통 문서 원본은 <code>shipmate-doc/shipmate-common/*.md</code>에 둡니다.</li>
+      <li>공통 HTML 문서는 <code>shipmate-doc/shipmate-common/html/*.html</code>에 둡니다.</li>
+      <li>문서 산출물은 Markdown과 HTML만 사용합니다.</li>
+      <li>필드 딕셔너리와 DB 컬럼 딕셔너리는 code set을 통해 공통 마스터 코드와 연결합니다.</li>
+      <li>공통 필드명, 마스터 코드, 오류 코드도 Markdown과 HTML로 관리합니다.</li>
+    </ul>
+    <section>
+      <h2>원본</h2>
+      <p><a href="../README.md">Markdown 원본</a></p>
+    </section>
+  </main>
+</body>
+</html>

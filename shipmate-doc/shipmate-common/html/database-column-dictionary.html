@@ -1,0 +1,130 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DB 컬럼 딕셔너리</title>
+  <style>
+    :root { color-scheme: light; --bg: #f7f8fa; --panel: #ffffff; --text: #20242a; --muted: #667085; --line: #d9dee7; --link: #2457c5; --code: #eef1f6; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.58; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 20px; letter-spacing: 0; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    ul { margin: 0 0 16px; padding-left: 22px; }
+    li { margin: 6px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; background: var(--panel); }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #eef1f6; }
+    pre { overflow-x: auto; padding: 14px; background: var(--code); border-radius: 8px; border: 1px solid var(--line); }
+    code { padding: 2px 5px; background: var(--code); border-radius: 4px; font-size: 0.94em; }
+    pre code { padding: 0; background: transparent; border-radius: 0; }
+    a { color: var(--link); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+    .doc-nav { margin: 0 0 28px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    .doc-nav h2 { margin: 0 0 10px; font-size: 18px; }
+    .doc-nav ul { margin: 0; padding-left: 20px; }
+    .doc-nav .current { color: var(--text); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <!-- DOC_NAV_START -->
+    <nav class="doc-nav" aria-label="문서 목차">
+      <h2>문서 목차</h2>
+      <ul>
+        <li><a href="development-progress.html">개발 진행사항</a></li>
+        <li><a href="doc-guidelines.html">ShipMate 문서 작성 가이드라인</a></li>
+        <li><a href="domain-model-guidelines.html">도메인 모델 지침</a></li>
+        <li><a href="status-transition-guidelines.html">상태 전이 지침</a></li>
+        <li><a href="api-contract-guidelines.html">API 계약 지침</a></li>
+        <li><a href="ai-extraction-schema-guidelines.html">AI 추출 스키마 지침</a></li>
+        <li><a href="email-order-ingestion.html">이용자 전용 이메일 기반 발주 수집 구조</a></li>
+        <li><a href="field-dictionary.html">필드 딕셔너리</a></li>
+        <li><span class="current">DB 컬럼 딕셔너리</span></li>
+        <li><a href="shared-field-names.html">공통 필드명</a></li>
+        <li><a href="master-codes.html">공통 마스터 코드</a></li>
+        <li><a href="error-codes.html">공통 오류 코드</a></li>
+        <li><a href="index.html">ShipMate 공통 문서</a></li>
+      </ul>
+    </nav>
+    <!-- DOC_NAV_END -->
+
+    <h1>DB 컬럼 딕셔너리</h1>
+    <h2>목적</h2>
+    <p>DB table, column, type, nullable, index, FK, code set을 통일한다. API field와 DB column은 서로 역참조할 수 있어야 한다.</p>
+
+    <h2>DB 접근 방식 결정</h2>
+    <p>현재 DB 접근 방식은 <code>MySQL 8.4 + Flyway SQL migration + Spring JDBC JdbcTemplate</code>로 결정한다.</p>
+    <ul>
+      <li>MVP 단계에서는 테이블/컬럼이 자주 조정되므로 SQL 마이그레이션과 명시적 row mapping이 변경 영향을 가장 좁게 드러낸다.</li>
+      <li>JSON 파일 저장소에서 MySQL repository로 순차 전환하는 중이므로, 기존 저장소 계약을 유지한 채 SQL만 교체하는 방식이 안전하다.</li>
+      <li>내부관리자 조회, 백업 export, 운영 로그처럼 집계/운영 SQL이 늘어나는 영역은 실제 실행 SQL을 문서와 코드에서 바로 확인하는 편이 운영 검증에 유리하다.</li>
+      <li>현재 도메인은 복잡한 객체 그래프보다 명확한 업무 테이블과 값 객체 중심이므로 ORM 영속성 컨텍스트의 이점이 크지 않다.</li>
+    </ul>
+    <p>JPA/QueryDSL은 주문/출고/고객 간 연관 조회와 동적 검색 조건이 충분히 늘고, DB repository 전환 뒤 테이블 구조가 안정화되면 재검토한다.</p>
+
+    <h2>기본 규칙</h2>
+    <table>
+      <tr><th>구분</th><th>규칙</th></tr>
+      <tr><td>table</td><td><code>tb_</code> prefix + <code>snake_case</code> 복수형. 공통 코드 마스터는 <code>tb_code</code></td></tr>
+      <tr><td>column</td><td><code>snake_case</code></td></tr>
+      <tr><td>FK column</td><td><code>{entity}_id</code></td></tr>
+      <tr><td>audit column</td><td><code>created_at</code>, <code>updated_at</code></td></tr>
+    </table>
+
+    <h2>일반명 사용 제한</h2>
+    <p><code>phone</code>, <code>name</code>, <code>address</code>, <code>status</code>, <code>type</code>, <code>date</code>, <code>amount</code> 같은 일반명은 단독 column으로 사용하지 않는다. 각 테이블의 primary key인 <code>id</code>와 audit column은 예외다.</p>
+
+    <h2>ID 컬럼 규칙</h2>
+    <table>
+      <tr><th>대상</th><th>DB column</th><th>API field</th></tr>
+      <tr><td>출고비서 이용자</td><td><code>merchant_id</code></td><td><code>merchantId</code></td></tr>
+      <tr><td>이용자 직원</td><td><code>merchant_staff_id</code></td><td><code>merchantStaffId</code></td></tr>
+      <tr><td>고객/거래처</td><td><code>customer_id</code></td><td><code>customerId</code></td></tr>
+      <tr><td>주문 원문</td><td><code>inbound_message_id</code></td><td><code>inboundMessageId</code></td></tr>
+      <tr><td>주문 초안</td><td><code>order_draft_id</code></td><td><code>orderDraftId</code></td></tr>
+      <tr><td>작업지시서</td><td><code>work_order_id</code></td><td><code>workOrderId</code></td></tr>
+      <tr><td>출고표</td><td><code>shipment_sheet_id</code></td><td><code>shipmentSheetId</code></td></tr>
+    </table>
+
+    <h2>코드 테이블 연계</h2>
+    <p>선택값/코드값 column은 <code>code_set</code>을 명시한다. <code>code_set</code>은 마스터 코드 문서의 <code>code_group</code>과 같은 의미다.</p>
+    <table>
+      <tr><th>DB column</th><th>API field</th><th>code_set</th><th>관리 방식</th></tr>
+      <tr><td><code>source_channel</code></td><td><code>sourceChannel</code></td><td><code>SOURCE_CHANNEL</code></td><td>master table</td></tr>
+      <tr><td><code>business_channel</code></td><td><code>businessChannel</code></td><td><code>BUSINESS_CHANNEL</code></td><td>master table</td></tr>
+      <tr><td><code>business_type</code></td><td><code>businessType</code></td><td><code>BUSINESS_TYPE</code></td><td>master table</td></tr>
+      <tr><td><code>document_type</code></td><td><code>documentType</code></td><td><code>DOCUMENT_TYPE</code></td><td>master table</td></tr>
+      <tr><td><code>review_status</code></td><td><code>reviewStatus</code></td><td>-</td><td>application enum 우선</td></tr>
+      <tr><td><code>ai_job_status</code></td><td><code>aiJobStatus</code></td><td>-</td><td>application enum</td></tr>
+    </table>
+
+    <h2>Master table 적용 기준</h2>
+    <p>화면 표시명, 정렬, 활성 여부가 필요하거나 운영자가 선택/필터링하는 값은 master table에 둔다. 내부 처리 흐름, 배치, 업로드, AI job처럼 시스템 로직 전이에 강하게 묶인 값은 application enum으로 둔다.</p>
+
+    <h2>권장 Master table</h2>
+    <table>
+      <tr><th>Table</th><th>주요 column</th><th>설명</th></tr>
+      <tr><td><code>tb_code</code></td><td><code>id</code>, <code>code_group</code>, <code>code</code>, <code>label_ko</code>, <code>description</code>, <code>active</code>, <code>sort_order</code>, <code>created_at</code>, <code>updated_at</code></td><td>code group과 code value를 함께 관리. 그룹 설명은 <code>code='__GROUP__'</code></td></tr>
+    </table>
+
+    <h2>현재 구현 기준 추가 컬럼 후보</h2>
+    <p>MySQL 전환은 <code>tb_code</code>를 가장 먼저 생성하고, 코드값 seed 이후 업무 테이블을 생성한다. JSON 파일 저장소를 DB repository로 전환할 때도 아래 table 이름과 column 이름을 그대로 사용한다. 상세 컬럼 표는 Markdown 원본을 기준으로 한다.</p>
+    <table>
+      <tr><th>영역</th><th>주요 table</th><th>주요 column</th></tr>
+      <tr><td>마스터 코드</td><td><code>tb_code</code></td><td><code>code_group</code>, <code>code</code>, <code>label_ko</code>, <code>active</code>, <code>sort_order</code></td></tr>
+      <tr><td>인증/권한</td><td><code>tb_merchant_users</code></td><td><code>merchant_user_id</code>, <code>merchant_id</code>, <code>login_id</code>, <code>password_hash</code>, <code>display_name</code>, <code>role</code></td></tr>
+      <tr><td>주문 원문/출고표</td><td><code>tb_inbound_messages</code>, <code>tb_order_drafts</code></td><td><code>inbound_message_status</code>, <code>source_inbound_message_id</code>, <code>delivery_recipient_name</code>, <code>delivery_recipient_phone_number</code>, <code>delivery_address</code>, <code>order_draft_status</code></td></tr>
+      <tr><td>품목 후보</td><td><code>tb_order_draft_item_candidates</code></td><td><code>item_name</code>, <code>item_spec</code>, <code>item_quantity</code>, <code>item_unit</code>, <code>matched_unit_price</code>, <code>packaging_width</code>, <code>packaging_material_name</code>, <code>production_quantity</code>, <code>requested_due_date</code></td></tr>
+      <tr><td>고객/단가표</td><td><code>tb_customers</code>, <code>tb_customer_price_items</code></td><td><code>customer_name</code>, <code>customer_phone_number</code>, <code>default_recipient_phone_number</code>, <code>favorite_item_names</code>, <code>deleted_at</code>, <code>unit_price</code></td></tr>
+      <tr><td>운영/이메일</td><td><code>tb_email_mailbox_configs</code>, <code>tb_email_attachments</code>, <code>tb_gmail_polling_runs</code>, <code>tb_audit_logs</code>, <code>tb_error_logs</code>, <code>tb_merchant_operation_settings</code>, <code>tb_merchant_admin_profiles</code>, <code>tb_courier_csv_validation_rules</code></td><td><code>host</code>, <code>port</code>, <code>ssl_enabled</code>, <code>collection_status</code>, <code>email_attachment_id</code>, <code>inbound_message_id</code>, <code>file_name</code>, <code>file_size_bytes</code>, <code>object_key</code>, <code>gmail_polling_run_id</code>, <code>trigger_type</code>, <code>skipped_non_order_count</code>, <code>success</code>, <code>failure_code</code>, <code>latest_inbound_message_id</code>, <code>audit_log_id</code>, <code>metadata_json</code>, <code>merchant_id</code>, <code>error_log_id</code>, <code>http_status</code>, <code>exception_type</code>, <code>metadata_json</code>, <code>handling_status</code>, <code>assigned_actor_id</code>, <code>handled_at</code>, <code>default_courier_csv_template</code>, <code>merchant_status</code>, <code>operation_memo</code>, <code>courier_csv_validation_rule_id</code>, <code>courier_csv_template</code>, <code>field_name</code>, <code>csv_column_name</code>, <code>required</code>, <code>error_message</code>, <code>sort_order</code>, <code>active</code></td></tr>
+    </table>
+
+    <section>
+      <h2>원본</h2>
+      <p><a href="../database-column-dictionary.md">Markdown 원본</a></p>
+    </section>
+  </main>
+</body>
+</html>

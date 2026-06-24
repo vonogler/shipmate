@@ -3,3 +3,6 @@ build/
 .idea/
 *.iml
 .env
+requests/http-client.private.env.json
+requests/*.private.env.json
+requests/*.local.env.json

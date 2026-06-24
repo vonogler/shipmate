@@ -1,0 +1,41 @@
+@apiBaseUrl = http://localhost:8080
+@accessToken = replace_with_login_access_token
+
+### Google OAuth 연결 URL 생성
+# 응답의 authorizationUrl을 브라우저에서 열어 Gmail 테스트 사용자로 로그인한다.
+POST {{apiBaseUrl}}/api/oauth/google/authorize-url
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "merchantId": "merchant_local_packaging"
+}
+
+### Google OAuth 콜백
+# 브라우저가 아래 경로로 자동 이동한다.
+# 직접 실행하지 말고 Google 로그인 완료 후 들어오는 응답을 확인한다.
+GET {{apiBaseUrl}}/api/oauth/google/callback?code=replace_with_google_code&state=replace_with_state
+
+### Google OAuth 연결 상태
+GET {{apiBaseUrl}}/api/oauth/google/status?merchantId=merchant_local_packaging
+Authorization: Bearer {{accessToken}}
+
+### Gmail OAuth polling 수동 실행
+# Google OAuth 연결 완료 후 실행한다. 평소에는 서버 스케줄러가 주기적으로 실행한다.
+POST {{apiBaseUrl}}/api/oauth/google/collect-gmail
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "merchantId": "merchant_local_packaging"
+}
+
+### Gmail 수집 이력 최신 메일 읽음 처리
+# 이미 수집된 메일이 읽지 않음으로 남아 있을 때 최신 수집 이력 기준으로 읽음 처리한다.
+POST {{apiBaseUrl}}/api/oauth/google/mark-latest-collected-read?limit=2
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "merchantId": "merchant_local_packaging"
+}

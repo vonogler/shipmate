@@ -22,3 +22,13 @@ shipmate:
     access-key: ${SHIPMATE_MINIO_ACCESS_KEY:shipmate}
     secret-key: ${SHIPMATE_MINIO_SECRET_KEY:shipmate-local-password}
     presigned-url-expiry-seconds: ${SHIPMATE_PRESIGNED_EXPIRY_SECONDS:900}
+    email-attachment-retention-days: ${SHIPMATE_EMAIL_ATTACHMENT_RETENTION_DAYS:365}
+  google-oauth:
+    client-id: ${GOOGLE_OAUTH_CLIENT_ID:}
+    client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET:}
+    redirect-uri: ${GOOGLE_OAUTH_REDIRECT_URI:http://localhost:8080/api/oauth/google/callback}
+    gmail-polling-enabled: ${GOOGLE_GMAIL_POLLING_ENABLED:true}
+    gmail-polling-delay-ms: ${GOOGLE_GMAIL_POLLING_DELAY_MS:300000}
+    gmail-polling-max-messages: ${GOOGLE_GMAIL_POLLING_MAX_MESSAGES:10}
+    gmail-auto-create-order-drafts: ${GOOGLE_GMAIL_AUTO_CREATE_ORDER_DRAFTS:true}
+    token-encryption-secret: ${GOOGLE_OAUTH_TOKEN_ENCRYPTION_SECRET:shipmate-local-google-oauth-token-key}

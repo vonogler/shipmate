@@ -1,0 +1,147 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>필드 딕셔너리</title>
+  <style>
+    :root { color-scheme: light; --bg: #f7f8fa; --panel: #ffffff; --text: #20242a; --muted: #667085; --line: #d9dee7; --link: #2457c5; --code: #eef1f6; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.58; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 20px; letter-spacing: 0; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    ul, ol { margin: 0 0 16px; padding-left: 22px; }
+    li { margin: 6px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; background: var(--panel); }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #eef1f6; }
+    pre { overflow-x: auto; padding: 14px; background: var(--code); border-radius: 8px; border: 1px solid var(--line); }
+    code { padding: 2px 5px; background: var(--code); border-radius: 4px; font-size: 0.94em; }
+    pre code { padding: 0; background: transparent; border-radius: 0; }
+    a { color: var(--link); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+    .doc-nav { margin: 0 0 28px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    .doc-nav h2 { margin: 0 0 10px; font-size: 18px; }
+    .doc-nav ul { margin: 0; padding-left: 20px; }
+    .doc-nav .current { color: var(--text); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <!-- DOC_NAV_START -->
+    <nav class="doc-nav" aria-label="문서 목차">
+      <h2>문서 목차</h2>
+      <ul>
+        <li><a href="development-progress.html">개발 진행사항</a></li>
+        <li><a href="doc-guidelines.html">ShipMate 문서 작성 가이드라인</a></li>
+        <li><a href="domain-model-guidelines.html">도메인 모델 지침</a></li>
+        <li><a href="status-transition-guidelines.html">상태 전이 지침</a></li>
+        <li><a href="api-contract-guidelines.html">API 계약 지침</a></li>
+        <li><a href="ai-extraction-schema-guidelines.html">AI 추출 스키마 지침</a></li>
+        <li><a href="email-order-ingestion.html">이용자 전용 이메일 기반 발주 수집 구조</a></li>
+        <li><span class="current">필드 딕셔너리</span></li>
+        <li><a href="database-column-dictionary.html">DB 컬럼 딕셔너리</a></li>
+        <li><a href="shared-field-names.html">공통 필드명</a></li>
+        <li><a href="master-codes.html">공통 마스터 코드</a></li>
+        <li><a href="error-codes.html">공통 오류 코드</a></li>
+        <li><a href="index.html">ShipMate 공통 문서</a></li>
+      </ul>
+    </nav>
+    <!-- DOC_NAV_END -->
+
+    <h1>필드 딕셔너리</h1>
+    <h2>목적</h2>
+    <p>API JSON field, Kotlin/Java/TypeScript field, enum, 화면 개념명을 통일한다. 필드 딕셔너리는 DB 컬럼 딕셔너리와 함께 관리하며, 업무 필드는 DB column, code set, 화면 문구와 연결되어야 한다.</p>
+
+    <h2>일반명 사용 제한</h2>
+    <p><code>id</code>, <code>name</code>, <code>phone</code>, <code>address</code>, <code>status</code>, <code>type</code>, <code>date</code>, <code>amount</code> 같은 일반명은 단독으로 사용하지 않는다. 단, 엔티티 자신의 primary key인 <code>id</code>와 audit field인 <code>createdAt</code>, <code>updatedAt</code>은 예외로 둔다.</p>
+    <pre><code>금지: phone, name, address, status, type
+허용: customerPhoneNumber, recipientName, deliveryAddress, reviewStatus, documentType</code></pre>
+
+    <h2>식별자 규칙</h2>
+    <ul>
+      <li><code>id</code>는 엔티티 자신의 primary key로만 사용한다.</li>
+      <li>API 요청/응답, DTO, event payload, FK 참조, 검색 조건에서는 <code>id</code> 단독 사용을 금지한다.</li>
+      <li>외부 참조 식별자는 반드시 <code>{entity}Id</code> 형식으로 작성한다.</li>
+      <li><code>userId</code>는 사용하지 않는다.</li>
+    </ul>
+    <table>
+      <tr><th>대상</th><th>API field</th><th>의미</th></tr>
+      <tr><td>출고비서 이용자</td><td><code>merchantId</code></td><td>출고비서를 쓰는 업체/사업자</td></tr>
+      <tr><td>이용자 직원</td><td><code>merchantStaffId</code></td><td>이용자 업체에 소속된 직원</td></tr>
+      <tr><td>고객/거래처</td><td><code>customerId</code></td><td>출고비서 이용자에게 주문하는 거래처</td></tr>
+      <tr><td>수취인</td><td><code>recipientId</code></td><td>실제 배송을 받는 사람 또는 장소</td></tr>
+      <tr><td>주문 원문</td><td><code>inboundMessageId</code></td><td>카카오톡, 문자, 이메일 등에서 들어온 원문</td></tr>
+      <tr><td>주문 초안</td><td><code>orderDraftId</code></td><td>AI 또는 이용자 입력으로 만든 주문 후보</td></tr>
+      <tr><td>내부 운영자</td><td><code>adminUserId</code></td><td>출고비서 서비스를 운영하는 관리자</td></tr>
+    </table>
+
+    <h2>전화번호 규칙</h2>
+    <p><code>phone</code>은 단독으로 사용하지 않는다. 전화번호는 반드시 역할을 붙인다.</p>
+    <table>
+      <tr><th>API field</th><th>의미</th></tr>
+      <tr><td><code>customerPhoneNumber</code></td><td>거래처 대표 또는 담당 전화번호</td></tr>
+      <tr><td><code>recipientPhoneNumber</code></td><td>실제 수취인 전화번호</td></tr>
+      <tr><td><code>merchantPhoneNumber</code></td><td>출고비서 이용자 업체 전화번호</td></tr>
+      <tr><td><code>deliveryContactPhoneNumber</code></td><td>배송지 현장 연락처</td></tr>
+    </table>
+
+    <h2>업종 전용 필드</h2>
+    <table>
+      <tr><th>업종</th><th>Prefix</th><th>예</th></tr>
+      <tr><td>포장재/판촉물/맞춤 제작</td><td><code>packaging</code></td><td><code>packagingPrintType</code>, <code>packagingDesignFileStatus</code></td></tr>
+      <tr><td>미용재료/화장품</td><td><code>beauty</code></td><td><code>beautyColorCode</code>, <code>beautyProductLineName</code></td></tr>
+      <tr><td>공구/MRO</td><td><code>mro</code></td><td><code>mroPartNumber</code>, <code>mroPackageUnitQuantity</code></td></tr>
+      <tr><td>의류/패션</td><td><code>apparel</code></td><td><code>apparelColorName</code>, <code>apparelSizeCode</code></td></tr>
+      <tr><td>금속/자재</td><td><code>metal</code></td><td><code>metalMaterialGrade</code>, <code>metalThicknessValue</code></td></tr>
+    </table>
+
+    <h2>코드 테이블 연계</h2>
+    <p>필드가 선택값 또는 코드값이면 <code>codeSet</code>을 명시한다. <code>codeSet</code>은 마스터 코드 문서의 <code>code_group</code>과 연결한다.</p>
+    <table>
+      <tr><th>API field</th><th>DB column</th><th>codeSet</th><th>관리 방식</th></tr>
+      <tr><td><code>sourceChannel</code></td><td><code>source_channel</code></td><td><code>SOURCE_CHANNEL</code></td><td>master table</td></tr>
+      <tr><td><code>businessChannel</code></td><td><code>business_channel</code></td><td><code>BUSINESS_CHANNEL</code></td><td>master table</td></tr>
+      <tr><td><code>businessType</code></td><td><code>business_type</code></td><td><code>BUSINESS_TYPE</code></td><td>master table</td></tr>
+      <tr><td><code>documentType</code></td><td><code>document_type</code></td><td><code>DOCUMENT_TYPE</code></td><td>master table</td></tr>
+      <tr><td><code>reviewStatus</code></td><td><code>review_status</code></td><td>-</td><td>application enum 우선</td></tr>
+      <tr><td><code>aiJobStatus</code></td><td><code>ai_job_status</code></td><td>-</td><td>application enum</td></tr>
+    </table>
+    <p>모든 상태값을 master table에 넣지 않는다. 운영자가 선택하거나 화면 표시, 정렬, 활성 여부 관리가 필요한 값만 master table로 관리한다.</p>
+
+    <h2>DB 저장 테이블 연결</h2>
+    <p>API field가 DB에 저장되는 경우 필드 딕셔너리와 DB 컬럼 딕셔너리 양쪽에서 같은 table, column을 가리켜야 한다. 모든 업무 table은 <code>tb_</code> prefix를 붙이고, 공통 코드 마스터는 <code>tb_code</code>를 사용한다.</p>
+    <table>
+      <tr><th>업무 영역</th><th>DB table</th><th>대표 API field</th></tr>
+      <tr><td>공통 코드</td><td><code>tb_code</code></td><td><code>sourceChannel</code>, <code>businessChannel</code>, <code>itemUnit</code></td></tr>
+      <tr><td>인증/권한</td><td><code>tb_merchant_users</code></td><td><code>merchantUserId</code>, <code>loginId</code>, <code>role</code></td></tr>
+      <tr><td>주문 원문</td><td><code>tb_inbound_messages</code></td><td><code>inboundMessageId</code>, <code>rawText</code>, <code>inboundMessageStatus</code></td></tr>
+      <tr><td>출고표 초안</td><td><code>tb_order_drafts</code></td><td><code>orderDraftId</code>, <code>deliveryRecipientName</code>, <code>orderDraftStatus</code></td></tr>
+      <tr><td>출고표 품목 후보</td><td><code>tb_order_draft_item_candidates</code></td><td><code>orderDraftItemCandidateId</code>, <code>itemName</code>, <code>matchedUnitPrice</code></td></tr>
+      <tr><td>고객/거래처</td><td><code>tb_customers</code></td><td><code>customerId</code>, <code>customerName</code>, <code>customerPhoneNumber</code></td></tr>
+      <tr><td>고객 단가표</td><td><code>tb_customer_price_items</code></td><td><code>customerPriceItemId</code>, <code>itemNameKeyword</code>, <code>unitPrice</code></td></tr>
+      <tr><td>이메일/운영</td><td><code>tb_email_mailbox_configs</code>, <code>tb_email_attachments</code>, <code>tb_gmail_polling_runs</code>, <code>tb_audit_logs</code>, <code>tb_error_logs</code>, <code>tb_merchant_operation_settings</code></td><td><code>host</code>, <code>emailAttachmentId</code>, <code>gmailPollingRunId</code>, <code>auditLogId</code>, <code>errorLogId</code>, <code>defaultBusinessChannel</code></td></tr>
+    </table>
+
+    <h2>현재 구현 필드 확장 목록</h2>
+    <p>2026-06-13 기준 구현된 API/화면 필드를 추가로 반영했다. 상세 표는 Markdown 원본을 기준으로 한다.</p>
+    <table>
+      <tr><th>영역</th><th>주요 API field</th><th>비고</th></tr>
+      <tr><td>인증/권한</td><td><code>merchantUserId</code>, <code>loginId</code>, <code>displayName</code>, <code>role</code>, <code>accessToken</code></td><td><code>role</code>은 <code>MERCHANT_USER_ROLE</code>과 연결</td></tr>
+      <tr><td>주문 원문</td><td><code>inboundMessageStatus</code>, <code>receivedAt</code></td><td><code>INBOUND_MESSAGE_STATUS</code>와 연결</td></tr>
+      <tr><td>출고표/배송</td><td><code>sourceInboundMessageId</code>, <code>orderDraftStatus</code>, <code>deliveryRecipientName</code>, <code>deliveryRecipientPhoneNumber</code>, <code>deliveryPostalCode</code>, <code>deliveryAddress</code>, <code>deliveryAddressDetail</code>, <code>deliveryRequestMemo</code>, <code>deliveryMemo</code>, <code>courierMemo</code>, <code>reopenReason</code></td><td>현재 코드의 <code>deliveryRecipientPhone</code>은 DB 전환 시 <code>deliveryRecipientPhoneNumber</code>로 정규화 검토. <code>reopenReason</code>은 재검수 전환 요청 field이며 변경 이력 summary와 <code>metadata_json</code>에 기록한다.</td></tr>
+      <tr><td>택배 CSV 검증 응답/규칙</td><td><code>valid</code>, <code>errors</code>, <code>errorDetails</code>, <code>fieldName</code>, <code>csvColumnName</code>, <code>courierCsvValidationRuleId</code>, <code>courierCsvTemplate</code>, <code>required</code>, <code>errorMessage</code>, <code>sortOrder</code>, <code>active</code></td><td>응답 전용 field와 DB 설정 field를 구분한다. 검증 규칙은 <code>tb_courier_csv_validation_rules</code>에 저장하고, <code>errorDetails</code>는 출고표 ID, field 이름, 택배사 CSV 컬럼명, 오류 메시지를 구조화해 제공한다.</td></tr>
+      <tr><td>품목 후보</td><td><code>orderDraftItemCandidateId</code>, <code>itemName</code>, <code>itemSpec</code>, <code>itemQuantity</code>, <code>itemUnit</code>, <code>matchedUnitPrice</code>, <code>lineMemo</code></td><td><code>itemUnit</code>은 <code>ITEM_UNIT</code>과 연결</td></tr>
+      <tr><td>포장재/맞춤 제작</td><td><code>packagingWidth</code>, <code>packagingDepth</code>, <code>packagingHeight</code>, <code>packagingMaterialName</code>, <code>printRequired</code>, <code>designFileProvided</code>, <code>productionQuantity</code>, <code>requestedDueDate</code>, <code>sampleRequested</code>, <code>customProductType</code>, <code>imprintMethod</code>, <code>itemColor</code>, <code>customOptionText</code>, <code>proofConfirmed</code>, <code>productionConfirmed</code></td><td>현재 코드의 <code>materialName</code>은 DB 전환 시 <code>packagingMaterialName</code> 권장</td></tr>
+      <tr><td>고객/단가표</td><td><code>customerName</code>, <code>customerPhoneNumber</code>, <code>defaultRecipientName</code>, <code>defaultRecipientPhoneNumber</code>, <code>favoriteItemNames</code>, <code>customerPriceItemId</code>, <code>itemNameKeyword</code>, <code>itemSpecKeyword</code>, <code>unitPrice</code>, <code>deletedAt</code></td><td>현재 코드의 <code>customerPhone</code>, <code>defaultRecipientPhone</code>은 DB 전환 시 정규화 검토</td></tr>
+      <tr><td>운영/이메일/대시보드</td><td><code>host</code>, <code>port</code>, <code>username</code>, <code>sslEnabled</code>, <code>collectionStatus</code>, <code>emailAttachmentId</code>, <code>fileName</code>, <code>fileSizeBytes</code>, <code>downloadUrl</code>, <code>expiresInSeconds</code>, <code>retentionDays</code>, <code>cutoffCreatedAt</code>, <code>expiredAttachmentCount</code>, <code>deletedObjectCount</code>, <code>deletedMetadataCount</code>, <code>failedCount</code>, <code>gmailPollingRunId</code>, <code>triggerType</code>, <code>skippedNonOrderCount</code>, <code>success</code>, <code>failureCode</code>, <code>failureMessage</code>, <code>latestInboundMessageId</code>, <code>pollingEnabled</code>, <code>pollingDelayMs</code>, <code>pollingMaxMessages</code>, <code>autoCreateOrderDrafts</code>, <code>collectedMessageCount</code>, <code>latestCollectedAt</code>, <code>latestReceivedAt</code>, <code>recentRunCount</code>, <code>recentFailureCount</code>, <code>recentSkippedNonOrderCount</code>, <code>latestSuccessAt</code>, <code>latestFailureAt</code>, <code>latestFailureCode</code>, <code>latestFailureMessage</code>, <code>latestFailureInboundMessageId</code>, <code>gmailPollingLatestFailureInboundMessageId</code>, <code>recentFailureCodeCounts</code>, <code>auditLogId</code>, <code>auditMetadataJson</code>, <code>metadataKey</code>, <code>metadataKeys</code>, <code>itemSummary</code>, <code>quantitySummary</code>, <code>itemCandidates</code>, <code>errorLogId</code>, <code>errorMetadataJson</code>, <code>backupId</code>, <code>restoreId</code>, <code>defaultCourierCsvTemplate</code>, <code>defaultBusinessChannel</code>, <code>orderDraftStatusCounts</code>, <code>sourceChannelCounts</code>, <code>errorCodeCounts</code></td><td>대시보드 count 필드, polling 상태 필드, 다운로드 URL은 DB 저장 대상 아님. <code>auditMetadataJson</code>은 변경 이력 부가 정보로 저장한다. <code>itemCandidates</code>는 제출 품목 snapshot 비교에 사용한다. <code>metadataKey</code>/<code>metadataKeys</code>는 변경 이력 빠른 필터용 응답/요청 field다.</td></tr>
+    </table>
+
+    <section>
+      <h2>원본</h2>
+      <p><a href="../field-dictionary.md">Markdown 원본</a></p>
+    </section>
+  </main>
+</body>
+</html>

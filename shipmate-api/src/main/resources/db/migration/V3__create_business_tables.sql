@@ -1,0 +1,200 @@
+create table if not exists tb_merchant_users (
+    id bigint not null auto_increment,
+    merchant_user_id varchar(80) not null,
+    merchant_id varchar(80) not null,
+    login_id varchar(120) not null,
+    password_hash varchar(255) not null,
+    display_name varchar(120) not null,
+    role varchar(40) not null,
+    created_at timestamp not null default current_timestamp,
+    updated_at timestamp not null default current_timestamp on update current_timestamp,
+    primary key (id),
+    unique key uk_tb_merchant_users_user_id (merchant_user_id),
+    unique key uk_tb_merchant_users_login_id (login_id),
+    key ix_tb_merchant_users_merchant_id (merchant_id),
+    key ix_tb_merchant_users_role (role)
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_0900_ai_ci;
+
+create table if not exists tb_customers (
+    id bigint not null auto_increment,
+    customer_id varchar(80) not null,
+    merchant_id varchar(80) not null,
+    customer_name varchar(200) not null,
+    customer_phone_number varchar(40) null,
+    default_recipient_name varchar(120) null,
+    default_recipient_phone_number varchar(40) null,
+    default_postal_code varchar(20) null,
+    default_address varchar(500) null,
+    default_address_detail varchar(500) null,
+    favorite_item_names json not null,
+    deleted_at timestamp null,
+    created_at timestamp not null default current_timestamp,
+    updated_at timestamp not null default current_timestamp on update current_timestamp,
+    primary key (id),
+    unique key uk_tb_customers_customer_id (customer_id),
+    key ix_tb_customers_merchant_id (merchant_id),
+    key ix_tb_customers_customer_name (customer_name)
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_0900_ai_ci;
+
+create table if not exists tb_customer_price_items (
+    id bigint not null auto_increment,
+    customer_price_item_id varchar(80) not null,
+    customer_id varchar(80) not null,
+    item_name_keyword varchar(200) null,
+    item_spec_keyword varchar(200) null,
+    item_unit varchar(40) null,
+    unit_price decimal(15,2) not null,
+    sort_order integer not null default 0,
+    created_at timestamp not null default current_timestamp,
+    updated_at timestamp not null default current_timestamp on update current_timestamp,
+    primary key (id),
+    unique key uk_tb_customer_price_items_item_id (customer_price_item_id),
+    key ix_tb_customer_price_items_customer_id (customer_id),
+    key ix_tb_customer_price_items_item_name (item_name_keyword)
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_0900_ai_ci;
+
+create table if not exists tb_inbound_messages (
+    id bigint not null auto_increment,
+    inbound_message_id varchar(80) not null,
+    merchant_id varchar(80) not null,
+    merchant_staff_id varchar(80) null,
+    customer_id varchar(80) null,
+    source_channel varchar(40) not null,
+    business_channel varchar(60) not null,
+    raw_text text not null,
+    inbound_message_status varchar(40) not null,
+    received_at timestamp not null,
+    created_at timestamp not null default current_timestamp,
+    updated_at timestamp not null default current_timestamp on update current_timestamp,
+    primary key (id),
+    unique key uk_tb_inbound_messages_message_id (inbound_message_id),
+    key ix_tb_inbound_messages_merchant_id (merchant_id),
+    key ix_tb_inbound_messages_customer_id (customer_id),
+    key ix_tb_inbound_messages_source_channel (source_channel),
+    key ix_tb_inbound_messages_status (inbound_message_status),
+    key ix_tb_inbound_messages_received_at (received_at)
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_0900_ai_ci;
+
+create table if not exists tb_order_drafts (
+    id bigint not null auto_increment,
+    order_draft_id varchar(80) not null,
+    source_inbound_message_id varchar(80) not null,
+    merchant_id varchar(80) not null,
+    merchant_staff_id varchar(80) null,
+    customer_id varchar(80) null,
+    source_channel varchar(40) not null,
+    business_channel varchar(60) not null,
+    raw_text text not null,
+    delivery_recipient_name varchar(120) null,
+    delivery_recipient_phone_number varchar(40) null,
+    delivery_postal_code varchar(20) null,
+    delivery_address varchar(500) null,
+    delivery_address_detail varchar(500) null,
+    delivery_request_memo varchar(1000) null,
+    delivery_memo varchar(1000) null,
+    courier_memo varchar(1000) null,
+    order_draft_status varchar(40) not null,
+    created_at timestamp not null default current_timestamp,
+    updated_at timestamp not null default current_timestamp on update current_timestamp,
+    primary key (id),
+    unique key uk_tb_order_drafts_draft_id (order_draft_id),
+    key ix_tb_order_drafts_source_message_id (source_inbound_message_id),
+    key ix_tb_order_drafts_merchant_id (merchant_id),
+    key ix_tb_order_drafts_customer_id (customer_id),
+    key ix_tb_order_drafts_status (order_draft_status),
+    key ix_tb_order_drafts_created_at (created_at)
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_0900_ai_ci;
+
+create table if not exists tb_order_draft_item_candidates (
+    id bigint not null auto_increment,
+    order_draft_item_candidate_id varchar(80) not null,
+    order_draft_id varchar(80) not null,
+    item_name varchar(300) null,
+    item_spec varchar(300) null,
+    item_quantity varchar(80) null,
+    item_unit varchar(40) null,
+    matched_unit_price decimal(15,2) null,
+    packaging_width varchar(80) null,
+    packaging_depth varchar(80) null,
+    packaging_height varchar(80) null,
+    packaging_material_name varchar(200) null,
+    print_required boolean null,
+    design_file_provided boolean null,
+    production_quantity varchar(80) null,
+    requested_due_date date null,
+    sample_requested boolean null,
+    custom_product_type varchar(200) null,
+    imprint_method varchar(200) null,
+    item_color varchar(120) null,
+    custom_option_text varchar(1000) null,
+    proof_confirmed boolean null,
+    production_confirmed boolean null,
+    line_memo varchar(1000) null,
+    sort_order integer not null default 0,
+    created_at timestamp not null default current_timestamp,
+    updated_at timestamp not null default current_timestamp on update current_timestamp,
+    primary key (id),
+    unique key uk_tb_order_draft_item_candidates_item_id (order_draft_item_candidate_id),
+    key ix_tb_order_draft_item_candidates_draft_id (order_draft_id),
+    key ix_tb_order_draft_item_candidates_item_name (item_name)
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_0900_ai_ci;
+
+create table if not exists tb_email_mailbox_configs (
+    id bigint not null auto_increment,
+    merchant_id varchar(80) not null,
+    host varchar(255) not null,
+    port integer not null,
+    username varchar(255) not null,
+    encrypted_password_memo varchar(500) not null,
+    ssl_enabled boolean not null default true,
+    collection_status varchar(500) null,
+    created_at timestamp not null default current_timestamp,
+    updated_at timestamp not null default current_timestamp on update current_timestamp,
+    primary key (id),
+    unique key uk_tb_email_mailbox_configs_merchant_id (merchant_id)
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_0900_ai_ci;
+
+create table if not exists tb_audit_logs (
+    id bigint not null auto_increment,
+    audit_log_id varchar(80) not null,
+    merchant_id varchar(80) not null,
+    actor_id varchar(80) null,
+    action_type varchar(80) not null,
+    target_type varchar(80) not null,
+    target_id varchar(80) null,
+    summary varchar(1000) not null,
+    created_at timestamp not null default current_timestamp,
+    primary key (id),
+    unique key uk_tb_audit_logs_audit_log_id (audit_log_id),
+    key ix_tb_audit_logs_merchant_id (merchant_id),
+    key ix_tb_audit_logs_actor_id (actor_id),
+    key ix_tb_audit_logs_target (target_type, target_id),
+    key ix_tb_audit_logs_created_at (created_at)
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_0900_ai_ci;
+
+create table if not exists tb_error_logs (
+    id bigint not null auto_increment,
+    error_log_id varchar(80) not null,
+    code varchar(80) not null,
+    http_status integer not null,
+    message varchar(1000) not null,
+    exception_type varchar(255) null,
+    created_at timestamp not null default current_timestamp,
+    primary key (id),
+    unique key uk_tb_error_logs_error_log_id (error_log_id),
+    key ix_tb_error_logs_code (code),
+    key ix_tb_error_logs_http_status (http_status),
+    key ix_tb_error_logs_created_at (created_at)
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_0900_ai_ci;
+
+create table if not exists tb_merchant_operation_settings (
+    id bigint not null auto_increment,
+    merchant_id varchar(80) not null,
+    default_merchant_staff_id varchar(80) null,
+    default_courier_csv_template varchar(40) not null,
+    default_business_channel varchar(60) not null,
+    created_at timestamp not null default current_timestamp,
+    updated_at timestamp not null default current_timestamp on update current_timestamp,
+    primary key (id),
+    unique key uk_tb_merchant_operation_settings_merchant_id (merchant_id)
+) engine=InnoDB default charset=utf8mb4 collate=utf8mb4_0900_ai_ci;

@@ -1,0 +1,88 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>공통 필드명</title>
+  <style>
+    :root { color-scheme: light; --bg: #f7f8fa; --panel: #ffffff; --text: #20242a; --muted: #667085; --line: #d9dee7; --link: #2457c5; --code: #eef1f6; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.58; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 20px; letter-spacing: 0; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    ul { margin: 0 0 16px; padding-left: 22px; }
+    li { margin: 6px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; background: var(--panel); }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #eef1f6; }
+    code { padding: 2px 5px; background: var(--code); border-radius: 4px; font-size: 0.94em; }
+    a { color: var(--link); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+    .doc-nav { margin: 0 0 28px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    .doc-nav h2 { margin: 0 0 10px; font-size: 18px; }
+    .doc-nav ul { margin: 0; padding-left: 20px; }
+    .doc-nav .current { color: var(--text); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <!-- DOC_NAV_START -->
+    <nav class="doc-nav" aria-label="문서 목차">
+      <h2>문서 목차</h2>
+      <ul>
+        <li><a href="development-progress.html">개발 진행사항</a></li>
+        <li><a href="doc-guidelines.html">ShipMate 문서 작성 가이드라인</a></li>
+        <li><a href="domain-model-guidelines.html">도메인 모델 지침</a></li>
+        <li><a href="status-transition-guidelines.html">상태 전이 지침</a></li>
+        <li><a href="api-contract-guidelines.html">API 계약 지침</a></li>
+        <li><a href="ai-extraction-schema-guidelines.html">AI 추출 스키마 지침</a></li>
+        <li><a href="email-order-ingestion.html">이용자 전용 이메일 기반 발주 수집 구조</a></li>
+        <li><a href="field-dictionary.html">필드 딕셔너리</a></li>
+        <li><a href="database-column-dictionary.html">DB 컬럼 딕셔너리</a></li>
+        <li><span class="current">공통 필드명</span></li>
+        <li><a href="master-codes.html">공통 마스터 코드</a></li>
+        <li><a href="error-codes.html">공통 오류 코드</a></li>
+        <li><a href="index.html">ShipMate 공통 문서</a></li>
+      </ul>
+    </nav>
+    <!-- DOC_NAV_END -->
+
+    <h1>공통 필드명</h1>
+    <h2>문서 정보</h2>
+    <table>
+      <tr><th>항목</th><th>값</th></tr>
+      <tr><td>저장소</td><td><code>shipmate-common</code></td></tr>
+      <tr><td>담당</td><td>common</td></tr>
+      <tr><td>갱신일</td><td>2026-06-12</td></tr>
+      <tr><td>기준 형식</td><td>Markdown 원본과 HTML 보기 파일</td></tr>
+    </table>
+    <h2>관리 원칙</h2>
+    <p>공유 필드명은 문서 자산으로 관리한다.</p>
+    <table>
+      <tr><th>대상</th><th>명명 규칙</th></tr>
+      <tr><td>API JSON</td><td><code>camelCase</code></td></tr>
+      <tr><td>Database</td><td><code>snake_case</code></td></tr>
+      <tr><td>Kotlin</td><td><code>camelCase</code></td></tr>
+      <tr><td>화면 표시명</td><td>locale별 문구에서 별도 정의</td></tr>
+    </table>
+    <h2>통화 녹음 필드</h2>
+    <table>
+      <tr><th>API JSON</th><th>Database</th><th>Kotlin</th><th>Type</th><th>필수</th><th>설명</th></tr>
+      <tr><td><code>recordingId</code></td><td><code>recording_id</code></td><td><code>recordingId</code></td><td>string</td><td>예</td><td>통화 녹음 고유 식별자</td></tr>
+      <tr><td><code>fileName</code></td><td><code>file_name</code></td><td><code>fileName</code></td><td>string</td><td>예</td><td>원본 또는 정규화된 오디오 파일명</td></tr>
+      <tr><td><code>contentType</code></td><td><code>content_type</code></td><td><code>contentType</code></td><td>string</td><td>예</td><td>오디오 MIME type</td></tr>
+      <tr><td><code>fileSize</code></td><td><code>file_size</code></td><td><code>fileSize</code></td><td>long</td><td>예</td><td>오디오 파일 크기(byte). Android content provider가 크기를 제공하지 못하면 <code>0</code>을 사용한다.</td></tr>
+      <tr><td><code>uploadConsent</code></td><td><code>upload_consent</code></td><td><code>uploadConsent</code></td><td>boolean</td><td>예</td><td>사용자가 업로드와 AI 분석에 동의했는지 여부</td></tr>
+      <tr><td><code>source</code></td><td><code>source</code></td><td><code>source</code></td><td>string</td><td>예</td><td><code>android_manual</code> 같은 업로드 출처 코드</td></tr>
+      <tr><td><code>status</code></td><td><code>status</code></td><td><code>status</code></td><td>string</td><td>예</td><td>현재 업로드 또는 분석 상태</td></tr>
+      <tr><td><code>objectKey</code></td><td><code>object_key</code></td><td><code>objectKey</code></td><td>string</td><td>아니오</td><td>MinIO object key</td></tr>
+      <tr><td><code>uploadedAt</code></td><td><code>uploaded_at</code></td><td><code>uploadedAt</code></td><td>datetime</td><td>아니오</td><td>업로드 완료 시각</td></tr>
+    </table>
+    <section>
+      <h2>원본</h2>
+      <p><a href="../shared-field-names.md">Markdown 원본</a></p>
+    </section>
+  </main>
+</body>
+</html>

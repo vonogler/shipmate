@@ -1,0 +1,162 @@
+@apiBaseUrl = http://localhost:18080
+@stagingHttpsBaseUrl = https://staging-shipmate.com
+@merchantId = merchant_staging_packaging
+@loginId = staging-admin
+@password = staging-pass-1234
+
+### 1. 회원가입
+POST {{apiBaseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "merchantId": "{{merchantId}}",
+  "loginId": "{{loginId}}",
+  "password": "{{password}}",
+  "displayName": "스테이징 관리자",
+  "role": "ADMIN"
+}
+
+### 2. 로그인
+POST {{apiBaseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "loginId": "{{loginId}}",
+  "password": "{{password}}"
+}
+
+### 3. 고객 저장
+POST {{apiBaseUrl}}/api/customers
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "customerId": "customer_staging_packaging",
+  "merchantId": "{{merchantId}}",
+  "customerName": "스테이징 포장",
+  "customerPhone": "02-1000-2000",
+  "defaultRecipientName": "검증 담당자",
+  "defaultRecipientPhone": "010-1000-2000",
+  "defaultPostalCode": "04524",
+  "defaultAddress": "서울특별시 중구 세종대로 110",
+  "defaultAddressDetail": "스테이징 검증실",
+  "favoriteItemNames": ["종이박스"],
+  "priceItems": [
+    {
+      "itemNameKeyword": "종이박스",
+      "itemSpecKeyword": "300x200x150",
+      "itemUnit": "장",
+      "unitPrice": 450
+    }
+  ]
+}
+
+### 4. 주문 원문 접수
+POST {{apiBaseUrl}}/api/inbound-messages
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "merchantId": "{{merchantId}}",
+  "merchantStaffId": "staff_staging_001",
+  "customerId": "customer_staging_packaging",
+  "sourceChannel": "KAKAO_PASTE",
+  "businessChannel": "PACKAGING_CUSTOM",
+  "rawText": "종이박스 300x200x150 200장, 로고 스티커 1000장 부탁드립니다."
+}
+
+### 5. 출고표 초안 생성
+@inboundMessageId = inmsg_replace_me
+POST {{apiBaseUrl}}/api/order-drafts/from-inbound-message
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "sourceInboundMessageId": "{{inboundMessageId}}"
+}
+
+### 6. 출고표 초안 검수 저장
+@orderDraftId = odft_replace_me
+PUT {{apiBaseUrl}}/api/order-drafts/{{orderDraftId}}/review
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "itemCandidates": [
+    {
+      "itemName": "종이박스",
+      "itemSpec": "300x200x150",
+      "itemQuantity": "200",
+      "itemUnit": "장",
+      "matchedUnitPrice": 450,
+      "packagingWidth": "300",
+      "packagingDepth": "200",
+      "packagingHeight": "150",
+      "materialName": "골판지 B골",
+      "printRequired": false,
+      "designFileProvided": true,
+      "productionQuantity": "200",
+      "requestedDueDate": "2026-06-30",
+      "sampleRequested": false,
+      "lineMemo": "스테이징 검증"
+    }
+  ],
+  "deliveryRecipientName": "검증 담당자",
+  "deliveryRecipientPhone": "010-1000-2000",
+  "deliveryPostalCode": "04524",
+  "deliveryAddress": "서울특별시 중구 세종대로 110",
+  "deliveryAddressDetail": "스테이징 검증실",
+  "deliveryRequestMemo": "부재 시 안내데스크 보관",
+  "deliveryMemo": "스테이징 통합 시나리오",
+  "courierMemo": "파손주의"
+}
+
+### 7. 출고표 제출
+POST {{apiBaseUrl}}/api/order-drafts/{{orderDraftId}}/submit
+Authorization: Bearer {{accessToken}}
+
+### 8. 제출 출고표 조회
+GET {{apiBaseUrl}}/api/shipping-orders/{{orderDraftId}}
+Authorization: Bearer {{accessToken}}
+
+### 9. Gmail polling 운영 상태 조회
+GET {{apiBaseUrl}}/api/oauth/google/gmail-polling/status
+Authorization: Bearer {{accessToken}}
+
+### 10. Gmail polling 수동 실행
+POST {{apiBaseUrl}}/api/oauth/google/collect-gmail
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "merchantId": "{{merchantId}}"
+}
+
+### 11. 이메일 첨부 목록 조회
+GET {{apiBaseUrl}}/api/email-orders/attachments?inboundMessageId={{inboundMessageId}}
+Authorization: Bearer {{accessToken}}
+
+### 12. 이메일 첨부 다운로드 URL 발급
+@emailAttachmentId = emla_replace_me
+GET {{apiBaseUrl}}/api/email-orders/attachments/{{emailAttachmentId}}/download-url
+Authorization: Bearer {{accessToken}}
+
+### 13. hosts 방식 HTTPS staging 접속 확인
+# 자체 인증서 환경이므로 HTTP client에서 TLS 검증을 끄고 실행한다.
+GET {{stagingHttpsBaseUrl}}/merchant/
+
+### 14. 만료 이메일 첨부 정리 수동 실행
+POST {{apiBaseUrl}}/api/email-orders/attachments/cleanup-expired
+Authorization: Bearer {{accessToken}}
+
+### 15. DNS 등록 전 임시 외부 HTTPS OAuth 검증
+# Cloudflare Tunnel 또는 ngrok URL을 아래 값으로 바꾼 뒤 Google Console 승인된 redirect URI에 등록한다.
+# 예: https://temporary-domain.trycloudflare.com/api/oauth/google/callback
+@temporaryHttpsBaseUrl = https://replace-with-temporary-tunnel.example
+POST {{temporaryHttpsBaseUrl}}/api/oauth/google/authorize-url
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "merchantId": "{{merchantId}}"
+}

@@ -13,6 +13,7 @@ public class MinioConfig {
     MinioClient internalMinioClient(ShipmateStorageProperties properties) {
         return MinioClient.builder()
                 .endpoint(properties.endpoint())
+                .region("us-east-1")
                 .credentials(properties.accessKey(), properties.secretKey())
                 .build();
     }
@@ -22,6 +23,7 @@ public class MinioConfig {
     MinioClient publicMinioClient(ShipmateStorageProperties properties) {
         return MinioClient.builder()
                 .endpoint(properties.publicEndpoint())
+                .region("us-east-1")
                 .credentials(properties.accessKey(), properties.secretKey())
                 .build();
     }

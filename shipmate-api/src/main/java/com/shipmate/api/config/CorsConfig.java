@@ -10,7 +10,7 @@ import org.springframework.web.filter.CorsFilter;
 import java.util.List;
 
 @Configuration
-@EnableConfigurationProperties({ShipmateCorsProperties.class, ShipmateStorageProperties.class})
+@EnableConfigurationProperties({ShipmateCorsProperties.class, ShipmateStorageProperties.class, GoogleOAuthProperties.class})
 public class CorsConfig {
     @Bean
     CorsFilter corsFilter(ShipmateCorsProperties properties) {

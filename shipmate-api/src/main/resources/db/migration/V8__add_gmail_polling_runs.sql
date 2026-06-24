@@ -1,0 +1,20 @@
+create table if not exists tb_gmail_polling_runs (
+    gmail_polling_run_id varchar(64) primary key,
+    trigger_type varchar(40) not null,
+    merchant_id varchar(64) null,
+    account_count integer not null,
+    scanned_count integer not null,
+    collected_count integer not null,
+    order_draft_created_count integer not null,
+    attachment_stored_count integer not null,
+    skipped_duplicate_count integer not null,
+    success boolean not null,
+    failure_code varchar(80) null,
+    failure_message varchar(1000) null,
+    started_at datetime(6) not null,
+    finished_at datetime(6) not null,
+    index ix_tb_gmail_polling_runs_started_at (started_at),
+    index ix_tb_gmail_polling_runs_success_started (success, started_at),
+    index ix_tb_gmail_polling_runs_failure_code (failure_code),
+    index ix_tb_gmail_polling_runs_merchant_id (merchant_id)
+);

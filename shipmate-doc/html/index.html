@@ -1,132 +1,78 @@
-<!doctype html>
-<html lang="en">
+﻿<!doctype html>
+<html lang="ko">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ShipMate Docs</title>
+  <title>ShipMate 문서</title>
   <style>
-    :root {
-      color-scheme: light;
-      --bg: #f7f8fa;
-      --panel: #ffffff;
-      --text: #20242a;
-      --muted: #667085;
-      --line: #d9dee7;
-      --link: #2457c5;
-    }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.55;
-    }
-    main {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 36px 20px;
-    }
-    h1 {
-      margin: 0 0 8px;
-      font-size: 28px;
-      letter-spacing: 0;
-    }
-    p {
-      margin: 0 0 20px;
-      color: var(--muted);
-    }
-    section {
-      margin-top: 18px;
-      padding: 20px;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-    }
-    h2 {
-      margin: 0 0 12px;
-      font-size: 18px;
-      letter-spacing: 0;
-    }
-    ul {
-      margin: 0;
-      padding-left: 20px;
-    }
-    li {
-      margin: 8px 0;
-    }
-    a {
-      color: var(--link);
-      text-decoration: none;
-      font-weight: 600;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-    code {
-      padding: 2px 5px;
-      background: #eef1f6;
-      border-radius: 4px;
-      font-size: 0.94em;
-    }
-  </style>
+    :root { color-scheme: light; --bg: #f7f8fa; --panel: #ffffff; --text: #20242a; --muted: #667085; --line: #d9dee7; --link: #2457c5; --code: #eef1f6; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.58; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 20px; letter-spacing: 0; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    ul { margin: 0 0 16px; padding-left: 22px; }
+    li { margin: 6px 0; }
+    code { padding: 2px 5px; background: var(--code); border-radius: 4px; font-size: 0.94em; }
+    a { color: var(--link); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+      .doc-nav { margin: 0 0 28px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    .doc-nav h2 { margin: 0 0 10px; font-size: 18px; }
+    .doc-nav ul { margin: 0; padding-left: 20px; }
+    .doc-nav .current { color: var(--text); font-weight: 700; }</style>
 </head>
 <body>
   <main>
-    <h1>ShipMate Docs</h1>
-    <p>YAML is the source of truth. HTML is the browser-viewable copy.</p>
-
-    <section>
-      <h2>Folder Rules</h2>
+    <!-- DOC_NAV_START -->
+    <nav class="doc-nav" aria-label="문서 목차">
+      <h2>문서 목차</h2>
       <ul>
-        <li>Common design docs: <code>shipmate-doc/common/</code></li>
-        <li>Android docs: <code>shipmate-doc/android/</code></li>
-        <li>Admin docs: <code>shipmate-doc/admin/</code></li>
-        <li>Shared field/code assets: <code>shipmate-common/data/yaml/</code></li>
-        <li>Top-level portal only: <code>shipmate-doc/html/</code></li>
+      <li><span class="current">ShipMate 문서</span></li>
       </ul>
-    </section>
+    </nav>
+    <!-- DOC_NAV_END -->
 
+    <h1>ShipMate 문서</h1>
+    <p>ShipMate AI 관련 문서의 브라우저 진입점입니다.</p>
+    <h2>핵심 문서</h2>
+    <ul>
+      <li><a href="../shipmate-common/html/development-progress.html">개발 진행사항</a> / <a href="../shipmate-common/development-progress.md">Markdown 원본</a></li>
+      <li><a href="../shipmate-common/html/doc-guidelines.html">문서 작성 가이드라인</a> / <a href="../shipmate-common/doc-guidelines.md">Markdown 원본</a></li>
+      <li><a href="../shipmate-common/html/domain-model-guidelines.html">도메인 모델 지침</a> / <a href="../shipmate-common/domain-model-guidelines.md">Markdown 원본</a></li>
+      <li><a href="../shipmate-common/html/status-transition-guidelines.html">상태 전이 지침</a> / <a href="../shipmate-common/status-transition-guidelines.md">Markdown 원본</a></li>
+      <li><a href="../shipmate-common/html/api-contract-guidelines.html">API 계약 지침</a> / <a href="../shipmate-common/api-contract-guidelines.md">Markdown 원본</a></li>
+      <li><a href="../shipmate-common/html/ai-extraction-schema-guidelines.html">AI 추출 스키마 지침</a> / <a href="../shipmate-common/ai-extraction-schema-guidelines.md">Markdown 원본</a></li>
+      <li><a href="../shipmate-common/html/email-order-ingestion.html">이용자 전용 이메일 기반 발주 수집 구조</a> / <a href="../shipmate-common/email-order-ingestion.md">Markdown 원본</a></li>
+      <li><a href="../shipmate-common/html/field-dictionary.html">필드 딕셔너리</a> / <a href="../shipmate-common/field-dictionary.md">Markdown 원본</a></li>
+      <li><a href="../shipmate-common/html/database-column-dictionary.html">DB 컬럼 딕셔너리</a> / <a href="../shipmate-common/database-column-dictionary.md">Markdown 원본</a></li>
+      <li><a href="../shipmate-common/html/shared-field-names.html">공통 필드명</a> / <a href="../shipmate-common/shared-field-names.md">Markdown 원본</a></li>
+      <li><a href="../shipmate-common/html/master-codes.html">공통 마스터 코드</a> / <a href="../shipmate-common/master-codes.md">Markdown 원본</a></li>
+      <li><a href="../shipmate-common/html/error-codes.html">공통 오류 코드</a> / <a href="../shipmate-common/error-codes.md">Markdown 원본</a></li>
+      <li><a href="../../shipmate-infra/reports/staging-check-summary.html">스테이징 점검 요약</a> / <a href="../../shipmate-infra/reports/staging-check-summary.md">Markdown 원본</a></li>
+      <li><a href="../shipmate-merchant/html/branded-order-channel.html">이용자별 브랜드 주문 채널 전략</a> / <a href="../shipmate-merchant/branded-order-channel.md">Markdown 원본</a></li>
+      <li><a href="../shipmate-merchant/html/order-processing-feature-roadmap.html">주문 처리 기능 로드맵</a> / <a href="../shipmate-merchant/order-processing-feature-roadmap.md">Markdown 원본</a></li>
+      <li><a href="../shipmate-merchant/html/packaging-promotional-custom-supplies-channel.html">포장재/판촉물/맞춤 제작 소모품 채널</a> / <a href="../shipmate-merchant/packaging-promotional-custom-supplies-channel.md">Markdown 원본</a></li>
+      <li><a href="../shipmate-merchant/html/sms-order-share.html">문자 공유 기반 출고표 생성 구조</a> / <a href="../shipmate-merchant/sms-order-share.md">Markdown 원본</a></li>
+      <li><a href="../shipmate-merchant/html/target-industry-priority.html">타깃 업종 우선순위</a> / <a href="../shipmate-merchant/target-industry-priority.md">Markdown 원본</a></li>
+    </ul>
+    <h2>도메인 문서</h2>
+    <ul>
+      <li><a href="../shipmate-common/html/index.html">공통 문서</a></li>
+      <li><a href="../shipmate-android/html/index.html">Android 문서</a></li>
+      <li><a href="../shipmate-admin/html/index.html">관리자 문서</a></li>
+      <li><a href="../shipmate-merchant/html/index.html">ShipMate Merchant 문서</a></li>
+      <li><a href="../shipmate-ai/html/index.html">ShipMate AI 문서</a></li>
+    </ul>
+    <h2>문서 규칙</h2>
+    <ul>
+      <li>문서 원본은 Markdown으로 작성합니다.</li>
+      <li>브라우저 보기 파일은 HTML로 관리합니다.</li>
+      <li>새 문서를 YAML로 생성하지 않습니다.</li>
+      <li>화면 문구와 문서 본문은 한국어를 기본으로 합니다.</li>
+    </ul>
     <section>
-      <h2>Common</h2>
-      <ul>
-        <li><a href="../common/html/doc-guidelines.html">Documentation guidelines view</a> <code>common/html/doc-guidelines.html</code></li>
-        <li><a href="../common/yaml/doc-guidelines.yaml">Documentation guidelines YAML</a> <code>common/yaml/doc-guidelines.yaml</code></li>
-        <li><a href="../common/">Common documentation folder</a> <code>common/</code></li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>Android</h2>
-      <ul>
-        <li><a href="../android/html/android-tech-stack.html">Android technology stack</a> <code>android/html/android-tech-stack.html</code></li>
-        <li><a href="../android/yaml/android-tech-stack.yaml">Android technology stack YAML</a> <code>android/yaml/android-tech-stack.yaml</code></li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>Admin</h2>
-      <ul>
-        <li><a href="../admin/">Admin documentation folder</a> <code>admin/</code></li>
-        <li><code>admin/yaml/</code> will store shipmate-admin YAML sources.</li>
-        <li><code>admin/html/</code> will store shipmate-admin HTML views.</li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>Shared Assets</h2>
-      <ul>
-        <li><code>../shipmate-common/data/yaml/field-names.yaml</code></li>
-        <li><code>../shipmate-common/data/yaml/master-codes.yaml</code></li>
-        <li><code>../shipmate-common/data/yaml/error-codes.yaml</code></li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>Other Shared Docs</h2>
-      <ul>
-        <li><a href="../api/">API source folder</a></li>
-        <li><a href="../policies/">Policy source folder</a></li>
-      </ul>
+      <h2>원본</h2>
+      <p><a href="../README.md">Markdown 원본</a></p>
     </section>
   </main>
 </body>

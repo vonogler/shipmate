@@ -1,24 +1,26 @@
 # ShipMate Common
 
-This repository stores shared machine-readable assets used across ShipMate projects.
+ShipMate 프로젝트 전반에서 공유하는 공통 기준의 안내 파일입니다.
 
-## Ownership
+## 소유 범위
 
-Field names, master codes, status codes, and error message code numbers belong here, not in `shipmate-doc`.
+필드명, 마스터 코드, 상태 코드, 오류 메시지 코드 번호는 Markdown 원본과 HTML 보기 파일로 관리합니다.
 
 ```text
-shipmate-common/
-  data/
-    yaml/
-      field-names.yaml
-      master-codes.yaml
-      error-codes.yaml
+shipmate-doc/shipmate-common/
+  shared-field-names.md
+  master-codes.md
+  error-codes.md
+  html/
+    shared-field-names.html
+    master-codes.html
+    error-codes.html
 ```
 
-## File Roles
+## 파일 역할
 
-- `data/yaml/field-names.yaml`: canonical field names shared by Android, Admin, API, and future services.
-- `data/yaml/master-codes.yaml`: controlled business code lists. This file is the future source for RDB master code tables and seed data.
-- `data/yaml/error-codes.yaml`: error code numbers, messages, and client display guidance.
+- `shipmate-doc/shipmate-common/shared-field-names.md`: Android, Admin, API, 이후 서비스가 공유하는 표준 필드명입니다.
+- `shipmate-doc/shipmate-common/master-codes.md`: 통제된 업무 코드 목록입니다. 이후 RDB 마스터 코드 테이블과 seed data의 기준으로 사용합니다.
+- `shipmate-doc/shipmate-common/error-codes.md`: 오류 코드 번호, 메시지, 클라이언트 표시 기준을 관리합니다.
 
-Documentation about these files can live in `shipmate-doc/common/`, but the source files live in `shipmate-common/`.
+공통 데이터 자산은 YAML 파일로 유지하지 않습니다.

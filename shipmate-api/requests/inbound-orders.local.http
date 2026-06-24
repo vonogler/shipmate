@@ -1,0 +1,153 @@
+@apiBaseUrl = http://localhost:8080
+@accessToken = replace_with_login_access_token
+
+### 고객 저장
+POST {{apiBaseUrl}}/api/customers
+Content-Type: application/json
+
+{
+  "customerId": "customer_sample_001",
+  "merchantId": "merchant_local_packaging",
+  "customerName": "한국포장",
+  "customerPhone": "02-000-0000",
+  "defaultRecipientName": "홍길동",
+  "defaultRecipientPhone": "010-0000-0000",
+  "defaultPostalCode": "12345",
+  "defaultAddress": "서울시 강남구 테헤란로 123",
+  "defaultAddressDetail": "4층 401호",
+  "favoriteItemNames": ["종이박스", "로고 스티커"],
+  "priceItems": [
+    {
+      "itemNameKeyword": "종이박스",
+      "itemSpecKeyword": "300x200x150",
+      "itemUnit": "장",
+      "unitPrice": 450
+    }
+  ]
+}
+
+### 고객 목록
+GET {{apiBaseUrl}}/api/customers?limit=20
+
+### 주문 원문 생성
+POST {{apiBaseUrl}}/api/inbound-messages
+Content-Type: application/json
+
+{
+  "merchantId": "merchant_local_packaging",
+  "merchantStaffId": "staff_local_001",
+  "customerId": "customer_sample_001",
+  "sourceChannel": "KAKAO_PASTE",
+  "businessChannel": "PACKAGING_CUSTOM",
+  "rawText": "종이박스 300x200x150 200장, 로고 스티커 1,000장 부탁드립니다."
+}
+
+### 주문 원문 목록
+GET {{apiBaseUrl}}/api/inbound-messages?limit=20
+
+### 주문 원문 상세
+@inboundMessageId = inmsg_replace_me
+GET {{apiBaseUrl}}/api/inbound-messages/{{inboundMessageId}}
+
+### 출고표 초안 생성
+POST {{apiBaseUrl}}/api/order-drafts/from-inbound-message
+Content-Type: application/json
+
+{
+  "sourceInboundMessageId": "{{inboundMessageId}}"
+}
+
+### 출고표 초안 목록
+GET {{apiBaseUrl}}/api/order-drafts?limit=20
+
+### 출고표 초안 상세
+@orderDraftId = odft_replace_me
+GET {{apiBaseUrl}}/api/order-drafts/{{orderDraftId}}
+
+### 출고표 초안 검수 저장
+PUT {{apiBaseUrl}}/api/order-drafts/{{orderDraftId}}/review
+Content-Type: application/json
+
+{
+  "itemCandidates": [
+    {
+      "itemName": "종이박스",
+      "itemSpec": "300x200x150",
+      "itemQuantity": "200",
+      "itemUnit": "장",
+      "matchedUnitPrice": 450,
+      "packagingWidth": "300",
+      "packagingDepth": "200",
+      "packagingHeight": "150",
+      "materialName": "골판지 B골",
+      "printRequired": false,
+      "designFileProvided": true,
+      "productionQuantity": "200",
+      "requestedDueDate": "2026-06-30",
+      "sampleRequested": false,
+      "lineMemo": "로고 인쇄 없음"
+    },
+    {
+      "itemName": "로고 스티커",
+      "itemSpec": "기본 유광",
+      "itemQuantity": "1000",
+      "itemUnit": "장",
+      "matchedUnitPrice": 80,
+      "customProductType": "스티커",
+      "imprintMethod": "디지털 인쇄",
+      "itemColor": "유광 컬러",
+      "customOptionText": "기존 디자인 사용",
+      "proofConfirmed": true,
+      "productionConfirmed": false,
+      "lineMemo": "기존 디자인 사용"
+    }
+  ],
+  "deliveryRecipientName": "홍길동",
+  "deliveryRecipientPhone": "010-0000-0000",
+  "deliveryPostalCode": "12345",
+  "deliveryAddress": "서울시 강남구 테헤란로 123",
+  "deliveryAddressDetail": "4층 401호",
+  "deliveryRequestMemo": "부재 시 경비실 보관",
+  "deliveryMemo": "다음 주 화요일 오전 납품 희망",
+  "courierMemo": "택배 출고 시 파손주의 표시"
+}
+
+### 출고표 제출
+POST {{apiBaseUrl}}/api/order-drafts/{{orderDraftId}}/submit
+
+### 제출된 출고표 목록
+GET {{apiBaseUrl}}/api/shipping-orders?limit=20
+
+### 제출된 출고표 상세
+GET {{apiBaseUrl}}/api/shipping-orders/{{orderDraftId}}
+
+### 택배 CSV 다운로드
+GET {{apiBaseUrl}}/api/shipping-orders/{{orderDraftId}}/courier-csv?courierCsvTemplate=GENERIC
+
+### 택배 CSV 다운로드 - CJ대한통운 시작 템플릿
+GET {{apiBaseUrl}}/api/shipping-orders/{{orderDraftId}}/courier-csv?courierCsvTemplate=CJ_LOGISTICS
+
+### 이메일 메일함 설정 저장
+# 실제 이메일 계정/비밀번호는 requests/http-client.private.env.json 파일의 local 환경에 넣는다.
+# 예: emailUsername, emailPassword, emailHost, emailPort, emailSslEnabled
+POST {{apiBaseUrl}}/api/email-orders/mailbox-config
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "merchantId": "merchant_local_packaging",
+  "host": "{{emailHost}}",
+  "port": {{emailPort}},
+  "username": "{{emailUsername}}",
+  "encryptedPasswordMemo": "{{emailPassword}}",
+  "sslEnabled": {{emailSslEnabled}}
+}
+
+### 이메일 메일함 수집 실행
+POST {{apiBaseUrl}}/api/email-orders/collect-mailbox
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+  "merchantId": "merchant_local_packaging"
+}

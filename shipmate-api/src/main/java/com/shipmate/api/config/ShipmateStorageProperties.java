@@ -9,6 +9,7 @@ public record ShipmateStorageProperties(
         String publicEndpoint,
         String accessKey,
         String secretKey,
-        int presignedUrlExpirySeconds
+        int presignedUrlExpirySeconds,
+        int emailAttachmentRetentionDays
 ) {
 }

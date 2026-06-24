@@ -1,0 +1,108 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShipMate 문서 작성 가이드라인</title>
+  <style>
+    :root { color-scheme: light; --bg: #f7f8fa; --panel: #ffffff; --text: #20242a; --muted: #667085; --line: #d9dee7; --link: #2457c5; --code: #eef1f6; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.58; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 20px; letter-spacing: 0; }
+    h3 { margin: 22px 0 10px; font-size: 17px; letter-spacing: 0; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    ul { margin: 0 0 16px; padding-left: 22px; }
+    li { margin: 6px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; background: var(--panel); }
+    th, td { border: 1px solid var(--line); padding: 9px 10px; text-align: left; vertical-align: top; }
+    th { background: #eef1f6; color: var(--text); }
+    code { padding: 2px 5px; background: var(--code); border-radius: 4px; font-size: 0.94em; }
+    a { color: var(--link); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+      .doc-nav { margin: 0 0 28px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    .doc-nav h2 { margin: 0 0 10px; font-size: 18px; }
+    .doc-nav ul { margin: 0; padding-left: 20px; }
+    .doc-nav .current { color: var(--text); font-weight: 700; }</style>
+</head>
+<body>
+  <main>
+    <!-- DOC_NAV_START -->
+    <nav class="doc-nav" aria-label="문서 목차">
+      <h2>문서 목차</h2>
+      <ul>
+      <li><a href="development-progress.html">개발 진행사항</a></li>
+      <li><span class="current">ShipMate 문서 작성 가이드라인</span></li>
+      <li><a href="domain-model-guidelines.html">도메인 모델 지침</a></li>
+      <li><a href="status-transition-guidelines.html">상태 전이 지침</a></li>
+      <li><a href="api-contract-guidelines.html">API 계약 지침</a></li>
+      <li><a href="ai-extraction-schema-guidelines.html">AI 추출 스키마 지침</a></li>
+      <li><a href="email-order-ingestion.html">이용자 전용 이메일 기반 발주 수집 구조</a></li>
+      <li><a href="field-dictionary.html">필드 딕셔너리</a></li>
+      <li><a href="database-column-dictionary.html">DB 컬럼 딕셔너리</a></li>
+      <li><a href="shared-field-names.html">공통 필드명</a></li>
+      <li><a href="master-codes.html">공통 마스터 코드</a></li>
+      <li><a href="error-codes.html">공통 오류 코드</a></li>
+      <li><a href="index.html">ShipMate 공통 문서</a></li>
+      </ul>
+    </nav>
+    <!-- DOC_NAV_END -->
+
+    <h1>ShipMate 문서 작성 가이드라인</h1>
+    <h2>문서 원칙</h2>
+    <table>
+      <thead><tr><th>문서 유형</th><th>기준 형식</th></tr></thead>
+      <tbody>
+        <tr><td>설명형 개발 문서</td><td>Markdown</td></tr>
+        <tr><td>브라우저 보기 문서</td><td>HTML</td></tr>
+        <tr><td>API 설명 문서</td><td>Markdown + HTML</td></tr>
+        <tr><td>표준값/코드표 설명 문서</td><td>Markdown + HTML</td></tr>
+      </tbody>
+    </table>
+    <ul>
+      <li>모든 문서 원본은 <code>.md</code> 파일로 작성한다.</li>
+      <li>브라우저에서 볼 문서는 <code>.html</code> 파일로 생성하거나 유지한다.</li>
+      <li>Markdown과 HTML 내용이 다르면 Markdown을 기준으로 한다.</li>
+      <li><code>shipmate-doc</code> 안에서는 YAML 문서를 새로 만들지 않는다.</li>
+      <li>YAML은 문서 산출물이 아니며, 문서 생성 대상에서도 제외한다.</li>
+    </ul>
+    <h2>문서 위치</h2>
+    <table>
+      <thead><tr><th>구분</th><th>Markdown 원본</th><th>HTML 보기 파일</th></tr></thead>
+      <tbody>
+        <tr><td>공통</td><td><code>common/</code></td><td><code>shipmate-common/html/</code></td></tr>
+        <tr><td>Android</td><td><code>android/</code></td><td><code>shipmate-android/html/</code></td></tr>
+        <tr><td>Admin</td><td><code>admin/</code></td><td><code>shipmate-admin/html/</code></td></tr>
+      </tbody>
+    </table>
+    <h2>금지 규칙</h2>
+    <ul>
+      <li>새 문서를 <code>.yaml</code> 또는 <code>.yml</code> 파일로 생성하지 않는다.</li>
+      <li>새 source 문서를 root <code>yaml/</code> 아래에 추가하지 않는다.</li>
+      <li>도메인 문서를 root <code>html/</code> 아래에 추가하지 않는다.</li>
+      <li>필드명, master code, status code, error code number를 <code>shipmate-doc/data/</code>에 저장하지 않는다.</li>
+    </ul>
+    <h2>공통 데이터 자산</h2>
+    <p>공통 데이터 자산은 Markdown 원본과 HTML 보기 파일로 관리한다.</p>
+    <p>기존 YAML 공통 데이터 자산은 제거하며, 새 기준 문서는 <code>shipmate-doc/shipmate-common</code> 아래에 둔다.</p>
+    <table>
+      <thead><tr><th>자산</th><th>위치</th><th>목적</th></tr></thead>
+      <tbody>
+        <tr><td>Field names</td><td><code>shipmate-doc/shipmate-common/shared-field-names.md</code><br><code>shipmate-doc/shipmate-common/html/shared-field-names.html</code></td><td>공유 표준 field name</td></tr>
+        <tr><td>Master codes</td><td><code>shipmate-doc/shipmate-common/master-codes.md</code><br><code>shipmate-doc/shipmate-common/html/master-codes.html</code></td><td>RDB master code table과 seed data의 향후 기준</td></tr>
+        <tr><td>Error codes</td><td><code>shipmate-doc/shipmate-common/error-codes.md</code><br><code>shipmate-doc/shipmate-common/html/error-codes.html</code></td><td>표준 error message code와 code number</td></tr>
+      </tbody>
+    </table>
+    <h2>필드와 DB 컬럼 생성 전 확인</h2>
+    <ul>
+      <li>새 API field, DTO field, Java/Kotlin/TypeScript field, 화면 데이터 field를 만들기 전에는 <code>shipmate-doc/shipmate-common/field-dictionary.md</code>를 먼저 확인한다.</li>
+      <li>새 field가 기존 사전에 없으면 구현 전 또는 구현과 동시에 필드 딕셔너리 Markdown/HTML에 의미, DB column 연결 여부, codeSet 여부를 기록한다.</li>
+      <li>새 DB table 또는 column을 만들기 전에는 <code>shipmate-doc/shipmate-common/database-column-dictionary.md</code>를 먼저 확인한다.</li>
+      <li>새 DB column이 기존 사전에 없으면 Flyway migration 작성 전 또는 작성과 동시에 DB 컬럼 딕셔너리 Markdown/HTML에 table, column, API field, type, nullable, index/FK, code_set 여부를 기록한다.</li>
+      <li>API field와 DB column이 연결되는 업무 데이터는 필드 딕셔너리와 DB 컬럼 딕셔너리 양쪽에서 같은 table/column을 가리키도록 맞춘다.</li>
+    </ul>
+    <h2>원본</h2>
+    <p><a href="../doc-guidelines.md">Markdown 원본</a></p>
+  </main>
+</body>
+</html>

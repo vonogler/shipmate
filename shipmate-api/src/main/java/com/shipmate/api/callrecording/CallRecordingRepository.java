@@ -47,6 +47,12 @@ public class CallRecordingRepository {
                 .toList();
     }
 
+    public List<CallRecording> findAll() {
+        return recordings.values().stream()
+                .sorted(Comparator.comparing(CallRecording::createdAt).reversed())
+                .toList();
+    }
+
     private void loadFromDisk() {
         if (!Files.exists(storagePath)) {
             return;
@@ -60,7 +66,7 @@ public class CallRecordingRepository {
             );
             savedRecordings.forEach(recording -> recordings.put(recording.recordingId(), recording));
         } catch (Exception exception) {
-            throw new IllegalStateException("Unable to load call recording repository from disk.", exception);
+            throw new IllegalStateException("디스크에서 통화 녹음 저장소를 불러오지 못했습니다.", exception);
         }
     }
 
@@ -70,7 +76,7 @@ public class CallRecordingRepository {
             objectMapper.writerWithDefaultPrettyPrinter()
                     .writeValue(storagePath.toFile(), recordings.values());
         } catch (Exception exception) {
-            throw new IllegalStateException("Unable to persist call recording repository to disk.", exception);
+            throw new IllegalStateException("통화 녹음 저장소를 디스크에 저장하지 못했습니다.", exception);
         }
     }
 }
