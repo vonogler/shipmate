@@ -411,7 +411,19 @@ function adminOverview() {
     acknowledgedErrorLogCount: 0,
     resolvedErrorLogCount: 0,
     gmailPollingRunCount: 1,
-    gmailPollingFailureCount: 1
+    gmailPollingFailureCount: 1,
+    smokeReport: {
+      status: 'ok',
+      apiBaseUrl: 'http://localhost:18080',
+      merchantId: 'merchant_smoke_mock',
+      inboundMessageId: 'inmsg_smoke_mock',
+      orderDraftId: 'odft_smoke_mock',
+      lastStep: '[12/12] 변경 이력 metadata 확인',
+      lastHttpStatus: '200',
+      failureDetail: '',
+      finishedAt: now,
+      reportPath: 'shipmate-infra/smoke-report.json'
+    }
   };
 }
 

@@ -1,7 +1,7 @@
 package com.shipmate.api.admin;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shipmate.api.auth.AuthService;
 import com.shipmate.api.auth.LoginResponse;
 import com.shipmate.api.auth.MerchantUser;
@@ -36,6 +36,8 @@ import com.shipmate.api.shippingorder.CourierCsvValidationRuleRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -167,6 +169,25 @@ public class AdminController {
                 gmailStatus.recentFailureCodeCounts(),
                 smokeReport
         );
+    }
+
+    @GetMapping(value = "/staging-summary.html", produces = MediaType.TEXT_HTML_VALUE)
+    ResponseEntity<String> stagingSummaryHtml() throws IOException {
+        String configuredPath = System.getenv().getOrDefault(
+                "SHIPMATE_STAGING_SUMMARY_HTML_FILE",
+                "shipmate-infra/reports/staging-check-summary.html"
+        );
+        Path summaryPath = Path.of(configuredPath);
+        if (!Files.isRegularFile(summaryPath)) {
+            return ResponseEntity
+                    .status(404)
+                    .contentType(MediaType.TEXT_HTML)
+                    .body("<!doctype html><html lang=\"ko\"><body><p>스테이징 점검 요약 파일이 없습니다.</p></body></html>");
+        }
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.TEXT_HTML)
+                .body(Files.readString(summaryPath));
     }
 
     @GetMapping("/merchants")
@@ -536,7 +557,7 @@ public class AdminController {
         String configuredPath = System.getenv().getOrDefault("SHIPMATE_SMOKE_REPORT_FILE", "shipmate-infra/smoke-report.json");
         Path reportPath = Path.of(configuredPath);
         if (!Files.isRegularFile(reportPath)) {
-            return new AdminSmokeReportResponse("none", null, null, null, null, null, null, reportPath.toString());
+            return new AdminSmokeReportResponse("none", null, null, null, null, null, null, null, null, reportPath.toString());
         }
         try {
             AdminSmokeReportFile report = OBJECT_MAPPER.readValue(reportPath.toFile(), AdminSmokeReportFile.class);
@@ -547,11 +568,13 @@ public class AdminController {
                     report.inboundMessageId(),
                     report.orderDraftId(),
                     report.lastStep(),
+                    report.lastHttpStatus(),
+                    report.failureDetail(),
                     report.finishedAt(),
                     reportPath.toString()
             );
         } catch (IOException exception) {
-            return new AdminSmokeReportResponse("unreadable", null, null, null, null, exception.getMessage(), null, reportPath.toString());
+            return new AdminSmokeReportResponse("unreadable", null, null, null, null, null, exception.getMessage(), null, null, reportPath.toString());
         }
     }
 
@@ -599,6 +622,8 @@ public class AdminController {
             String inboundMessageId,
             String orderDraftId,
             String lastStep,
+            String lastHttpStatus,
+            String failureDetail,
             String finishedAt,
             String reportPath
     ) {
@@ -612,6 +637,8 @@ public class AdminController {
             String inboundMessageId,
             String orderDraftId,
             String lastStep,
+            String lastHttpStatus,
+            String failureDetail,
             String finishedAt
     ) {
     }

@@ -68,6 +68,8 @@ export type AdminSmokeReport = {
   inboundMessageId: string | null;
   orderDraftId: string | null;
   lastStep: string | null;
+  lastHttpStatus: string | null;
+  failureDetail: string | null;
   finishedAt: string | null;
   reportPath: string | null;
 };

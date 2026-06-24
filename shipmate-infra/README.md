@@ -144,11 +144,22 @@ bash shipmate-infra/scripts/run-staging-smoke-suite.sh
 ```
 
 cleanup dry-run을 생략하고 smoke 리포트만 갱신하려면 `SMOKE_CLEANUP_DRY_RUN=false`를 지정한다.
+검증 직후 테스트 데이터를 바로 정리하려면 `--cleanup-apply`를 붙인다. 이 옵션은 `merchant_smoke_%` 패턴으로 생성된 smoke 테스트 데이터만 정리한다.
+
+```bash
+bash shipmate-infra/scripts/run-staging-smoke-suite.sh --cleanup-apply
+```
+
+Admin/Merchant 브라우저 흐름까지 이어 확인하려면 `--check-ui`를 붙인다. 이 옵션은 `shipmate-infra`의 `npm run check:ui`를 실행하므로 Playwright 의존성과 Chromium이 준비되어 있어야 한다.
+
+```bash
+bash shipmate-infra/scripts/run-staging-smoke-suite.sh --check-ui
+```
 
 실행 결과는 기본적으로 `shipmate-infra/smoke-report.json`, `shipmate-infra/smoke-report.xml`에 남기고, CI 수집용 복사본은 `shipmate-infra/reports/smoke/smoke-report-{timestamp}.json`, `shipmate-infra/reports/smoke/smoke-report-{timestamp}.xml`에 남긴다. 실패 시에는 마지막 단계, 마지막 HTTP 상태, curl 오류, 응답 본문 일부를 리포트에 포함한다. CI에서 별도 산출물 경로가 필요하면 `SMOKE_REPORT_DIR`을 지정한다.
 
 내부관리자 운영 대시보드는 API 서버가 읽을 수 있는 `shipmate-infra/smoke-report.json` 또는 `SHIPMATE_SMOKE_REPORT_FILE` 경로의 최신 smoke 리포트를 표시한다. Docker 컨테이너 내부에서 표시하려면 해당 파일을 컨테이너가 읽을 수 있는 경로로 mount하고 `SHIPMATE_SMOKE_REPORT_FILE`을 지정한다.
-`run-staging-smoke-suite.sh`는 smoke 성공 후 최신 `shipmate-infra/smoke-report.json`을 `shipmate-staging-api:/workspace/shipmate-infra/smoke-report.json`으로 복사해 로컬 스테이징 대시보드에서 바로 확인할 수 있게 한다. 컨테이너를 재생성하면 이 복사본은 사라지므로 wrapper를 다시 실행한다.
+`run-staging-smoke-suite.sh`는 smoke 성공 후 최신 `shipmate-infra/smoke-report.json`과 `shipmate-infra/reports/staging-check-summary.html`을 `shipmate-staging-api:/workspace/shipmate-infra/...`로 복사해 로컬 스테이징 대시보드에서 바로 확인할 수 있게 한다. 컨테이너를 재생성하면 이 복사본은 사라지므로 wrapper를 다시 실행한다.
 
 스테이징 smoke는 `merchant_smoke_{timestamp}`, `customer_smoke_{timestamp}`, `smoke-{timestamp}` 패턴의 테스트 데이터를 생성한다. 공용 스테이징 DB에서는 smoke 통과 후 바로 삭제하지 않고, 실패 재현과 artifact 추적을 위해 우선 dry-run으로 삭제 대상을 확인한다.
 
@@ -458,6 +469,7 @@ bash shipmate-infra/scripts/check-staging-stack.sh
 ```
 
 기본값은 `API_BASE_URL=http://localhost:18080`, `STAGING_HTTPS_URL=https://staging-shipmate.com/merchant/`, `API_HEALTH_URL=https://staging-shipmate.com/actuator/health`, `STAGING_RESOLVE_IP=127.0.0.1`, `ALLOW_INSECURE_TLS=true`다. 다른 도메인, 포트, tunnel URL을 쓸 때는 실행 시점 환경 변수로 바꾼다.
+반복 개발 중에는 smoke와 cleanup dry-run, 선택적 cleanup apply, 선택적 UI 확인까지 한 명령으로 제어할 수 있는 `run-staging-smoke-suite.sh`를 우선 사용한다.
 
 ### 스테이징 도메인과 TLS
 
@@ -477,6 +489,14 @@ docker compose --env-file .env.staging -f docker-compose.staging.yml restart ngi
 ```
 
 공인 DNS 구매와 A 레코드 등록은 마지막 단계로 미룬다. DNS 등록 전에는 hosts 파일, 로컬 Nginx, 터널, 또는 `API_BASE_URL`로 지정한 임시 주소 기준으로 기능 검증을 진행한다. 실제 브라우저에서 공인 HTTPS로 접속하려면 다음 조건이 필요합니다.
+
+DNS 등록 전 빠른 체크리스트:
+
+1. `docker ps`에서 `shipmate-staging-api`, `shipmate-staging-admin`, `shipmate-staging-merchant`, `shipmate-staging-nginx`가 떠 있는지 확인한다.
+2. `curl -fsS http://localhost:18080/actuator/health`가 `UP`을 반환하는지 확인한다.
+3. 같은 PC 브라우저 검증은 hosts에 `127.0.0.1 staging-shipmate.com`을 넣고 `https://staging-shipmate.com/admin/`, `https://staging-shipmate.com/merchant/`로 확인한다.
+4. 외부 OAuth callback이나 외부 브라우저 검증은 Cloudflare Tunnel 또는 ngrok 임시 HTTPS URL을 사용한다.
+5. 기능 검증은 `bash shipmate-infra/scripts/run-staging-smoke-suite.sh --cleanup-apply`로 마무리한다.
 
 - `staging-shipmate.com` DNS A 레코드가 Windows Docker Desktop이 실행되는 PC 또는 라우터의 공인 IP를 가리켜야 한다.
 - 외부 접속을 허용하려면 공유기/방화벽에서 80, 443 포트를 해당 PC로 전달해야 한다.

@@ -343,6 +343,8 @@ API field가 DB에 저장되는 경우 필드 딕셔너리와 DB 컬럼 딕셔�
 | `smokeReport` | - | - | 내부관리자 운영 대시보드의 최신 스테이징 smoke 리포트 요약. DB 저장 대상 아님 |
 | `apiBaseUrl` | - | - | smoke 실행 기준 API URL. 리포트 응답 field |
 | `lastStep` | - | - | smoke 리포트의 마지막 실행 단계. 리포트 응답 field |
+| `lastHttpStatus` | - | - | smoke 리포트의 마지막 HTTP 상태. 리포트 응답 field |
+| `failureDetail` | - | - | smoke 실패 시 HTTP 상태, curl 오류, 응답 일부를 담은 운영 진단 field |
 | `reportPath` | - | - | API 서버가 읽은 smoke 리포트 파일 경로. 운영 진단용 응답 field |
 | `cutoffCreatedAt` | - | - | 이메일 첨부 보관 기간 정리 기준 생성 시각. 정리 응답 field |
 | `expiredAttachmentCount` | - | - | 보관 기간이 지난 이메일 첨부 메타데이터 수. 정리 응답 field |

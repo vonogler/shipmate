@@ -504,6 +504,19 @@ function App() {
     }
   }, []);
 
+  const openStagingSummary = useCallback(async () => {
+    try {
+      const html = await requestText('/api/admin/staging-summary.html');
+      const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+      window.open(url, '_blank', 'noopener,noreferrer');
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (cause) {
+      const description = errorMessage(cause, '스테이징 점검 요약을 열지 못했습니다.');
+      setError(description);
+      message.error(description);
+    }
+  }, []);
+
   const updateMerchant = useCallback(async (merchantId: string, status: string, operationMemo: string) => {
     setMerchantActionId(merchantId);
     setError(null);
@@ -1116,6 +1129,7 @@ function App() {
                     setAdminInboundSearchText(inboundMessageId ?? '');
                     setActiveScreen('inbound');
                   }}
+                  onOpenStagingSummary={openStagingSummary}
                 />
               </Suspense>
             ) : null}
@@ -1555,6 +1569,20 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
     throw new Error(`API가 HTTP ${response.status}를 반환했습니다.`);
   }
   return response.json();
+}
+
+async function requestText(path: string, init?: RequestInit): Promise<string> {
+  const response = await fetch(`${apiBaseUrl}${path}`, {
+    ...init,
+    headers: {
+      ...authHeaders(),
+      ...init?.headers
+    }
+  });
+  if (!response.ok) {
+    throw new Error(`API가 HTTP ${response.status}를 반환했습니다.`);
+  }
+  return response.text();
 }
 
 function authHeaders(): Record<string, string> {

@@ -6,13 +6,15 @@ type DashboardScreenProps = {
   days: number;
   onDaysChange: (days: number) => void;
   onShowRecentInbound: (inboundMessageId?: string | null) => void;
+  onOpenStagingSummary: () => void;
 };
 
 export default function DashboardScreen({
   overview,
   days,
   onDaysChange,
-  onShowRecentInbound
+  onShowRecentInbound,
+  onOpenStagingSummary
 }: DashboardScreenProps) {
   return (
     <section className="work-panel">
@@ -48,15 +50,20 @@ export default function DashboardScreen({
         <div className="status-panel">
           <div className="status-panel-heading">
             <Typography.Text strong>최근 스테이징 smoke</Typography.Text>
-            <Tag color={smokeStatusColor(overview.smokeReport.status)}>{smokeStatusText(overview.smokeReport.status)}</Tag>
+            <div>
+              <Button size="small" onClick={onOpenStagingSummary}>점검 요약 열기</Button>
+              <Tag color={smokeStatusColor(overview.smokeReport.status)}>{smokeStatusText(overview.smokeReport.status)}</Tag>
+            </div>
           </div>
           <Descriptions size="small" column={{ xs: 1, md: 2 }} bordered>
             <Descriptions.Item label="API 기준 URL">{overview.smokeReport.apiBaseUrl || '-'}</Descriptions.Item>
             <Descriptions.Item label="완료 시각">{overview.smokeReport.finishedAt || '-'}</Descriptions.Item>
             <Descriptions.Item label="마지막 단계">{overview.smokeReport.lastStep || '-'}</Descriptions.Item>
+            <Descriptions.Item label="마지막 HTTP 상태">{overview.smokeReport.lastHttpStatus || '-'}</Descriptions.Item>
             <Descriptions.Item label="이용자 ID">{overview.smokeReport.merchantId || '-'}</Descriptions.Item>
             <Descriptions.Item label="주문 원문 ID">{overview.smokeReport.inboundMessageId || '-'}</Descriptions.Item>
             <Descriptions.Item label="출고표 ID">{overview.smokeReport.orderDraftId || '-'}</Descriptions.Item>
+            <Descriptions.Item label="실패 상세" span={2}>{overview.smokeReport.failureDetail || '-'}</Descriptions.Item>
           </Descriptions>
         </div>
       ) : null}
