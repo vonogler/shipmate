@@ -352,6 +352,7 @@ API field가 DB에 저장되는 경우 필드 딕셔너리와 DB 컬럼 딕셔�
 | `latestSmokeSuccessAt` | - | - | 최근 smoke 성공 시각. suite 요약 응답 field |
 | `latestSmokeFailureAt` | - | - | 최근 smoke 실패 시각. suite 요약 응답 field |
 | `uiCheckStatus` | - | - | Admin/Merchant Playwright UI 확인 상태 |
+| `uiCheckDetail` | - | - | Playwright UI 확인 실패 시 마지막 로그 일부. 운영 진단용 응답 field |
 | `cleanupStatus` | - | - | smoke 테스트 데이터 정리 상태 |
 | `cleanupRemainingRows` | - | - | smoke 테스트 데이터 정리 후 잔여 row 수 |
 | `cutoffCreatedAt` | - | - | 이메일 첨부 보관 기간 정리 기준 생성 시각. 정리 응답 field |

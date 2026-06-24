@@ -52,6 +52,7 @@ export default function DashboardScreen({
             <Typography.Text strong>최근 스테이징 smoke</Typography.Text>
             <div>
               <Button size="small" onClick={onOpenStagingSummary}>점검 요약 열기</Button>
+              <Tag color={stagingSuiteStatusColor(overview.stagingCheck?.suiteStatus)}>{stagingStatusText(overview.stagingCheck?.suiteStatus)}</Tag>
               <Tag color={smokeStatusColor(overview.smokeReport.status)}>{smokeStatusText(overview.smokeReport.status)}</Tag>
             </div>
           </div>
@@ -63,6 +64,7 @@ export default function DashboardScreen({
             <Descriptions.Item label="최근 성공 시각">{overview.stagingCheck?.latestSmokeSuccessAt || '-'}</Descriptions.Item>
             <Descriptions.Item label="최근 실패 시각">{overview.stagingCheck?.latestSmokeFailureAt || '-'}</Descriptions.Item>
             <Descriptions.Item label="UI 확인 상태">{stagingStatusText(overview.stagingCheck?.uiCheckStatus)}</Descriptions.Item>
+            <Descriptions.Item label="UI 실패 상세" span={2}>{overview.stagingCheck?.uiCheckDetail || '-'}</Descriptions.Item>
             <Descriptions.Item label="Cleanup">{cleanupText(overview.stagingCheck)}</Descriptions.Item>
             <Descriptions.Item label="이용자 ID">{overview.smokeReport.merchantId || '-'}</Descriptions.Item>
             <Descriptions.Item label="주문 원문 ID">{overview.smokeReport.inboundMessageId || '-'}</Descriptions.Item>
@@ -114,6 +116,16 @@ function smokeStatusColor(status: string) {
     return 'green';
   }
   if (status === 'none') {
+    return 'default';
+  }
+  return 'red';
+}
+
+function stagingSuiteStatusColor(status?: string | null) {
+  if (status === 'ok') {
+    return 'green';
+  }
+  if (status === 'none' || status === 'skipped') {
     return 'default';
   }
   return 'red';

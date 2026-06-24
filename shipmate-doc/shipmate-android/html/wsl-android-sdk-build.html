@@ -1,0 +1,73 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WSL Android SDK 빌드 검증</title>
+  <style>
+    :root { color-scheme: light; --bg: #f7f8fa; --panel: #ffffff; --text: #20242a; --muted: #667085; --line: #d9dee7; --link: #2457c5; --code: #eef1f6; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.58; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 20px; letter-spacing: 0; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    ul { margin: 0 0 16px; padding-left: 22px; }
+    li { margin: 6px 0; }
+    pre { overflow-x: auto; padding: 14px; background: var(--code); border-radius: 8px; border: 1px solid var(--line); }
+    code { padding: 2px 5px; background: var(--code); border-radius: 4px; font-size: 0.94em; }
+    pre code { padding: 0; background: transparent; border-radius: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; background: var(--panel); }
+    th, td { border: 1px solid var(--line); padding: 9px 10px; text-align: left; vertical-align: top; }
+    th { background: #eef1f6; }
+    a { color: var(--link); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+    .doc-nav { margin: 0 0 28px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    .doc-nav h2 { margin: 0 0 10px; font-size: 18px; }
+    .doc-nav ul { margin: 0; padding-left: 20px; }
+    .doc-nav .current { color: var(--text); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <nav class="doc-nav" aria-label="문서 목차">
+      <h2>문서 목차</h2>
+      <ul>
+        <li><a href="android-tech-stack.html">ShipMate Android 기술 스택</a></li>
+        <li><span class="current">WSL Android SDK 빌드 검증</span></li>
+        <li><a href="index.html">ShipMate Android 문서</a></li>
+      </ul>
+    </nav>
+    <h1>WSL Android SDK 빌드 검증</h1>
+    <p>Windows Android Studio 설치본이 없거나 경로가 다른 개발 PC에서도 <code>shipmate-android</code>를 WSL에서 검증할 수 있게 한다.</p>
+    <h2>기본 원칙</h2>
+    <ul>
+      <li>Android SDK는 저장소에 커밋하지 않는다.</li>
+      <li>검증용 SDK는 <code>.codex-tmp/android-sdk</code> 아래에 둔다.</li>
+      <li><code>local.properties</code>는 로컬 전용 파일로 유지한다.</li>
+      <li>Windows SDK 경로가 없어도 <code>ANDROID_HOME</code>, <code>ANDROID_SDK_ROOT</code> 환경변수로 빌드할 수 있다.</li>
+    </ul>
+    <h2>빌드 명령</h2>
+    <pre><code>cd shipmate-android
+JAVA_HOME=/usr/lib/jvm/java-17-openjdk \
+GRADLE_USER_HOME="$PWD/../.codex-tmp/android-gradle-home" \
+ANDROID_HOME="$PWD/../.codex-tmp/android-sdk" \
+ANDROID_SDK_ROOT="$PWD/../.codex-tmp/android-sdk" \
+./gradlew assembleDebug \
+  -Dorg.gradle.java.home=/usr/lib/jvm/java-17-openjdk \
+  --no-daemon --console=plain</code></pre>
+    <h2>오류 처리</h2>
+    <table>
+      <tr><th>증상</th><th>처리</th></tr>
+      <tr><td><code>SDK location not found</code></td><td><code>ANDROID_HOME</code>, <code>ANDROID_SDK_ROOT</code>가 <code>.codex-tmp/android-sdk</code>를 가리키는지 확인한다.</td></tr>
+      <tr><td>Gradle lock이 read-only home에 생김</td><td><code>GRADLE_USER_HOME</code>을 <code>.codex-tmp/android-gradle-home</code>으로 지정한다.</td></tr>
+      <tr><td>샌드박스에서 <code>Operation not permitted</code></td><td>외부 실행 권한으로 같은 빌드 명령을 재실행한다.</td></tr>
+    </table>
+    <h2>검증 기록</h2>
+    <p>2026-06-24 기준 WSL <code>.codex-tmp/android-sdk</code> 구성 후 <code>assembleDebug</code>가 통과했다.</p>
+    <section>
+      <h2>원본</h2>
+      <p><a href="../wsl-android-sdk-build.md">Markdown 원본</a></p>
+    </section>
+  </main>
+</body>
+</html>

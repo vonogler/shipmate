@@ -430,6 +430,7 @@ function adminOverview() {
       latestSmokeSuccessAt: now,
       latestSmokeFailureAt: '',
       uiCheckStatus: 'ok',
+      uiCheckDetail: '-',
       suiteFinishedAt: now,
       cleanupStatus: 'ok',
       cleanupMode: 'apply',

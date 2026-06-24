@@ -68,3 +68,12 @@ shipmate-infra/smoke-report.xml
 shipmate-infra/staging-https-report.json
 shipmate-infra/staging-https-report.xml
 shipmate-infra/reports/
+
+# Local helper/session files
+$null
+AGENTS.md
+resume_codex_*.sh
+resume_codex_*.bat
+start_shipmate_*.bat
+start_shipmate_*.ps1
+세션아이디.txt

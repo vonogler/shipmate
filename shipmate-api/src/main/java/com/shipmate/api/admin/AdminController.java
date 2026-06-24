@@ -597,6 +597,7 @@ public class AdminController {
                 suite == null ? null : suite.latestSmokeSuccessAt(),
                 suite == null ? null : suite.latestSmokeFailureAt(),
                 suite == null ? "none" : blankToDefault(suite.uiCheckStatus(), "unknown"),
+                suite == null ? null : suite.uiCheckDetail(),
                 suite == null ? null : suite.finishedAt(),
                 cleanup == null ? "none" : blankToDefault(cleanup.status(), "unknown"),
                 cleanup == null ? null : cleanup.mode(),
@@ -689,6 +690,7 @@ public class AdminController {
             String latestSmokeSuccessAt,
             String latestSmokeFailureAt,
             String uiCheckStatus,
+            String uiCheckDetail,
             String suiteFinishedAt,
             String cleanupStatus,
             String cleanupMode,
@@ -705,6 +707,7 @@ public class AdminController {
             String latestSmokeSuccessAt,
             String latestSmokeFailureAt,
             String uiCheckStatus,
+            String uiCheckDetail,
             String finishedAt
     ) {
     }

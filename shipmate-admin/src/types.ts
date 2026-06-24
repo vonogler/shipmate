@@ -81,6 +81,7 @@ export type AdminStagingCheck = {
   latestSmokeSuccessAt: string | null;
   latestSmokeFailureAt: string | null;
   uiCheckStatus: string;
+  uiCheckDetail: string | null;
   suiteFinishedAt: string | null;
   cleanupStatus: string;
   cleanupMode: string | null;

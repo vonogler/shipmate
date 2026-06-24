@@ -74,6 +74,7 @@ suite_reason="$(json_value "${SUITE_SUMMARY_FILE}" reason)"
 suite_latest_smoke_success_at="$(json_value "${SUITE_SUMMARY_FILE}" latestSmokeSuccessAt)"
 suite_latest_smoke_failure_at="$(json_value "${SUITE_SUMMARY_FILE}" latestSmokeFailureAt)"
 suite_ui_check_status="$(json_value "${SUITE_SUMMARY_FILE}" uiCheckStatus)"
+suite_ui_check_detail="$(json_value "${SUITE_SUMMARY_FILE}" uiCheckDetail)"
 suite_finished_at="$(json_value "${SUITE_SUMMARY_FILE}" finishedAt)"
 
 artifact_cleanup_report_file="${ARTIFACT_CLEANUP_REPORT_FILE:-shipmate-infra/reports/cleanup/github-smoke-artifact-cleanup-report.json}"
@@ -185,6 +186,7 @@ cat > "${SUMMARY_FILE}" <<REPORT
 | 최근 smoke 성공 시각 | ${suite_latest_smoke_success_at:-"-"} |
 | 최근 smoke 실패 시각 | ${suite_latest_smoke_failure_at:-"-"} |
 | UI 확인 상태 | ${suite_ui_check_status:-"-"} |
+| UI 실패 상세 | ${suite_ui_check_detail:-"-"} |
 | 완료 시각 | ${suite_finished_at:-"-"} |
 
 ## GitHub Actions artifact 정리
@@ -290,6 +292,7 @@ cat > "${SUMMARY_HTML_FILE}" <<REPORT
       <tr><td>최근 smoke 성공 시각</td><td>${suite_latest_smoke_success_at:-"-"}</td></tr>
       <tr><td>최근 smoke 실패 시각</td><td>${suite_latest_smoke_failure_at:-"-"}</td></tr>
       <tr><td>UI 확인 상태</td><td>${suite_ui_check_status:-"-"}</td></tr>
+      <tr><td>UI 실패 상세</td><td>${suite_ui_check_detail:-"-"}</td></tr>
       <tr><td>완료 시각</td><td>${suite_finished_at:-"-"}</td></tr>
     </table>
     <h2>Smoke 테스트 데이터 정리</h2>
