@@ -15,6 +15,9 @@ desktop.ini
 .env.*
 !.env.example
 local.properties
+**/requests/http-client.private.env.json
+**/requests/*.private.env.json
+**/requests/*.local.env.json
 
 # Temporary workspace files
 .codex-tmp/
