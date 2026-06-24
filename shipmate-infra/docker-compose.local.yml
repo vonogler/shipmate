@@ -1,4 +1,28 @@
+name: shipmate-local
+
 services:
+  mysql:
+    image: mysql:8.4
+    container_name: shipmate-mysql
+    ports:
+      - "${SHIPMATE_MYSQL_HOST_PORT:-3306}:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${SHIPMATE_MYSQL_ROOT_PASSWORD:-shipmate}
+      MYSQL_DATABASE: ${SHIPMATE_MYSQL_DATABASE:-shipmate}
+      MYSQL_USER: ${SHIPMATE_MYSQL_USER:-shipmate}
+      MYSQL_PASSWORD: ${SHIPMATE_MYSQL_PASSWORD:-shipmate}
+      TZ: Asia/Seoul
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+    volumes:
+      - shipmate_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u${SHIPMATE_MYSQL_USER:-shipmate} -p${SHIPMATE_MYSQL_PASSWORD:-shipmate} --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
   minio:
     image: minio/minio:latest
     container_name: shipmate-minio
@@ -8,7 +32,7 @@ services:
       - "9001:9001"
     environment:
       MINIO_ROOT_USER: ${SHIPMATE_MINIO_ROOT_USER:-shipmate}
-      MINIO_ROOT_PASSWORD: ${SHIPMATE_MINIO_ROOT_PASSWORD:-shipmate-local-password}
+      MINIO_ROOT_PASSWORD: ${SHIPMATE_MINIO_ROOT_PASSWORD:-shipmate}
     volumes:
       - shipmate_minio_data:/data
 
@@ -19,7 +43,7 @@ services:
       - minio
     environment:
       MINIO_ROOT_USER: ${SHIPMATE_MINIO_ROOT_USER:-shipmate}
-      MINIO_ROOT_PASSWORD: ${SHIPMATE_MINIO_ROOT_PASSWORD:-shipmate-local-password}
+      MINIO_ROOT_PASSWORD: ${SHIPMATE_MINIO_ROOT_PASSWORD:-shipmate}
       MINIO_BUCKET: ${SHIPMATE_MINIO_BUCKET:-shipmate-call-recordings}
     entrypoint: >
       /bin/sh -c "
@@ -31,23 +55,64 @@ services:
       mc anonymous set none shipmate-local/$$MINIO_BUCKET;
       "
 
-  postgres:
-    image: postgres:17-alpine
-    container_name: shipmate-postgres
+  shipmate-api:
+    build:
+      context: ..
+      dockerfile: shipmate-api/Dockerfile
+    container_name: shipmate-api
+    depends_on:
+      mysql:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      minio-init:
+        condition: service_completed_successfully
     ports:
-      - "5432:5432"
+      - "${SHIPMATE_API_HOST_PORT:-8080}:8080"
     environment:
-      POSTGRES_DB: ${SHIPMATE_POSTGRES_DB:-shipmate}
-      POSTGRES_USER: ${SHIPMATE_POSTGRES_USER:-shipmate}
-      POSTGRES_PASSWORD: ${SHIPMATE_POSTGRES_PASSWORD:-shipmate-local-password}
+      SPRING_PROFILES_ACTIVE: docker
+      SHIPMATE_MYSQL_HOST: mysql
+      SHIPMATE_MYSQL_PORT: 3306
+      SHIPMATE_MYSQL_DATABASE: ${SHIPMATE_MYSQL_DATABASE:-shipmate}
+      SHIPMATE_MYSQL_USER: ${SHIPMATE_MYSQL_USER:-shipmate}
+      SHIPMATE_MYSQL_PASSWORD: ${SHIPMATE_MYSQL_PASSWORD:-shipmate}
+      SHIPMATE_MINIO_ENDPOINT: http://minio:9000
+      SHIPMATE_MINIO_PUBLIC_ENDPOINT: http://localhost:9000
+      SHIPMATE_MINIO_ACCESS_KEY: ${SHIPMATE_MINIO_ROOT_USER:-shipmate}
+      SHIPMATE_MINIO_SECRET_KEY: ${SHIPMATE_MINIO_ROOT_PASSWORD:-shipmate}
+      SHIPMATE_MINIO_BUCKET: ${SHIPMATE_MINIO_BUCKET:-shipmate-call-recordings}
+      SHIPMATE_EMAIL_ATTACHMENT_RETENTION_DAYS: ${SHIPMATE_EMAIL_ATTACHMENT_RETENTION_DAYS:-365}
+      SHIPMATE_CORS_ALLOWED_ORIGINS: http://localhost:3001,http://127.0.0.1:3001,http://localhost:3000,http://127.0.0.1:3000,http://localhost:3004,http://127.0.0.1:3004
+      GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID:-}
+      GOOGLE_OAUTH_CLIENT_SECRET: ${GOOGLE_OAUTH_CLIENT_SECRET:-}
+      GOOGLE_OAUTH_REDIRECT_URI: ${GOOGLE_OAUTH_REDIRECT_URI:-http://localhost:8080/api/oauth/google/callback}
+      GOOGLE_GMAIL_POLLING_ENABLED: ${GOOGLE_GMAIL_POLLING_ENABLED:-true}
+      GOOGLE_GMAIL_POLLING_DELAY_MS: ${GOOGLE_GMAIL_POLLING_DELAY_MS:-300000}
+      GOOGLE_GMAIL_POLLING_MAX_MESSAGES: ${GOOGLE_GMAIL_POLLING_MAX_MESSAGES:-10}
+      GOOGLE_GMAIL_AUTO_CREATE_ORDER_DRAFTS: ${GOOGLE_GMAIL_AUTO_CREATE_ORDER_DRAFTS:-true}
+      GOOGLE_OAUTH_TOKEN_ENCRYPTION_SECRET: ${GOOGLE_OAUTH_TOKEN_ENCRYPTION_SECRET:-shipmate-local-google-oauth-token-key}
     volumes:
-      - shipmate_postgres_data:/var/lib/postgresql/data
+      - shipmate_api_data:/workspace/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${SHIPMATE_POSTGRES_USER:-shipmate} -d ${SHIPMATE_POSTGRES_DB:-shipmate}"]
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health || exit 1"]
       interval: 5s
       timeout: 5s
       retries: 20
 
+  shipmate-merchant:
+    build:
+      context: ..
+      dockerfile: shipmate-merchant/Dockerfile
+      args:
+        VITE_SHIPMATE_API_BASE_URL: http://localhost:8080
+    container_name: shipmate-merchant
+    depends_on:
+      shipmate-api:
+        condition: service_healthy
+    ports:
+      - "${SHIPMATE_MERCHANT_HOST_PORT:-3001}:80"
+
 volumes:
+  shipmate_mysql_data:
   shipmate_minio_data:
-  shipmate_postgres_data:
+  shipmate_api_data:

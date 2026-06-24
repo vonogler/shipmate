@@ -1,1 +1,9 @@
 .env
+.env.staging
+.env.github-runner
+certs/staging/fullchain.pem
+certs/staging/privkey.pem
+certs/staging/*.pem
+smoke-report.json
+smoke-report.xml
+reports/

@@ -1,0 +1,12 @@
+{
+  "name": "shipmate-infra",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "check:ui": "node scripts/check-shipmate-ui-playwright.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.57.0"
+  }
+}
