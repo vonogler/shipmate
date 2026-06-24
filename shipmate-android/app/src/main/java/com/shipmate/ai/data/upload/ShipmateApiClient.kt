@@ -1,6 +1,7 @@
 package com.shipmate.ai.data.upload
 
 import com.shipmate.ai.BuildConfig
+import com.shipmate.ai.data.order.InboundMessageApiService
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
@@ -23,4 +24,7 @@ object ShipmateApiClient {
 
     val callRecordingApiService: CallRecordingApiService =
         retrofit.create(CallRecordingApiService::class.java)
+
+    val inboundMessageApiService: InboundMessageApiService =
+        retrofit.create(InboundMessageApiService::class.java)
 }
