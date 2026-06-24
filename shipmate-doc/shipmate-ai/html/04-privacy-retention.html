@@ -1,0 +1,90 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>04. 개인정보와 보관 정책</title>
+  <style>
+    :root { color-scheme: light; --bg: #f7f8fa; --panel: #ffffff; --text: #20242a; --muted: #667085; --line: #d9dee7; --link: #2457c5; --code: #eef1f6; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.58; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 20px; letter-spacing: 0; }
+    h3 { margin: 22px 0 10px; font-size: 17px; letter-spacing: 0; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    ul, ol { margin: 0 0 16px; padding-left: 22px; }
+    li { margin: 6px 0; }
+    pre { overflow-x: auto; padding: 14px; background: var(--code); border-radius: 8px; border: 1px solid var(--line); }
+    code { padding: 2px 5px; background: var(--code); border-radius: 4px; font-size: 0.94em; }
+    pre code { padding: 0; background: transparent; border-radius: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; background: var(--panel); }
+    th, td { border: 1px solid var(--line); padding: 9px 10px; text-align: left; vertical-align: top; }
+    th { background: #eef1f6; color: var(--text); }
+    a { color: var(--link); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+    .doc-nav { margin: 0 0 28px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    .doc-nav h2 { margin: 0 0 10px; font-size: 18px; }
+    .doc-nav ul { margin: 0; padding-left: 20px; }
+    .doc-nav .current { color: var(--text); font-weight: 700; }</style>
+</head>
+<body>
+  <main>
+    <!-- DOC_NAV_START -->
+    <nav class="doc-nav" aria-label="문서 목차">
+      <h2>문서 목차</h2>
+      <ul>
+      <li><a href="00-overview.html">00. 개요</a></li>
+      <li><a href="01-asr-lab.html">01. ASR Lab</a></li>
+      <li><a href="02-order-review-ai.html">02. 출고표 검수 AI</a></li>
+      <li><a href="03-training-data.html">03. 학습 데이터</a></li>
+      <li><span class="current">04. 개인정보와 보관 정책</span></li>
+      <li><a href="05-roadmap.html">05. 로드맵</a></li>
+      <li><a href="index.html">ShipMate ShipMate AI</a></li>
+      </ul>
+    </nav>
+    <!-- DOC_NAV_END -->
+
+<h1>04. 개인정보와 보관 정책</h1>
+<h2>목적</h2>
+<p>통화녹음에는 개인정보와 업무상 민감한 내용이 포함될 수 있다. AI 학습 목적의 사용은 일반 서비스 처리 목적과 분리해야 한다.</p>
+<h2>동의 분리</h2>
+<p>동의 상태는 다음처럼 분리한다.</p>
+<ol>
+<li>1. 서비스 처리 동의: 업로드, STT, 출고표 초안 생성.</li>
+<li>2. AI 학습 동의: 검수된 음성/전사문/출고표 데이터를 모델 개선에 사용.</li>
+</ol>
+<h2>권장 보관 기간</h2>
+<table><thead><tr><th>데이터</th><th>권장 보관 기간</th><th>비고</th></tr></thead><tbody>
+<tr><td>원본 통화 음성</td><td>30~90일</td><td>전사문 검수와 재처리용</td></tr>
+<tr><td>학습 목적 원본 통화 음성</td><td>최대 1년 권장</td><td>별도 학습 동의 필요</td></tr>
+<tr><td>원본 전사문</td><td>1년</td><td>검수 후 단축 가능</td></tr>
+<tr><td>수정 전사문</td><td>1~3년</td><td>장기 보관 전 마스킹 권장</td></tr>
+<tr><td>출고표 수정 데이터</td><td>3년</td><td>업무 추적 가치 보존</td></tr>
+<tr><td>비식별 학습 sample</td><td>장기 보관 가능</td><td>재식별 위험 통제 필요</td></tr>
+</tbody></table>
+<h2>데이터 보호 요구사항</h2>
+<ul>
+<li>음성은 접근 제한이 적용된 object storage에 보관한다.</li>
+<li>저장 구간과 전송 구간을 암호화한다.</li>
+<li>음성 및 전사문 접근 이력을 기록한다.</li>
+<li>삭제 요청 처리 흐름을 지원한다.</li>
+<li>학습 가능 데이터와 일반 서비스 데이터를 분리한다.</li>
+<li>전화번호, 주소, 이름, 계좌처럼 보이는 문자열은 가능한 범위에서 마스킹한다.</li>
+</ul>
+<h2>삭제 정책</h2>
+<p>동의가 철회되거나 보관 기간이 만료되면 다음을 수행한다.</p>
+<ul>
+<li>법령상 보관 의무가 없으면 원본 음성을 삭제한다.</li>
+<li>향후 학습 export에서 해당 sample을 제외한다.</li>
+<li>법적으로 필요한 추적 record만 남긴다.</li>
+<li>이미 학습 데이터로 export된 경우 영향을 받는 데이터셋 version을 검토 대상으로 표시한다.</li>
+</ul>
+<h2>운영 원칙</h2>
+<p>명시적으로 학습 가능 상태가 아닌 데이터는 학습에 사용하지 않는다.</p>
+    <section>
+      <h2>원본</h2>
+      <p><a href="../04-privacy-retention.md">Markdown 원본</a></p>
+    </section>
+  </main>
+</body>
+</html>

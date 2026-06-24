@@ -1,0 +1,125 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>타깃 업종 우선순위</title>
+  <style>
+    :root { color-scheme: light; --bg: #f7f8fa; --panel: #ffffff; --text: #20242a; --muted: #667085; --line: #d9dee7; --link: #2457c5; --code: #eef1f6; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.58; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 20px; letter-spacing: 0; }
+    h3 { margin: 22px 0 10px; font-size: 17px; letter-spacing: 0; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    ul, ol { margin: 0 0 16px; padding-left: 22px; }
+    li { margin: 6px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; background: var(--panel); }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #eef1f6; }
+    pre { overflow-x: auto; padding: 14px; background: var(--code); border-radius: 8px; border: 1px solid var(--line); }
+    code { padding: 2px 5px; background: var(--code); border-radius: 4px; font-size: 0.94em; }
+    pre code { padding: 0; background: transparent; border-radius: 0; }
+    a { color: var(--link); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+    .doc-nav { margin: 0 0 28px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    .doc-nav h2 { margin: 0 0 10px; font-size: 18px; }
+    .doc-nav ul { margin: 0; padding-left: 20px; }
+    .doc-nav .current { color: var(--text); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <!-- DOC_NAV_START -->
+    <nav class="doc-nav" aria-label="문서 목차">
+      <h2>문서 목차</h2>
+      <ul>
+      <li><a href="branded-order-channel.html">이용자별 브랜드 주문 채널 전략</a></li>
+      <li><a href="index.html">ShipMate Merchant 문서</a></li>
+      <li><a href="order-processing-feature-roadmap.html">주문 처리 기능 로드맵</a></li>
+      <li><a href="packaging-promotional-custom-supplies-channel.html">포장재/판촉물/맞춤 제작 소모품 채널</a></li>
+      <li><a href="sms-order-share.html">문자 공유 기반 출고표 생성 구조</a></li>
+      <li><span class="current">타깃 업종 우선순위</span></li>
+      </ul>
+    </nav>
+    <!-- DOC_NAV_END -->
+
+    <h1>타깃 업종 우선순위</h1>
+    <h2>목적</h2>
+    <p>출고비서가 식자재 외 업종으로 확장할 때 경쟁 강도와 제품 적합도를 함께 고려해 우선 공략 업종을 정리한다.</p>
+    <p>기준은 카카오톡, 문자, 이메일로 들어오는 비정형 주문을 AI가 주문 후보로 정리하고, 이용자가 검수한 뒤 출고표 또는 작업지시서로 넘길 수 있는지다.</p>
+
+    <h2>판단 기준</h2>
+    <table>
+      <tr><th>기준</th><th>설명</th></tr>
+      <tr><td>경쟁 강도</td><td>이미 강한 전용 플랫폼이 있는지</td></tr>
+      <tr><td>주문 비정형성</td><td>카카오톡, 문자, 이메일 자유문 주문이 많은지</td></tr>
+      <tr><td>AI 추출 적합도</td><td>품목, 수량, 옵션, 요청사항을 구조화하기 쉬운지</td></tr>
+      <tr><td>운영 난이도</td><td>규제, 유통기한, 로트번호, 견적 복잡도가 낮은지</td></tr>
+      <tr><td>출고표 연결성</td><td>주문 후보를 출고표, 납품서, 택배 CSV로 넘기기 쉬운지</td></tr>
+    </table>
+
+    <h2>추천 우선순위</h2>
+    <h3>1순위: 포장재/판촉물/맞춤 제작 소모품</h3>
+    <p>경쟁이 상대적으로 낮고 출고비서 적합도가 높다.</p>
+    <ul>
+      <li>박스</li>
+      <li>봉투</li>
+      <li>스티커</li>
+      <li>라벨</li>
+      <li>명함</li>
+      <li>전단</li>
+      <li>쇼핑백</li>
+      <li>판촉물</li>
+    </ul>
+    <pre><code>지난번 봉투 1,000장 다시 주세요.
+로고만 새 파일로 바꿔 주세요.
+스티커 5cm 원형 3,000장, 무광으로 부탁합니다.</code></pre>
+    <p>카카오톡과 문자 주문이 자연스럽고, “지난번처럼”, “로고만 변경”, “수량만 추가” 같은 반복 주문이 많다. AI가 원문을 구조화하기 좋고 신선도, 규제, 기존 플랫폼 경쟁 부담도 상대적으로 낮다.</p>
+
+    <h3>2순위: 미용재료/화장품 도매</h3>
+    <p>경쟁은 중간 이하로 보이고, 품목/옵션 추출이 출고비서와 잘 맞는다.</p>
+    <pre><code>염색약 7N 3개, 8A 2개, 산화제 6% 한 박스 주세요.
+지난번 샴푸 큰 거 2개랑 트리트먼트 1개 추가요.</code></pre>
+    <p>제품명, 색상번호, 용량, 박스 단위가 중요해 AI 추출 대상이 명확하다. 다만 브랜드와 제품 라인, 색상번호, 용량, 단위 변환 기준을 잘 관리해야 한다.</p>
+
+    <h3>3순위: 공구/MRO 중 소규모 반복 소모품</h3>
+    <p>산업소모품 전체는 대형 MRO 플랫폼 경쟁이 있지만, 소규모 반복 소모품은 출고비서가 비집고 들어갈 여지가 있다.</p>
+    <p>볼트, 장갑, 테이프, 절삭공구, 포장재, 작업복, 안전용품처럼 현장 담당자가 품번, 규격, 별칭으로 반복 주문하는 품목이 대상이다.</p>
+
+    <h3>4순위: 금속/자재 견적 정리</h3>
+    <p>경쟁은 전용 플랫폼 중심이고, 출고비서와 직접 맞기보다는 견적 요청 정리 기능이 필요하다.</p>
+    <ul>
+      <li><a href="https://www.kloecknermetals.com/">Kloeckner Metals</a>: 금속 제품, 가공 서비스, 견적 요청, 금속 계산기 제공</li>
+      <li><a href="https://www.xometry.com/">Xometry</a>: CNC, 판금, 튜브 가공, 금속 생산, 즉시 견적 제공</li>
+      <li><a href="https://www.daara.co.kr/">다아라</a>: 산업기계·장비 직거래와 구매문의 제공</li>
+    </ul>
+    <p>재질, 두께, 폭, 길이, 절단, 가공, 납기 조건을 추출해야 하므로 단가 자동 확정은 어렵다.</p>
+
+    <h3>5순위: 의류/패션 도매</h3>
+    <p>출고비서 적합도는 높지만 경쟁도 높다. <a href="https://sinsangmarket.kr/">신상마켓</a> 같은 패션 도소매 플랫폼이 이미 있다.</p>
+    <p>색상, 사이즈, 옵션, 수량 추출은 AI에 잘 맞지만 상품 이미지, 옵션, 재고, 사입 흐름까지 들어가면 범위가 커진다.</p>
+
+    <h3>6순위: 의약품/약국 소모품</h3>
+    <p>전문의약품은 경쟁도 높고 진입장벽도 높다. <a href="https://www.online-pharm.co.kr/">온라인팜</a>은 HMP몰을 약국·병원 대상 온라인 전자상거래 사이트로 소개한다.</p>
+    <p>전문의약품보다 약국 소모품, 건강기능식품, 일반상품, 병원 소모품이 현실적이다.</p>
+
+    <h2>결론</h2>
+    <p>첫 확장 타깃은 포장재/판촉물/맞춤 제작 소모품이 가장 적합하다.</p>
+    <p>이 업종은 카카오톡/문자 주문이 자연스럽고, 반복 주문과 변경 요청이 많으며, AI가 주문 원문을 주문 후보와 작업지시서 후보로 정리하기 좋다. 또한 식자재, 의류, 의약품, 금속보다 초기 경쟁과 운영 리스크가 낮다.</p>
+    <ol>
+      <li>포장재/판촉물/맞춤 제작 소모품</li>
+      <li>미용재료/화장품 도매</li>
+      <li>공구/MRO 중 소규모 반복 소모품</li>
+      <li>금속/자재 견적 정리</li>
+      <li>의류/패션 도매</li>
+      <li>의약품/약국 소모품</li>
+    </ol>
+
+    <section>
+      <h2>원본</h2>
+      <p><a href="../target-industry-priority.md">Markdown 원본</a></p>
+    </section>
+  </main>
+</body>
+</html>

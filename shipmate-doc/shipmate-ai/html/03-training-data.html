@@ -1,0 +1,101 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>03. 학습 데이터</title>
+  <style>
+    :root { color-scheme: light; --bg: #f7f8fa; --panel: #ffffff; --text: #20242a; --muted: #667085; --line: #d9dee7; --link: #2457c5; --code: #eef1f6; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.58; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 20px; letter-spacing: 0; }
+    h3 { margin: 22px 0 10px; font-size: 17px; letter-spacing: 0; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    ul, ol { margin: 0 0 16px; padding-left: 22px; }
+    li { margin: 6px 0; }
+    pre { overflow-x: auto; padding: 14px; background: var(--code); border-radius: 8px; border: 1px solid var(--line); }
+    code { padding: 2px 5px; background: var(--code); border-radius: 4px; font-size: 0.94em; }
+    pre code { padding: 0; background: transparent; border-radius: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; background: var(--panel); }
+    th, td { border: 1px solid var(--line); padding: 9px 10px; text-align: left; vertical-align: top; }
+    th { background: #eef1f6; color: var(--text); }
+    a { color: var(--link); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+    .doc-nav { margin: 0 0 28px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    .doc-nav h2 { margin: 0 0 10px; font-size: 18px; }
+    .doc-nav ul { margin: 0; padding-left: 20px; }
+    .doc-nav .current { color: var(--text); font-weight: 700; }</style>
+</head>
+<body>
+  <main>
+    <!-- DOC_NAV_START -->
+    <nav class="doc-nav" aria-label="문서 목차">
+      <h2>문서 목차</h2>
+      <ul>
+      <li><a href="00-overview.html">00. 개요</a></li>
+      <li><a href="01-asr-lab.html">01. ASR Lab</a></li>
+      <li><a href="02-order-review-ai.html">02. 출고표 검수 AI</a></li>
+      <li><span class="current">03. 학습 데이터</span></li>
+      <li><a href="04-privacy-retention.html">04. 개인정보와 보관 정책</a></li>
+      <li><a href="05-roadmap.html">05. 로드맵</a></li>
+      <li><a href="index.html">ShipMate ShipMate AI</a></li>
+      </ul>
+    </nav>
+    <!-- DOC_NAV_END -->
+
+<h1>03. 학습 데이터</h1>
+<h2>목적</h2>
+<p>검수 데이터는 핵심 자산이다. 당장 모델을 학습하지 않더라도 ShipMate는 처음부터 검수 데이터를 학습 가능한 형태로 수집해야 한다.</p>
+<h2>데이터 분류</h2>
+<table><thead><tr><th>분류</th><th>사용처</th><th>설명</th></tr></thead><tbody>
+<tr><td>원본 음성</td><td>ASR</td><td>업로드된 통화녹음</td></tr>
+<tr><td>원본 전사문</td><td>ASR, LLM</td><td>Clova Speech 결과</td></tr>
+<tr><td>수정 전사문</td><td>ASR</td><td>사람이 수정한 전사문</td></tr>
+<tr><td>AI 초안 JSON</td><td>LLM</td><td>최초 출고표 초안</td></tr>
+<tr><td>수정 초안 JSON</td><td>LLM</td><td>사람이 수정한 출고표 초안</td></tr>
+<tr><td>최종 출고표 JSON</td><td>LLM, 업무 분석</td><td>확정된 출고 데이터</td></tr>
+<tr><td>검수 metadata</td><td>평가</td><td>검수자, 검수 시각, 수정 사유</td></tr>
+</tbody></table>
+<h2>필요한 Record</h2>
+<pre><code>
+call_recording
+transcript
+shipment_draft
+shipment_draft_item
+review_result
+training_sample
+model_evaluation
+</code></pre>
+<h2>학습 Sample 규칙</h2>
+<ul>
+<li>AI 입력과 사람이 최종 승인한 출력을 함께 저장한다.</li>
+<li>추론 시 사용한 후보 목록을 저장한다.</li>
+<li>가능하면 수정 전후 차이를 저장한다.</li>
+<li>동의 상태와 보관 만료일을 저장한다.</li>
+<li>검수되지 않은 AI 출력은 학습 가능 상태로 표시하지 않는다.</li>
+</ul>
+<h2>ASR 학습 Pair</h2>
+<pre><code>
+입력: 음성 파일
+정답: 사람이 수정한 전사문
+</code></pre>
+<h2>LLM 학습 Pair</h2>
+<pre><code>
+입력: 전사문 + 고객 후보 + 상품 후보 + 업무 context
+정답: 사람이 승인한 출고표 초안 JSON
+</code></pre>
+<h2>데이터셋 Versioning</h2>
+<p>모든 학습용 export에는 데이터셋 version이 있어야 한다.</p>
+<pre><code>
+datasetVersion: asr-2026-06-01
+datasetVersion: order-review-2026-06-01
+</code></pre>
+<p>과거 학습 데이터셋을 덮어쓰지 않는다. 재현 가능한 snapshot을 유지한다.</p>
+    <section>
+      <h2>원본</h2>
+      <p><a href="../03-training-data.md">Markdown 원본</a></p>
+    </section>
+  </main>
+</body>
+</html>

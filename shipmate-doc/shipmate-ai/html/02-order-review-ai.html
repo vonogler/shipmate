@@ -1,0 +1,126 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>02. 출고표 검수 AI</title>
+  <style>
+    :root { color-scheme: light; --bg: #f7f8fa; --panel: #ffffff; --text: #20242a; --muted: #667085; --line: #d9dee7; --link: #2457c5; --code: #eef1f6; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.58; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 20px; letter-spacing: 0; }
+    h3 { margin: 22px 0 10px; font-size: 17px; letter-spacing: 0; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    ul, ol { margin: 0 0 16px; padding-left: 22px; }
+    li { margin: 6px 0; }
+    pre { overflow-x: auto; padding: 14px; background: var(--code); border-radius: 8px; border: 1px solid var(--line); }
+    code { padding: 2px 5px; background: var(--code); border-radius: 4px; font-size: 0.94em; }
+    pre code { padding: 0; background: transparent; border-radius: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; background: var(--panel); }
+    th, td { border: 1px solid var(--line); padding: 9px 10px; text-align: left; vertical-align: top; }
+    th { background: #eef1f6; color: var(--text); }
+    a { color: var(--link); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+    .doc-nav { margin: 0 0 28px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    .doc-nav h2 { margin: 0 0 10px; font-size: 18px; }
+    .doc-nav ul { margin: 0; padding-left: 20px; }
+    .doc-nav .current { color: var(--text); font-weight: 700; }</style>
+</head>
+<body>
+  <main>
+    <!-- DOC_NAV_START -->
+    <nav class="doc-nav" aria-label="문서 목차">
+      <h2>문서 목차</h2>
+      <ul>
+      <li><a href="00-overview.html">00. 개요</a></li>
+      <li><a href="01-asr-lab.html">01. ASR Lab</a></li>
+      <li><span class="current">02. 출고표 검수 AI</span></li>
+      <li><a href="03-training-data.html">03. 학습 데이터</a></li>
+      <li><a href="04-privacy-retention.html">04. 개인정보와 보관 정책</a></li>
+      <li><a href="05-roadmap.html">05. 로드맵</a></li>
+      <li><a href="index.html">ShipMate ShipMate AI</a></li>
+      </ul>
+    </nav>
+    <!-- DOC_NAV_END -->
+
+<h1>02. 출고표 검수 AI</h1>
+<h2>목적</h2>
+<p><code>order-review-ai</code>는 전사문과 업무 context를 출고표 초안 JSON으로 변환한다.</p>
+<p>이 기능은 ASR이 아니다. LLM/NLP 기반 정보 추출 흐름이다.</p>
+<h2>담당 범위</h2>
+<ul>
+<li>전사문, 고객 후보, 상품 후보, 단가 데이터, 배송 context로 prompt 입력을 구성한다.</li>
+<li>정해진 schema의 출고표 초안 JSON을 생성한다.</li>
+<li>생성된 JSON을 서버 schema로 검증한다.</li>
+<li>AI 초안, 사람 수정본, 최종 승인 JSON을 기록한다.</li>
+<li>LLM 파인튜닝/평가 데이터셋을 생성한다.</li>
+</ul>
+<h2>제외 범위</h2>
+<ul>
+<li>음성 전사.</li>
+<li>고객/상품 마스터 데이터 소유.</li>
+<li>검수 또는 서버 검증 없는 직접 출고 확정.</li>
+</ul>
+<h2>입력 Context</h2>
+<pre><code>
+{
+  &quot;recordingId&quot;: &quot;rec_...&quot;,
+  &quot;transcript&quot;: &quot;수정 전사문 또는 원본 전사문&quot;,
+  &quot;customerCandidates&quot;: [],
+  &quot;productCandidates&quot;: [],
+  &quot;knownDeliveryAddresses&quot;: [],
+  &quot;pricePolicies&quot;: [],
+  &quot;today&quot;: &quot;2026-06-03&quot;
+}
+</code></pre>
+<h2>출력 Schema</h2>
+<pre><code>
+{
+  &quot;customerId&quot;: &quot;C001&quot;,
+  &quot;customerConfidence&quot;: 0.92,
+  &quot;items&quot;: [
+    {
+      &quot;productId&quot;: &quot;P001&quot;,
+      &quot;productName&quot;: &quot;샘플 상품&quot;,
+      &quot;quantity&quot;: 3,
+      &quot;unit&quot;: &quot;box&quot;,
+      &quot;confidence&quot;: 0.88
+    }
+  ],
+  &quot;deliveryDate&quot;: &quot;2026-06-04&quot;,
+  &quot;deliveryTimeWindow&quot;: &quot;AM&quot;,
+  &quot;deliveryAddressId&quot;: &quot;ADDR001&quot;,
+  &quot;memo&quot;: &quot;고객 요청사항&quot;,
+  &quot;missingFields&quot;: [],
+  &quot;warnings&quot;: []
+}
+</code></pre>
+<h2>서버 검증</h2>
+<p>LLM 출력은 출고표 초안이 되기 전에 반드시 검증해야 한다.</p>
+<p>검증 항목:</p>
+<ul>
+<li>고객 ID가 존재하는지 확인한다.</li>
+<li>상품 ID가 존재하는지 확인한다.</li>
+<li>수량과 단위가 유효한지 확인한다.</li>
+<li>단가 정책을 적용할 수 있는지 확인한다.</li>
+<li>배송지가 기존 주소인지 신규 주소인지 확인한다.</li>
+<li>누락 필드 또는 낮은 confidence 필드를 검수자에게 표시한다.</li>
+</ul>
+<h2>학습 전략</h2>
+<p>처음에는 외부 LLM과 엄격한 schema 검증을 사용한다.</p>
+<p>사람이 수정한 검수 결과를 모두 저장한다.</p>
+<p>검수 예시가 충분히 쌓이면 나중에 파인튜닝을 검토한다.</p>
+<p>권장 기준:</p>
+<ul>
+<li>검수된 초안 1,000건: prompt와 검증 로직 개선.</li>
+<li>검수된 초안 5,000~10,000건: 파인튜닝 테스트.</li>
+<li>검수된 초안 10,000건 이상: 로컬 모델 또는 private deployment 평가.</li>
+</ul>
+    <section>
+      <h2>원본</h2>
+      <p><a href="../02-order-review-ai.md">Markdown 원본</a></p>
+    </section>
+  </main>
+</body>
+</html>

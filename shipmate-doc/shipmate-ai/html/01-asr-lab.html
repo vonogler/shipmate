@@ -1,0 +1,114 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>01. ASR Lab</title>
+  <style>
+    :root { color-scheme: light; --bg: #f7f8fa; --panel: #ffffff; --text: #20242a; --muted: #667085; --line: #d9dee7; --link: #2457c5; --code: #eef1f6; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.58; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 20px; letter-spacing: 0; }
+    h3 { margin: 22px 0 10px; font-size: 17px; letter-spacing: 0; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    ul, ol { margin: 0 0 16px; padding-left: 22px; }
+    li { margin: 6px 0; }
+    pre { overflow-x: auto; padding: 14px; background: var(--code); border-radius: 8px; border: 1px solid var(--line); }
+    code { padding: 2px 5px; background: var(--code); border-radius: 4px; font-size: 0.94em; }
+    pre code { padding: 0; background: transparent; border-radius: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; background: var(--panel); }
+    th, td { border: 1px solid var(--line); padding: 9px 10px; text-align: left; vertical-align: top; }
+    th { background: #eef1f6; color: var(--text); }
+    a { color: var(--link); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+    .doc-nav { margin: 0 0 28px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    .doc-nav h2 { margin: 0 0 10px; font-size: 18px; }
+    .doc-nav ul { margin: 0; padding-left: 20px; }
+    .doc-nav .current { color: var(--text); font-weight: 700; }</style>
+</head>
+<body>
+  <main>
+    <!-- DOC_NAV_START -->
+    <nav class="doc-nav" aria-label="문서 목차">
+      <h2>문서 목차</h2>
+      <ul>
+      <li><a href="00-overview.html">00. 개요</a></li>
+      <li><span class="current">01. ASR Lab</span></li>
+      <li><a href="02-order-review-ai.html">02. 출고표 검수 AI</a></li>
+      <li><a href="03-training-data.html">03. 학습 데이터</a></li>
+      <li><a href="04-privacy-retention.html">04. 개인정보와 보관 정책</a></li>
+      <li><a href="05-roadmap.html">05. 로드맵</a></li>
+      <li><a href="index.html">ShipMate ShipMate AI</a></li>
+      </ul>
+    </nav>
+    <!-- DOC_NAV_END -->
+
+<h1>01. ASR Lab</h1>
+<h2>목적</h2>
+<p><code>asr-lab</code>는 통화녹음의 STT 처리와 ASR 모델 개선을 담당한다.</p>
+<p>초기 운영 STT는 Clova Speech를 기준 provider로 사용한다.</p>
+<p>사람이 검수한 전사문을 저장해 두면, 나중에 ShipMate 업무 도메인에 특화된 ASR 모델을 파인튜닝하거나 평가할 수 있다.</p>
+<h2>담당 범위</h2>
+<ul>
+<li>업로드된 음성을 Clova Speech에 전달한다.</li>
+<li>원본 전사 결과를 저장한다.</li>
+<li>STT provider, 상태, confidence, 오류 metadata를 기록한다.</li>
+<li>Admin 검수 화면에 전사 데이터를 제공한다.</li>
+<li>ASR 학습/평가 데이터셋을 생성한다.</li>
+<li>향후 자체 ASR 모델을 Clova Speech와 비교 평가한다.</li>
+</ul>
+<h2>제외 범위</h2>
+<ul>
+<li>출고표 초안 생성.</li>
+<li>고객/상품 마스터 데이터 소유.</li>
+<li>최종 출고 확정.</li>
+</ul>
+<h2>ASR 데이터 흐름</h2>
+<pre><code>
+call_recording.status = UPLOADED
+-&gt; asr_worker가 작업 선택
+-&gt; MinIO에서 음성 다운로드 또는 스트리밍
+-&gt; Clova Speech 호출
+-&gt; transcript_raw 저장
+-&gt; status = TRANSCRIBED 로 변경
+-&gt; Admin에서 전사문 검수
+-&gt; transcript_corrected 저장
+-&gt; 학습 가능 sample로 표시
+</code></pre>
+<h2>데이터셋 예시</h2>
+<pre><code>
+{
+  &quot;recordingId&quot;: &quot;rec_...&quot;,
+  &quot;audioObjectKey&quot;: &quot;call-recordings/tenant/user/file.m4a&quot;,
+  &quot;provider&quot;: &quot;clova&quot;,
+  &quot;transcriptRaw&quot;: &quot;Clova Speech 원본 전사문&quot;,
+  &quot;transcriptCorrected&quot;: &quot;사람이 수정한 전사문&quot;,
+  &quot;reviewedBy&quot;: &quot;검수자 id&quot;,
+  &quot;reviewedAt&quot;: &quot;2026-06-03T00:00:00Z&quot;,
+  &quot;trainingConsent&quot;: true,
+  &quot;piiMasked&quot;: false
+}
+</code></pre>
+<h2>평가 지표</h2>
+<ul>
+<li><code>CER</code>: 문자 오류율.</li>
+<li><code>WER</code>: 단어 오류율.</li>
+<li>도메인 용어 정확도: 고객명, 상품명, 수량 표현, 주소.</li>
+<li>후속 출고표 필드 정확도.</li>
+</ul>
+<h2>학습 전략</h2>
+<p>처음부터 학습하지 않는다. 먼저 검수된 전사문 데이터를 축적한다.</p>
+<p>권장 기준:</p>
+<ul>
+<li>10~50시간: 실험과 기준 성능 비교.</li>
+<li>100~500시간: 도메인 파인튜닝 검토 가능.</li>
+<li>500시간 이상: Clova Speech 대체 또는 보완 가능성 평가.</li>
+</ul>
+    <section>
+      <h2>원본</h2>
+      <p><a href="../01-asr-lab.md">Markdown 원본</a></p>
+    </section>
+  </main>
+</body>
+</html>

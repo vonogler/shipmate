@@ -1,0 +1,55 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShipMate 관리자 문서</title>
+  <style>
+    :root { color-scheme: light; --bg: #f7f8fa; --panel: #ffffff; --text: #20242a; --muted: #667085; --line: #d9dee7; --link: #2457c5; --code: #eef1f6; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.58; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 20px; letter-spacing: 0; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    ul { margin: 0 0 16px; padding-left: 22px; }
+    li { margin: 6px 0; }
+    code { padding: 2px 5px; background: var(--code); border-radius: 4px; font-size: 0.94em; }
+    a { color: var(--link); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+      .doc-nav { margin: 0 0 28px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    .doc-nav h2 { margin: 0 0 10px; font-size: 18px; }
+    .doc-nav ul { margin: 0; padding-left: 20px; }
+    .doc-nav .current { color: var(--text); font-weight: 700; }</style>
+</head>
+<body>
+  <main>
+    <!-- DOC_NAV_START -->
+    <nav class="doc-nav" aria-label="문서 목차">
+      <h2>문서 목차</h2>
+      <ul>
+      <li><span class="current">ShipMate 관리자 문서</span></li>
+      </ul>
+    </nav>
+    <!-- DOC_NAV_END -->
+
+    <h1>ShipMate 관리자 문서</h1>
+    <p><code>shipmate-admin</code> 프로젝트 문서를 보관하는 폴더입니다.</p>
+    <p><code>shipmate-admin</code>은 출고비서 운영자와 사원이 접속하는 내부관리자입니다. 현재 범위는 내부 계정 로그인, 운영 대시보드, 이용자/가맹점 관리, 직원 계정 생성, 주문 원문/출고표 초안/제출 출고표 조회, 통화 녹음 관리, 오류 로그, 변경 이력, 백업 미리보기, 시스템 설정 조회입니다.</p>
+    <h2>폴더 구조</h2>
+    <ul>
+      <li><code>shipmate-doc/shipmate-admin/*.md</code>: 원본 문서</li>
+      <li><code>shipmate-doc/shipmate-admin/html/*.html</code>: 브라우저에서 볼 수 있는 문서</li>
+    </ul>
+    <h2>규칙</h2>
+    <ul>
+      <li><code>shipmate-admin</code> 문서를 <code>shipmate-doc/shipmate-android/</code>에 보관하지 않습니다.</li>
+      <li>Android 전용 문서를 <code>shipmate-doc/shipmate-admin/</code>에 보관하지 않습니다.</li>
+      <li>문서 산출물은 Markdown과 HTML만 사용합니다.</li>
+    </ul>
+    <section>
+      <h2>원본</h2>
+      <p><a href="../README.md">Markdown 원본</a></p>
+    </section>
+  </main>
+</body>
+</html>

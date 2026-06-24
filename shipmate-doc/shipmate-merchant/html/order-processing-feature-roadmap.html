@@ -1,0 +1,149 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>주문 처리 기능 로드맵</title>
+  <style>
+    :root { color-scheme: light; --bg: #f7f8fa; --panel: #ffffff; --text: #20242a; --muted: #667085; --line: #d9dee7; --link: #2457c5; --code: #eef1f6; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.58; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 20px; letter-spacing: 0; }
+    h3 { margin: 22px 0 10px; font-size: 17px; letter-spacing: 0; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    ul, ol { margin: 0 0 16px; padding-left: 22px; }
+    li { margin: 6px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; background: var(--panel); }
+    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #eef1f6; }
+    code { padding: 2px 5px; background: var(--code); border-radius: 4px; font-size: 0.94em; }
+    a { color: var(--link); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+    .doc-nav { margin: 0 0 28px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    .doc-nav h2 { margin: 0 0 10px; font-size: 18px; }
+    .doc-nav ul { margin: 0; padding-left: 20px; }
+    .doc-nav .current { color: var(--text); font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <!-- DOC_NAV_START -->
+    <nav class="doc-nav" aria-label="문서 목차">
+      <h2>문서 목차</h2>
+      <ul>
+      <li><a href="branded-order-channel.html">이용자별 브랜드 주문 채널 전략</a></li>
+      <li><a href="index.html">ShipMate Merchant 문서</a></li>
+      <li><span class="current">주문 처리 기능 로드맵</span></li>
+      <li><a href="packaging-promotional-custom-supplies-channel.html">포장재/판촉물/맞춤 제작 소모품 채널</a></li>
+      <li><a href="sms-order-share.html">문자 공유 기반 출고표 생성 구조</a></li>
+      <li><a href="target-industry-priority.html">타깃 업종 우선순위</a></li>
+      </ul>
+    </nav>
+    <!-- DOC_NAV_END -->
+
+    <h1>주문 처리 기능 로드맵</h1>
+    <h2>목적</h2>
+    <p>고객에게 받은 주문을 출고비서 이용자에게 검수 가능한 주문 초안과 출고표로 제출하기 위한 기능 범위를 정리한다.</p>
+    <p>이 문서는 카카오톡, 문자, 이메일, 전용 주문 페이지로 들어온 주문을 하나의 처리 흐름으로 모은 뒤, AI 정리, 단가 매칭, 승인, 택배 CSV 생성까지 연결하는 것을 기준으로 한다.</p>
+
+    <h2>참고 자료</h2>
+    <table>
+      <tr><th>출처</th><th>확인한 내용</th></tr>
+      <tr><td><a href="https://www.stackcube.io/ko">StackCube</a></td><td>카톡, 문자, 이메일, PDF, 엑셀, 주문페이지 발주를 한 목록에 모으고 AI 주문 후보 정리, 품목·단가 매칭, 승인, 택배 CSV 다운로드를 하나의 흐름으로 제공한다.</td></tr>
+      <tr><td><a href="https://www.marketbom.com/">마켓봄</a></td><td>카톡, 문자, 전화 주문의 불편함을 거래처 주문 앱으로 자동 취합하고, 단가그룹으로 식당/가맹점별 다른 가격을 적용한다.</td></tr>
+      <tr><td><a href="https://www.zoho.com/in/inventory/features/">Zoho Inventory</a></td><td>sales order, invoicing, packaging/shipping, price lists, purchase order history, back orders 같은 주문·재고·출고 운영 기능을 제공한다.</td></tr>
+      <tr><td><a href="https://www.marketman.com/">MarketMan</a></td><td>고객 주문 처리를 자동화하고, 모바일 주문, ERP 연동, catalog/price/product update, AI ordering, 추천 주문 수량을 제공한다.</td></tr>
+    </table>
+
+    <h2>유효성 판단</h2>
+    <h3>AI 정리: 주문 후보 추출</h3>
+    <p>유효하다. 고객 주문은 카카오톡, 문자, 이메일 본문, PDF, 엑셀처럼 비정형 또는 반정형 형태로 들어온다. StackCube는 메시지와 파일 주문에서 품목명, 수량, 요청사항 후보를 정리하고, 원문과 AI 결과를 같은 화면에서 비교하는 방식을 제시한다.</p>
+    <ul>
+      <li>주문 원문과 첨부파일을 먼저 보관한다.</li>
+      <li>AI는 주문을 자동 확정하지 않고 주문 후보만 만든다.</li>
+      <li>추출 대상은 거래처, 품목, 수량, 배송지, 요청사항, 희망 출고일이다.</li>
+      <li>애매한 항목은 <code>확인 필요</code>로 표시한다.</li>
+      <li>원문과 추출 결과를 같은 화면에서 비교하게 한다.</li>
+    </ul>
+
+    <h3>단가 매칭: 거래처별 가격 적용</h3>
+    <p>유효하다. B2B 주문은 거래처별 단가, 특가, 등급가가 다르다. StackCube는 거래처별 품목명과 내부 품목 연결, 거래처별 단가·특가·등급가 적용, 품목 미매칭·단가 확인 주문만 예외 표시하는 구조를 제시한다. 마켓봄도 단가그룹으로 식당과 가맹점마다 다른 가격을 적용한다.</p>
+    <ul>
+      <li>거래처별 기본 단가표를 둔다.</li>
+      <li>거래처별 품목 별칭을 내부 품목과 연결한다.</li>
+      <li>특가, 등급가, 기간 한정 단가, 수량별 단가를 확장 가능하게 둔다.</li>
+      <li>단가가 자동 확정되지 않으면 <code>단가 확인 필요</code>로 표시한다.</li>
+      <li>단가 변경 이력과 적용 근거를 남긴다.</li>
+    </ul>
+
+    <h3>택배 CSV: 양식 다운로드</h3>
+    <p>유효하다. StackCube는 승인 주문을 선택해 CSV를 생성하고, CJ대한통운, 롯데택배, 한진택배 양식과 커스텀 컬럼 양식 저장을 제공한다. 출고비서도 출고표 제출 이후 실제 택배 접수까지 이어지려면 택배사 업로드용 파일이 필요하다.</p>
+    <ul>
+      <li>승인된 주문만 택배 CSV 생성 대상으로 둔다.</li>
+      <li>기본 지원 택배사는 CJ대한통운, 롯데택배, 한진택배부터 시작한다.</li>
+      <li>이용자별 CSV 컬럼 템플릿을 저장한다.</li>
+      <li>주문번호, 수취인, 연락처, 주소, 품목명, 수량, 배송메모, 운임 구분을 기본 필드로 둔다.</li>
+      <li>다운로드 전 누락 필드를 검증한다.</li>
+    </ul>
+
+    <h2>추천 기능</h2>
+    <h3>1단계 필수 기능</h3>
+    <table>
+      <tr><th>기능</th><th>이유</th></tr>
+      <tr><td>원문-추출결과 비교 화면</td><td>이용자가 AI 결과를 빠르게 검수하려면 원문과 후보 필드를 함께 봐야 한다.</td></tr>
+      <tr><td>확인 필요 자동 표시</td><td>품목 미매칭, 단가 불일치, 수량 애매함, 배송지 누락, 중복 의심 주문을 먼저 걸러야 한다.</td></tr>
+      <tr><td>주문 승인/반려/보류 상태</td><td>AI 자동 확정은 위험하므로 이용자 승인 흐름이 필요하다.</td></tr>
+      <tr><td>거래처별 품목 별칭 사전</td><td>고객이 같은 품목을 다른 이름으로 주문하는 문제를 줄인다.</td></tr>
+      <tr><td>중복 주문 탐지</td><td>같은 거래처가 카카오톡과 문자로 같은 주문을 반복 전달할 수 있다.</td></tr>
+      <tr><td>택배 CSV 템플릿</td><td>승인 주문을 실제 출고 작업으로 넘기는 최소 산출물이다.</td></tr>
+    </table>
+
+    <h3>2단계 확장 기능</h3>
+    <table>
+      <tr><th>기능</th><th>이유</th></tr>
+      <tr><td>반복 주문 불러오기</td><td>“지난번처럼”, “어제랑 동일” 같은 주문을 처리하려면 거래처별 최근 주문 이력이 필요하다.</td></tr>
+      <tr><td>거래처별 주문 양식 학습</td><td>거래처마다 문장 구조와 엑셀/PDF 양식이 다르므로 반복 패턴을 저장해야 한다.</td></tr>
+      <tr><td>미수금/결제 상태 표시</td><td>마켓봄 사례처럼 외상 거래와 미수금 관리는 B2B 이용자가 관심을 가질 가능성이 높다.</td></tr>
+      <tr><td>주문 제한/한도 설정</td><td>미수금, 거래 중지, 단가 미확정 거래처의 주문을 보류할 수 있어야 한다.</td></tr>
+      <tr><td>재고 확인 및 부족 표시</td><td>주문 승인 전에 재고 부족을 표시하면 출고 실패를 줄일 수 있다.</td></tr>
+      <tr><td>거래명세표/납품서 출력</td><td>출고표 이후 현장에서 종이 또는 PDF 서류가 필요할 가능성이 높다.</td></tr>
+      <tr><td>출고 상태 알림</td><td>승인, 출고 준비, 출고 완료 같은 상태를 이용자와 고객에게 알려야 한다.</td></tr>
+      <tr><td>ERP/회계 프로그램 내보내기</td><td>기존 ERP를 대체하지 않고 입력 전 정리 레이어로 쓰려면 export가 필요하다.</td></tr>
+    </table>
+
+    <h3>3단계 고도화 기능</h3>
+    <table>
+      <tr><th>기능</th><th>이유</th></tr>
+      <tr><td>추천 주문 수량</td><td>MarketMan처럼 과거 주문과 재고 흐름을 기준으로 추천 수량을 제안할 수 있다.</td></tr>
+      <tr><td>자동 품목 매칭 학습</td><td>이용자가 수정한 매칭 결과를 다음 주문부터 반영한다.</td></tr>
+      <tr><td>거래처별 전용 주문 페이지</td><td>반복 거래처에는 상품, 가격, 최근 주문이 반영된 주문 페이지가 효율적이다.</td></tr>
+      <tr><td>브랜드별 catalog 관리</td><td>이용자 고객에게 거래처 자체 주문 채널처럼 보이게 하려면 상품 노출 관리가 필요하다.</td></tr>
+      <tr><td>배송비/박스 수 자동 계산</td><td>택배 CSV 이후 실제 출고 효율을 높인다.</td></tr>
+    </table>
+
+    <h2>권장 개발 순서</h2>
+    <ol>
+      <li>카카오톡/문자 원문 수집</li>
+      <li>AI 주문 후보 추출</li>
+      <li>원문-추출결과 비교 검수 화면</li>
+      <li>거래처·품목 별칭 매칭</li>
+      <li>거래처별 단가 적용</li>
+      <li>주문 승인/반려/보류 상태 관리</li>
+      <li>승인 주문 출고표 생성</li>
+      <li>택배 CSV 다운로드</li>
+      <li>반복 주문 이력과 중복 주문 탐지</li>
+      <li>미수금, 재고, 거래명세표, ERP export 확장</li>
+    </ol>
+
+    <h2>결론</h2>
+    <p>AI 정리, 단가 매칭, 택배 CSV는 모두 출고비서의 핵심 기능으로 유효하다.</p>
+    <p>다만 AI가 주문을 바로 확정하는 구조는 위험하다. MVP는 주문 원문을 보관하고, AI가 후보를 만들고, 이용자가 원문과 후보를 비교해 승인한 뒤, 승인 주문만 출고표와 택배 CSV로 넘기는 구조가 적합하다.</p>
+
+    <section>
+      <h2>원본</h2>
+      <p><a href="../order-processing-feature-roadmap.md">Markdown 원본</a></p>
+    </section>
+  </main>
+</body>
+</html>

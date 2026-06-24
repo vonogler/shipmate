@@ -1,0 +1,129 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShipMate Android 기술 스택</title>
+  <style>
+    :root { color-scheme: light; --bg: #f7f8fa; --panel: #ffffff; --text: #20242a; --muted: #667085; --line: #d9dee7; --link: #2457c5; --code: #eef1f6; }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.58; }
+    main { max-width: 980px; margin: 0 auto; padding: 36px 20px; }
+    h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: 0; }
+    h2 { margin: 28px 0 12px; font-size: 20px; letter-spacing: 0; }
+    h3 { margin: 22px 0 10px; font-size: 17px; letter-spacing: 0; }
+    p { margin: 0 0 14px; color: var(--muted); }
+    ul, ol { margin: 0 0 16px; padding-left: 22px; }
+    li { margin: 6px 0; }
+    pre { overflow-x: auto; padding: 14px; background: var(--code); border-radius: 8px; border: 1px solid var(--line); }
+    code { padding: 2px 5px; background: var(--code); border-radius: 4px; font-size: 0.94em; }
+    pre code { padding: 0; background: transparent; border-radius: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0 18px; background: var(--panel); }
+    th, td { border: 1px solid var(--line); padding: 9px 10px; text-align: left; vertical-align: top; }
+    th { background: #eef1f6; color: var(--text); }
+    a { color: var(--link); text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+    .doc-nav { margin: 0 0 28px; padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    .doc-nav h2 { margin: 0 0 10px; font-size: 18px; }
+    .doc-nav ul { margin: 0; padding-left: 20px; }
+    .doc-nav .current { color: var(--text); font-weight: 700; }</style>
+</head>
+<body>
+  <main>
+    <!-- DOC_NAV_START -->
+    <nav class="doc-nav" aria-label="문서 목차">
+      <h2>문서 목차</h2>
+      <ul>
+      <li><span class="current">ShipMate Android 기술 스택</span></li>
+      <li><a href="index.html">ShipMate Android 문서</a></li>
+      </ul>
+    </nav>
+    <!-- DOC_NAV_END -->
+
+<h1>ShipMate Android 기술 스택</h1>
+<h2>문서 정보</h2>
+<table><thead><tr><th>항목</th><th>값</th></tr></thead><tbody>
+<tr><td>서비스</td><td>ShipMate AI</td></tr>
+<tr><td>대상 프로젝트</td><td><code>shipmate-android</code></td></tr>
+<tr><td>결정일</td><td>2026-05-24</td></tr>
+<tr><td>문서 위치 규칙</td><td>Android 문서는 <code>shipmate-doc/shipmate-android/</code> 아래에 둔다.</td></tr>
+</tbody></table>
+<h2>범위</h2>
+<p>현재 우선순위는 <strong>통화녹음 업로드 기능</strong>이다.</p>
+<p>보류 범위:</p>
+<ul>
+<li>출고표 화면</li>
+<li>전체 OMS/ERP workflow</li>
+<li>자동 통화녹음 감지</li>
+</ul>
+<h2>Android 기술 스택</h2>
+<table><thead><tr><th>영역</th><th>기술</th></tr></thead><tbody>
+<tr><td>언어</td><td>Kotlin</td></tr>
+<tr><td>UI</td><td>Jetpack Compose</td></tr>
+<tr><td>Design system</td><td>Material 3</td></tr>
+<tr><td>Architecture</td><td>MVVM</td></tr>
+<tr><td>상태 관리</td><td>ViewModel + StateFlow</td></tr>
+<tr><td>비동기 처리</td><td>Kotlin Coroutines</td></tr>
+<tr><td>Background jobs</td><td>WorkManager</td></tr>
+<tr><td>Network</td><td>Retrofit + OkHttp</td></tr>
+<tr><td>Local settings</td><td>Jetpack DataStore</td></tr>
+<tr><td>Local database</td><td>Room</td></tr>
+<tr><td>Dependency injection</td><td>Hilt</td></tr>
+<tr><td>Navigation</td><td>Navigation Compose</td></tr>
+<tr><td>Logging</td><td>Timber</td></tr>
+<tr><td>Build system</td><td>Gradle Kotlin DSL</td></tr>
+</tbody></table>
+<h2>SDK 정책</h2>
+<table><thead><tr><th>항목</th><th>값</th></tr></thead><tbody>
+<tr><td>minSdk</td><td>26</td></tr>
+<tr><td>targetSdk</td><td>36</td></tr>
+<tr><td>compileSdk</td><td>36</td></tr>
+</tbody></table>
+<p>선정 이유:</p>
+<ul>
+<li>Android 8.0 이상이면 소상공인 사용자를 위한 실사용 단말 범위를 충분히 넓게 유지할 수 있다.</li>
+<li>API 36은 현재 앱에서 선택한 Android SDK target이다.</li>
+<li>로컬 SDK 사용 가능 여부를 확인한 뒤 compile/target SDK를 상향할 수 있다.</li>
+</ul>
+<h2>업로드 전략</h2>
+<p>기본 전략은 <strong>MinIO Presigned URL 직접 업로드</strong>이다.</p>
+<p>처리 흐름:</p>
+<ol>
+<li>1. Android가 API 서버에 업로드 세션 생성을 요청한다.</li>
+<li>2. API 서버가 사용자 인증, 업로드 동의, 파일 크기, content type을 검증한다.</li>
+<li>3. API 서버가 metadata를 생성하고 MinIO presigned PUT URL을 반환한다.</li>
+<li>4. Android가 음성 파일을 MinIO로 직접 업로드한다.</li>
+<li>5. Android가 API 서버의 업로드 완료 endpoint를 호출한다.</li>
+<li>6. API 서버가 MinIO object를 검증하고 분석 job을 등록한다.</li>
+</ol>
+<p>향후 확장:</p>
+<ul>
+<li>대용량 파일용 S3-compatible multipart upload.</li>
+<li>모바일 네트워크 불안정성 대응을 위한 WorkManager retry.</li>
+</ul>
+<h2>초기 화면</h2>
+<table><thead><tr><th>항목</th><th>값</th></tr></thead><tbody>
+<tr><td>Route</td><td><code>/call-upload</code></td></tr>
+<tr><td>Component</td><td><code>CallUploadScreen</code></td></tr>
+</tbody></table>
+<p>필수 요소:</p>
+<ul>
+<li>업로드 및 AI 분석 동의 checkbox</li>
+<li>오디오 파일 picker</li>
+<li>업로드 button</li>
+<li>업로드 progress</li>
+<li>최근 업로드 목록</li>
+<li>분석 상태 표시</li>
+</ul>
+<h2>API 계약</h2>
+<table><thead><tr><th>기능</th><th>Method</th><th>Path</th></tr></thead><tbody>
+<tr><td>업로드 세션 생성</td><td>POST</td><td><code>/api/call-recordings/upload-sessions</code></td></tr>
+<tr><td>업로드 완료</td><td>POST</td><td><code>/api/call-recordings/{recordingId}/complete</code></td></tr>
+<tr><td>최근 업로드 목록</td><td>GET</td><td><code>/api/call-recordings/recent</code></td></tr>
+</tbody></table>
+    <section>
+      <h2>원본</h2>
+      <p><a href="../android-tech-stack.md">Markdown 원본</a></p>
+    </section>
+  </main>
+</body>
+</html>
