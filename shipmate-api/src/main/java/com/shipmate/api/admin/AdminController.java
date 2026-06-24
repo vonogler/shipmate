@@ -126,6 +126,7 @@ public class AdminController {
                 .toList();
         GoogleGmailPollingStatusResponse gmailStatus = googleGmailPollingService.status();
         AdminSmokeReportResponse smokeReport = readSmokeReport();
+        AdminStagingCheckResponse stagingCheck = readStagingCheck();
         return new AdminOverviewResponse(
                 normalizedDays,
                 distinctMerchantCount(inboundMessages, orderDrafts, customerRepository.findAll()),
@@ -167,7 +168,8 @@ public class AdminController {
                 gmailStatus.latestFailureMessage(),
                 gmailStatus.latestFailureInboundMessageId(),
                 gmailStatus.recentFailureCodeCounts(),
-                smokeReport
+                smokeReport,
+                stagingCheck
         );
     }
 
@@ -578,6 +580,43 @@ public class AdminController {
         }
     }
 
+    private static AdminStagingCheckResponse readStagingCheck() {
+        String suitePathValue = System.getenv().getOrDefault(
+                "SHIPMATE_STAGING_SUITE_SUMMARY_FILE",
+                "shipmate-infra/reports/staging-smoke-suite-summary.json"
+        );
+        String cleanupPathValue = System.getenv().getOrDefault(
+                "SHIPMATE_SMOKE_CLEANUP_REPORT_FILE",
+                "shipmate-infra/reports/cleanup/staging-smoke-cleanup-report.json"
+        );
+        AdminSuiteSummaryFile suite = readJsonOrNull(Path.of(suitePathValue), AdminSuiteSummaryFile.class);
+        AdminCleanupReportFile cleanup = readJsonOrNull(Path.of(cleanupPathValue), AdminCleanupReportFile.class);
+        return new AdminStagingCheckResponse(
+                suite == null ? "none" : blankToDefault(suite.status(), "unknown"),
+                suite == null ? null : suite.reason(),
+                suite == null ? null : suite.latestSmokeSuccessAt(),
+                suite == null ? null : suite.latestSmokeFailureAt(),
+                suite == null ? "none" : blankToDefault(suite.uiCheckStatus(), "unknown"),
+                suite == null ? null : suite.finishedAt(),
+                cleanup == null ? "none" : blankToDefault(cleanup.status(), "unknown"),
+                cleanup == null ? null : cleanup.mode(),
+                cleanup == null ? null : cleanup.totalRows(),
+                cleanup == null ? null : cleanup.remainingRows(),
+                cleanup == null ? null : cleanup.finishedAt()
+        );
+    }
+
+    private static <T> T readJsonOrNull(Path reportPath, Class<T> type) {
+        if (!Files.isRegularFile(reportPath)) {
+            return null;
+        }
+        try {
+            return OBJECT_MAPPER.readValue(reportPath.toFile(), type);
+        } catch (IOException exception) {
+            return null;
+        }
+    }
+
     private static String blankToDefault(String value, String defaultValue) {
         return value == null || value.isBlank() ? defaultValue : value;
     }
@@ -611,7 +650,8 @@ public class AdminController {
             String gmailPollingLatestFailureMessage,
             String gmailPollingLatestFailureInboundMessageId,
             Map<String, Long> gmailPollingFailureCodeCounts,
-            AdminSmokeReportResponse smokeReport
+            AdminSmokeReportResponse smokeReport,
+            AdminStagingCheckResponse stagingCheck
     ) {
     }
 
@@ -639,6 +679,42 @@ public class AdminController {
             String lastStep,
             String lastHttpStatus,
             String failureDetail,
+            String finishedAt
+    ) {
+    }
+
+    public record AdminStagingCheckResponse(
+            String suiteStatus,
+            String suiteReason,
+            String latestSmokeSuccessAt,
+            String latestSmokeFailureAt,
+            String uiCheckStatus,
+            String suiteFinishedAt,
+            String cleanupStatus,
+            String cleanupMode,
+            String cleanupTotalRows,
+            String cleanupRemainingRows,
+            String cleanupFinishedAt
+    ) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record AdminSuiteSummaryFile(
+            String status,
+            String reason,
+            String latestSmokeSuccessAt,
+            String latestSmokeFailureAt,
+            String uiCheckStatus,
+            String finishedAt
+    ) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record AdminCleanupReportFile(
+            String status,
+            String mode,
+            String totalRows,
+            String remainingRows,
             String finishedAt
     ) {
     }

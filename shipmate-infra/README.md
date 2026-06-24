@@ -160,6 +160,7 @@ bash shipmate-infra/scripts/run-staging-smoke-suite.sh --check-ui
 
 내부관리자 운영 대시보드는 API 서버가 읽을 수 있는 `shipmate-infra/smoke-report.json` 또는 `SHIPMATE_SMOKE_REPORT_FILE` 경로의 최신 smoke 리포트를 표시한다. Docker 컨테이너 내부에서 표시하려면 해당 파일을 컨테이너가 읽을 수 있는 경로로 mount하고 `SHIPMATE_SMOKE_REPORT_FILE`을 지정한다.
 `run-staging-smoke-suite.sh`는 smoke 성공 후 최신 `shipmate-infra/smoke-report.json`과 `shipmate-infra/reports/staging-check-summary.html`을 `shipmate-staging-api:/workspace/shipmate-infra/...`로 복사해 로컬 스테이징 대시보드에서 바로 확인할 수 있게 한다. 컨테이너를 재생성하면 이 복사본은 사라지므로 wrapper를 다시 실행한다.
+wrapper는 마지막에 `shipmate-infra/reports/staging-smoke-suite-summary.json` 한 줄 JSON도 남긴다. 이 파일에는 suite 상태, 최근 smoke 성공/실패 시각, cleanup 결과, UI 확인 상태가 들어가며 내부관리자 운영 대시보드와 staging summary가 같은 값을 읽는다.
 
 스테이징 smoke는 `merchant_smoke_{timestamp}`, `customer_smoke_{timestamp}`, `smoke-{timestamp}` 패턴의 테스트 데이터를 생성한다. 공용 스테이징 DB에서는 smoke 통과 후 바로 삭제하지 않고, 실패 재현과 artifact 추적을 위해 우선 dry-run으로 삭제 대상을 확인한다.
 

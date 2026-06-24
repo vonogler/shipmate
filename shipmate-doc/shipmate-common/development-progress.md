@@ -487,4 +487,5 @@
 - 2026-06-24: Android SDK를 WSL `.codex-tmp/android-sdk`에 구성하고 `shipmate-android` `assembleDebug` 검증을 통과했다.
 - 2026-06-24: 스테이징 smoke 전체 점검 wrapper를 추가하고, 내부관리자 운영 대시보드에서 최신 smoke 리포트 상태를 확인할 수 있도록 했다.
 - 2026-06-24: smoke 실패 상세와 점검 요약 HTML 열기를 내부관리자 대시보드에 연결하고, smoke wrapper에 cleanup apply와 Playwright UI 확인 옵션을 추가했다.
+- 2026-06-24: smoke suite 한 줄 JSON 요약을 추가하고 내부관리자 대시보드와 staging summary에 최근 smoke 성공/실패, cleanup, UI 확인 상태를 표시하도록 했다.
 - 2026-06-24: 내부관리자 미커밋 변경 묶음의 커밋 포함/제외 기준을 정리했다.

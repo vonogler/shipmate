@@ -59,6 +59,7 @@ export type AdminOverview = {
   gmailPollingLatestFailureInboundMessageId: string | null;
   gmailPollingFailureCodeCounts: Record<string, number>;
   smokeReport: AdminSmokeReport;
+  stagingCheck: AdminStagingCheck;
 };
 
 export type AdminSmokeReport = {
@@ -72,6 +73,20 @@ export type AdminSmokeReport = {
   failureDetail: string | null;
   finishedAt: string | null;
   reportPath: string | null;
+};
+
+export type AdminStagingCheck = {
+  suiteStatus: string;
+  suiteReason: string | null;
+  latestSmokeSuccessAt: string | null;
+  latestSmokeFailureAt: string | null;
+  uiCheckStatus: string;
+  suiteFinishedAt: string | null;
+  cleanupStatus: string;
+  cleanupMode: string | null;
+  cleanupTotalRows: string | null;
+  cleanupRemainingRows: string | null;
+  cleanupFinishedAt: string | null;
 };
 
 export type AdminMerchant = {

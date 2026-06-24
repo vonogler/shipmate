@@ -423,6 +423,19 @@ function adminOverview() {
       failureDetail: '',
       finishedAt: now,
       reportPath: 'shipmate-infra/smoke-report.json'
+    },
+    stagingCheck: {
+      suiteStatus: 'ok',
+      suiteReason: '-',
+      latestSmokeSuccessAt: now,
+      latestSmokeFailureAt: '',
+      uiCheckStatus: 'ok',
+      suiteFinishedAt: now,
+      cleanupStatus: 'ok',
+      cleanupMode: 'apply',
+      cleanupTotalRows: '15',
+      cleanupRemainingRows: '0',
+      cleanupFinishedAt: now
     }
   };
 }

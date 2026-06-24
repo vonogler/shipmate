@@ -8,6 +8,7 @@ SUMMARY_HTML_FILE="${SUMMARY_HTML_FILE:-shipmate-infra/reports/staging-check-sum
 GITHUB_REPORT_ROOT="${GITHUB_REPORT_ROOT:-shipmate-infra/reports/github-actions}"
 GITHUB_RUNNER_REPORT_FILE="${GITHUB_RUNNER_REPORT_FILE:-shipmate-infra/reports/github-runner/self-hosted-runner-report.json}"
 SMOKE_CLEANUP_REPORT_FILE="${SMOKE_CLEANUP_REPORT_FILE:-shipmate-infra/reports/cleanup/staging-smoke-cleanup-report.json}"
+SUITE_SUMMARY_FILE="${SUITE_SUMMARY_FILE:-shipmate-infra/reports/staging-smoke-suite-summary.json}"
 
 json_value() {
   local file_path="$1"
@@ -67,6 +68,13 @@ cleanup_merchant_pattern="$(json_value "${SMOKE_CLEANUP_REPORT_FILE}" merchantPa
 cleanup_total_rows="$(json_value "${SMOKE_CLEANUP_REPORT_FILE}" totalRows)"
 cleanup_remaining_rows="$(json_value "${SMOKE_CLEANUP_REPORT_FILE}" remainingRows)"
 cleanup_finished_at="$(json_value "${SMOKE_CLEANUP_REPORT_FILE}" finishedAt)"
+
+suite_status="$(json_value "${SUITE_SUMMARY_FILE}" status)"
+suite_reason="$(json_value "${SUITE_SUMMARY_FILE}" reason)"
+suite_latest_smoke_success_at="$(json_value "${SUITE_SUMMARY_FILE}" latestSmokeSuccessAt)"
+suite_latest_smoke_failure_at="$(json_value "${SUITE_SUMMARY_FILE}" latestSmokeFailureAt)"
+suite_ui_check_status="$(json_value "${SUITE_SUMMARY_FILE}" uiCheckStatus)"
+suite_finished_at="$(json_value "${SUITE_SUMMARY_FILE}" finishedAt)"
 
 artifact_cleanup_report_file="${ARTIFACT_CLEANUP_REPORT_FILE:-shipmate-infra/reports/cleanup/github-smoke-artifact-cleanup-report.json}"
 artifact_cleanup_status="$(json_value "${artifact_cleanup_report_file}" status)"
@@ -168,6 +176,17 @@ cat > "${SUMMARY_FILE}" <<REPORT
 | 잔여 row 수 | ${cleanup_remaining_rows:-"-"} |
 | 완료 시각 | ${cleanup_finished_at:-"-"} |
 
+## Smoke suite
+
+| 항목 | 값 |
+|---|---|
+| 상태 | ${suite_status:-"-"} |
+| 사유 | ${suite_reason:-"-"} |
+| 최근 smoke 성공 시각 | ${suite_latest_smoke_success_at:-"-"} |
+| 최근 smoke 실패 시각 | ${suite_latest_smoke_failure_at:-"-"} |
+| UI 확인 상태 | ${suite_ui_check_status:-"-"} |
+| 완료 시각 | ${suite_finished_at:-"-"} |
+
 ## GitHub Actions artifact 정리
 
 | 항목 | 값 |
@@ -262,6 +281,16 @@ cat > "${SUMMARY_HTML_FILE}" <<REPORT
       <tr><td>컨테이너 상태</td><td>${runner_container_status:-"-"}</td></tr>
       <tr><td>runner label</td><td>${runner_label:-"-"}</td></tr>
       <tr><td>완료 시각</td><td>${runner_finished_at:-"-"}</td></tr>
+    </table>
+    <h2>Smoke suite</h2>
+    <table>
+      <tr><th>항목</th><th>값</th></tr>
+      <tr><td>상태</td><td>${suite_status:-"-"}</td></tr>
+      <tr><td>사유</td><td>${suite_reason:-"-"}</td></tr>
+      <tr><td>최근 smoke 성공 시각</td><td>${suite_latest_smoke_success_at:-"-"}</td></tr>
+      <tr><td>최근 smoke 실패 시각</td><td>${suite_latest_smoke_failure_at:-"-"}</td></tr>
+      <tr><td>UI 확인 상태</td><td>${suite_ui_check_status:-"-"}</td></tr>
+      <tr><td>완료 시각</td><td>${suite_finished_at:-"-"}</td></tr>
     </table>
     <h2>Smoke 테스트 데이터 정리</h2>
     <table>

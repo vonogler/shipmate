@@ -346,6 +346,14 @@ API field가 DB에 저장되는 경우 필드 딕셔너리와 DB 컬럼 딕셔�
 | `lastHttpStatus` | - | - | smoke 리포트의 마지막 HTTP 상태. 리포트 응답 field |
 | `failureDetail` | - | - | smoke 실패 시 HTTP 상태, curl 오류, 응답 일부를 담은 운영 진단 field |
 | `reportPath` | - | - | API 서버가 읽은 smoke 리포트 파일 경로. 운영 진단용 응답 field |
+| `stagingCheck` | - | - | 내부관리자 운영 대시보드의 스테이징 점검 요약. DB 저장 대상 아님 |
+| `suiteStatus` | - | - | 스테이징 smoke suite wrapper 실행 상태 |
+| `suiteReason` | - | - | 스테이징 smoke suite 실패 또는 보류 사유 |
+| `latestSmokeSuccessAt` | - | - | 최근 smoke 성공 시각. suite 요약 응답 field |
+| `latestSmokeFailureAt` | - | - | 최근 smoke 실패 시각. suite 요약 응답 field |
+| `uiCheckStatus` | - | - | Admin/Merchant Playwright UI 확인 상태 |
+| `cleanupStatus` | - | - | smoke 테스트 데이터 정리 상태 |
+| `cleanupRemainingRows` | - | - | smoke 테스트 데이터 정리 후 잔여 row 수 |
 | `cutoffCreatedAt` | - | - | 이메일 첨부 보관 기간 정리 기준 생성 시각. 정리 응답 field |
 | `expiredAttachmentCount` | - | - | 보관 기간이 지난 이메일 첨부 메타데이터 수. 정리 응답 field |
 | `deletedObjectCount` | - | - | 객체 저장소에서 삭제한 이메일 첨부 원본 수. 정리 응답 field |

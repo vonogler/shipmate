@@ -60,6 +60,10 @@ export default function DashboardScreen({
             <Descriptions.Item label="완료 시각">{overview.smokeReport.finishedAt || '-'}</Descriptions.Item>
             <Descriptions.Item label="마지막 단계">{overview.smokeReport.lastStep || '-'}</Descriptions.Item>
             <Descriptions.Item label="마지막 HTTP 상태">{overview.smokeReport.lastHttpStatus || '-'}</Descriptions.Item>
+            <Descriptions.Item label="최근 성공 시각">{overview.stagingCheck?.latestSmokeSuccessAt || '-'}</Descriptions.Item>
+            <Descriptions.Item label="최근 실패 시각">{overview.stagingCheck?.latestSmokeFailureAt || '-'}</Descriptions.Item>
+            <Descriptions.Item label="UI 확인 상태">{stagingStatusText(overview.stagingCheck?.uiCheckStatus)}</Descriptions.Item>
+            <Descriptions.Item label="Cleanup">{cleanupText(overview.stagingCheck)}</Descriptions.Item>
             <Descriptions.Item label="이용자 ID">{overview.smokeReport.merchantId || '-'}</Descriptions.Item>
             <Descriptions.Item label="주문 원문 ID">{overview.smokeReport.inboundMessageId || '-'}</Descriptions.Item>
             <Descriptions.Item label="출고표 ID">{overview.smokeReport.orderDraftId || '-'}</Descriptions.Item>
@@ -113,6 +117,26 @@ function smokeStatusColor(status: string) {
     return 'default';
   }
   return 'red';
+}
+
+function stagingStatusText(status?: string | null) {
+  if (status === 'ok') {
+    return '통과';
+  }
+  if (status === 'skipped') {
+    return '건너뜀';
+  }
+  if (status === 'none') {
+    return '리포트 없음';
+  }
+  return status || '-';
+}
+
+function cleanupText(stagingCheck?: AdminOverview['stagingCheck']) {
+  if (!stagingCheck || stagingCheck.cleanupStatus === 'none') {
+    return '-';
+  }
+  return `${stagingCheck.cleanupStatus} / ${stagingCheck.cleanupMode || '-'} / 잔여 ${stagingCheck.cleanupRemainingRows ?? '-'}`;
 }
 
 function MetricCard({ label, value }: { label: string; value: number }) {
