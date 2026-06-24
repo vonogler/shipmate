@@ -256,6 +256,13 @@ export default function ShippingScreen({
                   showIcon
                 />
               )}
+              <Alert
+                className="status-alert"
+                type="info"
+                message="출고 처리 확인"
+                description={shippingOperationGuide(selectedShippingOrderMissingFields.length, selectedShippingOrderSubmissionCount)}
+                showIcon
+              />
               <Space wrap className="print-actions">
                 <Button icon={<PrinterOutlined />} onClick={() => onPrintView(selectedShippingOrder, 'shipping')}>
                   출고표 인쇄
@@ -426,4 +433,14 @@ export default function ShippingScreen({
       </Col>
     </Row>
   );
+}
+
+function shippingOperationGuide(missingFieldCount: number, submissionCount: number) {
+  if (missingFieldCount > 0) {
+    return '택배 CSV를 내려받기 전에 누락 항목을 재검수 전환으로 보정하세요.';
+  }
+  if (submissionCount > 1) {
+    return '재제출된 출고표입니다. 변경 이력에서 이전 제출 대비 품목 차이를 확인한 뒤 출고하세요.';
+  }
+  return '택배 CSV, 출고표, 작업지시서, 납품서를 같은 상세 화면에서 확인할 수 있습니다.';
 }

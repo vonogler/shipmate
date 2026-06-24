@@ -63,3 +63,8 @@ target/
 # Misc generated reports
 **/build/reports/
 **/build/outputs/
+shipmate-infra/smoke-report.json
+shipmate-infra/smoke-report.xml
+shipmate-infra/staging-https-report.json
+shipmate-infra/staging-https-report.xml
+shipmate-infra/reports/

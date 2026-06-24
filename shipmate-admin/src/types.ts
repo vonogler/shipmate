@@ -58,6 +58,18 @@ export type AdminOverview = {
   gmailPollingLatestFailureMessage: string | null;
   gmailPollingLatestFailureInboundMessageId: string | null;
   gmailPollingFailureCodeCounts: Record<string, number>;
+  smokeReport: AdminSmokeReport;
+};
+
+export type AdminSmokeReport = {
+  status: string;
+  apiBaseUrl: string | null;
+  merchantId: string | null;
+  inboundMessageId: string | null;
+  orderDraftId: string | null;
+  lastStep: string | null;
+  finishedAt: string | null;
+  reportPath: string | null;
 };
 
 export type AdminMerchant = {

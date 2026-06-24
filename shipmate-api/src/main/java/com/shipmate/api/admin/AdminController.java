@@ -1,5 +1,7 @@
 package com.shipmate.api.admin;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.shipmate.api.auth.AuthService;
 import com.shipmate.api.auth.LoginResponse;
 import com.shipmate.api.auth.MerchantUser;
@@ -43,6 +45,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -55,6 +60,7 @@ import java.util.stream.Collectors;
 public class AdminController {
     private static final int DEFAULT_LIMIT = 200;
     private static final int MAX_LIMIT = 1000;
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final AuthService authService;
     private final MerchantUserRepository merchantUserRepository;
@@ -117,6 +123,7 @@ public class AdminController {
                 .filter(row -> !row.createdAt().isBefore(from))
                 .toList();
         GoogleGmailPollingStatusResponse gmailStatus = googleGmailPollingService.status();
+        AdminSmokeReportResponse smokeReport = readSmokeReport();
         return new AdminOverviewResponse(
                 normalizedDays,
                 distinctMerchantCount(inboundMessages, orderDrafts, customerRepository.findAll()),
@@ -157,7 +164,8 @@ public class AdminController {
                 gmailStatus.latestFailureCode(),
                 gmailStatus.latestFailureMessage(),
                 gmailStatus.latestFailureInboundMessageId(),
-                gmailStatus.recentFailureCodeCounts()
+                gmailStatus.recentFailureCodeCounts(),
+                smokeReport
         );
     }
 
@@ -524,6 +532,33 @@ public class AdminController {
         return "사유 미기록";
     }
 
+    private static AdminSmokeReportResponse readSmokeReport() {
+        String configuredPath = System.getenv().getOrDefault("SHIPMATE_SMOKE_REPORT_FILE", "shipmate-infra/smoke-report.json");
+        Path reportPath = Path.of(configuredPath);
+        if (!Files.isRegularFile(reportPath)) {
+            return new AdminSmokeReportResponse("none", null, null, null, null, null, null, reportPath.toString());
+        }
+        try {
+            AdminSmokeReportFile report = OBJECT_MAPPER.readValue(reportPath.toFile(), AdminSmokeReportFile.class);
+            return new AdminSmokeReportResponse(
+                    blankToDefault(report.status(), "unknown"),
+                    report.apiBaseUrl(),
+                    report.merchantId(),
+                    report.inboundMessageId(),
+                    report.orderDraftId(),
+                    report.lastStep(),
+                    report.finishedAt(),
+                    reportPath.toString()
+            );
+        } catch (IOException exception) {
+            return new AdminSmokeReportResponse("unreadable", null, null, null, null, exception.getMessage(), null, reportPath.toString());
+        }
+    }
+
+    private static String blankToDefault(String value, String defaultValue) {
+        return value == null || value.isBlank() ? defaultValue : value;
+    }
+
     public record AdminOverviewResponse(
             int days,
             long merchantCount,
@@ -552,7 +587,32 @@ public class AdminController {
             String gmailPollingLatestFailureCode,
             String gmailPollingLatestFailureMessage,
             String gmailPollingLatestFailureInboundMessageId,
-            Map<String, Long> gmailPollingFailureCodeCounts
+            Map<String, Long> gmailPollingFailureCodeCounts,
+            AdminSmokeReportResponse smokeReport
+    ) {
+    }
+
+    public record AdminSmokeReportResponse(
+            String status,
+            String apiBaseUrl,
+            String merchantId,
+            String inboundMessageId,
+            String orderDraftId,
+            String lastStep,
+            String finishedAt,
+            String reportPath
+    ) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private record AdminSmokeReportFile(
+            String status,
+            String apiBaseUrl,
+            String merchantId,
+            String inboundMessageId,
+            String orderDraftId,
+            String lastStep,
+            String finishedAt
     ) {
     }
 

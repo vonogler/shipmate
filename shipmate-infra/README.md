@@ -137,7 +137,18 @@ SMOKE_SEED_DEFAULT_ACCOUNT=true bash shipmate-infra/scripts/smoke-staging.sh
 
 seed와 cleanup은 분리해서 운영한다. `SMOKE_SEED_DEFAULT_ACCOUNT=true`는 로그인 검증용 기본 계정만 준비하고, smoke 시나리오가 생성한 `merchant_smoke_%` 테스트 데이터는 삭제하지 않는다. 테스트 데이터 정리는 `cleanup-staging-smoke-data.sh` dry-run 확인 뒤 별도 apply로 실행한다.
 
+스테이징 컨테이너 상태, 기본 계정, DNS 없는 HTTPS, smoke, cleanup dry-run, 점검 요약을 한 번에 확인할 때는 다음 wrapper를 사용한다.
+
+```bash
+bash shipmate-infra/scripts/run-staging-smoke-suite.sh
+```
+
+cleanup dry-run을 생략하고 smoke 리포트만 갱신하려면 `SMOKE_CLEANUP_DRY_RUN=false`를 지정한다.
+
 실행 결과는 기본적으로 `shipmate-infra/smoke-report.json`, `shipmate-infra/smoke-report.xml`에 남기고, CI 수집용 복사본은 `shipmate-infra/reports/smoke/smoke-report-{timestamp}.json`, `shipmate-infra/reports/smoke/smoke-report-{timestamp}.xml`에 남긴다. 실패 시에는 마지막 단계, 마지막 HTTP 상태, curl 오류, 응답 본문 일부를 리포트에 포함한다. CI에서 별도 산출물 경로가 필요하면 `SMOKE_REPORT_DIR`을 지정한다.
+
+내부관리자 운영 대시보드는 API 서버가 읽을 수 있는 `shipmate-infra/smoke-report.json` 또는 `SHIPMATE_SMOKE_REPORT_FILE` 경로의 최신 smoke 리포트를 표시한다. Docker 컨테이너 내부에서 표시하려면 해당 파일을 컨테이너가 읽을 수 있는 경로로 mount하고 `SHIPMATE_SMOKE_REPORT_FILE`을 지정한다.
+`run-staging-smoke-suite.sh`는 smoke 성공 후 최신 `shipmate-infra/smoke-report.json`을 `shipmate-staging-api:/workspace/shipmate-infra/smoke-report.json`으로 복사해 로컬 스테이징 대시보드에서 바로 확인할 수 있게 한다. 컨테이너를 재생성하면 이 복사본은 사라지므로 wrapper를 다시 실행한다.
 
 스테이징 smoke는 `merchant_smoke_{timestamp}`, `customer_smoke_{timestamp}`, `smoke-{timestamp}` 패턴의 테스트 데이터를 생성한다. 공용 스테이징 DB에서는 smoke 통과 후 바로 삭제하지 않고, 실패 재현과 artifact 추적을 위해 우선 dry-run으로 삭제 대상을 확인한다.
 

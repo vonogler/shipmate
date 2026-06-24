@@ -484,4 +484,6 @@
 - 2026-06-23: GitHub Actions JUnit 외부 reporter는 보류하고 summary/artifact 기준으로 운영하기로 정리했다.
 - 2026-06-24: Admin 단순 목록 화면을 `AdminDataScreens` lazy module로 분리하고 Admin build를 통과했다.
 - 2026-06-24: Docker Desktop WSL 연결을 복구하고 smoke cleanup apply로 테스트 데이터 90건을 삭제한 뒤 잔여 0건을 확인했다.
+- 2026-06-24: Android SDK를 WSL `.codex-tmp/android-sdk`에 구성하고 `shipmate-android` `assembleDebug` 검증을 통과했다.
+- 2026-06-24: 스테이징 smoke 전체 점검 wrapper를 추가하고, 내부관리자 운영 대시보드에서 최신 smoke 리포트 상태를 확인할 수 있도록 했다.
 - 2026-06-24: 내부관리자 미커밋 변경 묶음의 커밋 포함/제외 기준을 정리했다.

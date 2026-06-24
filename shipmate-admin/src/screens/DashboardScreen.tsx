@@ -1,4 +1,4 @@
-import { Alert, Button, Col, Row, Select, Typography } from 'antd';
+import { Alert, Button, Col, Descriptions, Row, Select, Tag, Typography } from 'antd';
 import type { AdminOverview } from '../types';
 
 type DashboardScreenProps = {
@@ -44,6 +44,22 @@ export default function DashboardScreen({
         <Col xs={12} md={6}><MetricCard label="Gmail 수집 실패" value={overview?.gmailPollingRecentFailureCount ?? 0} /></Col>
         <Col xs={12} md={6}><MetricCard label="비주문 제외" value={overview?.gmailPollingRecentSkippedNonOrderCount ?? 0} /></Col>
       </Row>
+      {overview?.smokeReport ? (
+        <div className="status-panel">
+          <div className="status-panel-heading">
+            <Typography.Text strong>최근 스테이징 smoke</Typography.Text>
+            <Tag color={smokeStatusColor(overview.smokeReport.status)}>{smokeStatusText(overview.smokeReport.status)}</Tag>
+          </div>
+          <Descriptions size="small" column={{ xs: 1, md: 2 }} bordered>
+            <Descriptions.Item label="API 기준 URL">{overview.smokeReport.apiBaseUrl || '-'}</Descriptions.Item>
+            <Descriptions.Item label="완료 시각">{overview.smokeReport.finishedAt || '-'}</Descriptions.Item>
+            <Descriptions.Item label="마지막 단계">{overview.smokeReport.lastStep || '-'}</Descriptions.Item>
+            <Descriptions.Item label="이용자 ID">{overview.smokeReport.merchantId || '-'}</Descriptions.Item>
+            <Descriptions.Item label="주문 원문 ID">{overview.smokeReport.inboundMessageId || '-'}</Descriptions.Item>
+            <Descriptions.Item label="출고표 ID">{overview.smokeReport.orderDraftId || '-'}</Descriptions.Item>
+          </Descriptions>
+        </div>
+      ) : null}
       <Row gutter={[12, 12]} className="dashboard-detail-row">
         <Col xs={24} lg={6}><JsonPanel title="입력 채널" value={overview?.sourceChannelCounts} /></Col>
         <Col xs={24} lg={6}><JsonPanel title="업종 채널" value={overview?.businessChannelCounts} /></Col>
@@ -67,6 +83,29 @@ export default function DashboardScreen({
       ) : null}
     </section>
   );
+}
+
+function smokeStatusText(status: string) {
+  if (status === 'ok') {
+    return '통과';
+  }
+  if (status === 'none') {
+    return '리포트 없음';
+  }
+  if (status === 'unreadable') {
+    return '리포트 읽기 실패';
+  }
+  return '확인 필요';
+}
+
+function smokeStatusColor(status: string) {
+  if (status === 'ok') {
+    return 'green';
+  }
+  if (status === 'none') {
+    return 'default';
+  }
+  return 'red';
 }
 
 function MetricCard({ label, value }: { label: string; value: number }) {
