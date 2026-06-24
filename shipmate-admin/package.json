@@ -10,14 +10,16 @@
   },
   "dependencies": {
     "@ant-design/icons": "latest",
-    "@vitejs/plugin-react": "latest",
-    "antd": "latest",
-    "vite": "latest",
-    "typescript": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@vitejs/plugin-react": "latest",
+    "antd": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "typescript": "latest",
+    "vite": "latest"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/node": "^25.9.3"
+  }
 }

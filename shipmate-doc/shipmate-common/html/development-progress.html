@@ -43,7 +43,7 @@
     <h1>개발 진행사항</h1>
     <h2>현재 기준</h2>
     <ul>
-      <li>날짜: 2026-06-21</li>
+      <li>날짜: 2026-06-24</li>
       <li>세션 ID: <code>019e8c27-42d5-7790-8c52-4dfabe7cb8f6</code></li>
       <li>전체 단계: 주문 입력 채널 MVP와 가맹점 검수 화면 기반을 확장하고, 내부관리자 1차 필수 기능을 구현한 상태</li>
       <li>주문 채널 개발 우선순위: 카카오톡, 문자, 이메일, 전용 주문 페이지, 기타 채널 순서로 진행한다.</li>
@@ -376,6 +376,12 @@
       <li>quick tunnel 의도 실패 workflow run <code>28006461269</code>를 실행해 <code>quick-tunnel-workflow-report.txt</code>와 <code>quick-tunnel-workflow-28006461269-failed-log.txt</code> 생성, artifact 다운로드, tunnel 컨테이너 정리, 임시 <code>STAGING_API_BASE_URL</code> secret 삭제를 확인했다.</li>
       <li>GitHub Actions JUnit 외부 reporter는 당장 도입하지 않고, workflow summary와 <code>shipmate-smoke-reports</code> artifact를 표준 확인 위치로 유지하기로 했다.</li>
       <li>외부 reporter가 필요해지면 공식 또는 검증된 Action, 고정 버전, 추가 권한 명시, reporter 실패가 artifact 업로드를 막지 않는 조건으로만 검토하도록 README에 기준을 기록했다.</li>
+      <li>Admin 이용자/가맹점, 주문 원문, 출고표 초안, 제출 출고표 단순 목록 화면의 toolbar와 테이블 구성을 <code>AdminDataScreens</code> lazy module로 분리했다.</li>
+      <li>Admin build를 실행해 <code>AdminDataScreens-0QkHntLi.js</code> chunk 생성과 <code>index-BW_6vQk5.js</code> 약 50.25KB 생성을 확인했다.</li>
+      <li>WSL Docker socket이 없을 때도 Windows Docker Desktop CLI 경유로 Docker 점검과 smoke cleanup dry-run을 실행할 수 있도록 스크립트 fallback을 보강했다.</li>
+      <li>스테이징 compose를 재기동하고 API health <code>UP</code>, smoke cleanup dry-run 삭제 후보 90건을 확인했다.</li>
+      <li>smoke cleanup apply를 실행해 <code>merchant_smoke_%</code> 테스트 데이터 90건을 삭제하고, 후속 dry-run에서 잔여 삭제 후보 0건을 확인했다.</li>
+      <li>내부관리자 미커밋 변경 묶음을 확인해 기능 커밋에는 <code>shipmate-admin/src/screens/*</code>, <code>src/types.ts</code>, <code>src/adminTableColumns.tsx</code>, <code>App.tsx</code>, 스타일, Vite/패키지 설정을 함께 포함해야 하며, <code>tsconfig*.tsbuildinfo</code>는 생성 산출물이므로 제외하는 기준으로 정리했다.</li>
     </ul>
     <h2>진행 중인 작업</h2>
     <ul>
@@ -383,8 +389,8 @@
     </ul>
     <h2>다음 작업</h2>
     <ol>
-      <li>smoke cleanup apply를 실제로 실행할지 결정한다. 현재 dry-run 기준 대상 row 수는 90건이며, 실제 삭제는 명시 요청 전까지 보류한다.</li>
-      <li>Admin index chunk가 다시 커지면 DataPanel 단순 화면을 route module로 분리한다.</li>
+      <li>내부관리자 기능 커밋은 생성 산출물을 제외하고 소스/설정 파일을 한 묶음으로 커밋한다.</li>
+      <li>Admin 단순 목록 lazy 분리는 빌드 기준으로 통과했으므로, 추가 chunk 분리는 App index가 다시 커질 때 검토한다.</li>
       <li>self-hosted runner 장기 상주는 공인 스테이징 서버 준비 후 전용 계정으로 재검토한다.</li>
       <li>공인 DNS 구매와 A 레코드 등록은 마지막 단계로 유지한다.</li>
     </ol>
@@ -517,6 +523,9 @@
       <li>2026-06-23: quick tunnel 실패 로그 저장 검증용 <code>QUICK_TUNNEL_FORCE_WORKFLOW_FAILURE</code> 모드를 추가했다.</li>
       <li>2026-06-23: quick tunnel 의도 실패 run <code>28006461269</code>에서 실패 로그 로컬 리포트 저장과 임시 secret/tunnel 정리를 검증했다.</li>
       <li>2026-06-23: GitHub Actions JUnit 외부 reporter는 보류하고 summary/artifact 기준으로 운영하기로 정리했다.</li>
+      <li>2026-06-24: Admin 단순 목록 화면을 <code>AdminDataScreens</code> lazy module로 분리하고 Admin build를 통과했다.</li>
+      <li>2026-06-24: Docker Desktop WSL 연결을 복구하고 smoke cleanup apply로 테스트 데이터 90건을 삭제한 뒤 잔여 0건을 확인했다.</li>
+      <li>2026-06-24: 내부관리자 미커밋 변경 묶음의 커밋 포함/제외 기준을 정리했다.</li>
     </ul>
     <section>
       <h2>원본</h2>

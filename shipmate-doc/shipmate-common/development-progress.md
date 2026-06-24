@@ -2,7 +2,7 @@
 
 ## 현재 기준
 
-- 날짜: 2026-06-21
+- 날짜: 2026-06-24
 - 세션 ID: 019e8c27-42d5-7790-8c52-4dfabe7cb8f6
 - 전체 단계: 주문 입력 채널 MVP와 가맹점 검수 화면 기반을 확장하고, 내부관리자 1차 필수 기능을 구현한 상태
 - 주문 채널 개발 우선순위: 카카오톡, 문자, 이메일, 전용 주문 페이지, 기타 채널 순서로 진행한다.
@@ -335,6 +335,12 @@
 - quick tunnel 의도 실패 workflow run `28006461269`를 실행해 `quick-tunnel-workflow-report.txt`와 `quick-tunnel-workflow-28006461269-failed-log.txt` 생성, artifact 다운로드, tunnel 컨테이너 정리, 임시 `STAGING_API_BASE_URL` secret 삭제를 확인했다.
 - GitHub Actions JUnit 외부 reporter는 당장 도입하지 않고, workflow summary와 `shipmate-smoke-reports` artifact를 표준 확인 위치로 유지하기로 했다.
 - 외부 reporter가 필요해지면 공식 또는 검증된 Action, 고정 버전, 추가 권한 명시, reporter 실패가 artifact 업로드를 막지 않는 조건으로만 검토하도록 README에 기준을 기록했다.
+- Admin 이용자/가맹점, 주문 원문, 출고표 초안, 제출 출고표 단순 목록 화면의 toolbar와 테이블 구성을 `AdminDataScreens` lazy module로 분리했다.
+- Admin build를 실행해 `AdminDataScreens-0QkHntLi.js` chunk 생성과 `index-BW_6vQk5.js` 약 50.25KB 생성을 확인했다.
+- WSL Docker socket이 없을 때도 Windows Docker Desktop CLI 경유로 Docker 점검과 smoke cleanup dry-run을 실행할 수 있도록 스크립트 fallback을 보강했다.
+- 스테이징 compose를 재기동하고 API health `UP`, smoke cleanup dry-run 삭제 후보 90건을 확인했다.
+- smoke cleanup apply를 실행해 `merchant_smoke_%` 테스트 데이터 90건을 삭제하고, 후속 dry-run에서 잔여 삭제 후보 0건을 확인했다.
+- 내부관리자 미커밋 변경 묶음을 확인해 기능 커밋에는 `shipmate-admin/src/screens/*`, `src/types.ts`, `src/adminTableColumns.tsx`, `App.tsx`, 스타일, Vite/패키지 설정을 함께 포함해야 하며, `tsconfig*.tsbuildinfo`는 생성 산출물이므로 제외하는 기준으로 정리했다.
 
 ## 진행 중인 작업
 
@@ -342,8 +348,8 @@
 
 ## 다음 작업
 
-1. smoke cleanup apply를 실제로 실행할지 결정한다. 현재 dry-run 기준 대상 row 수는 90건이며, 실제 삭제는 명시 요청 전까지 보류한다.
-2. Admin index chunk가 다시 커지면 DataPanel 단순 화면을 route module로 분리한다.
+1. 내부관리자 기능 커밋은 생성 산출물을 제외하고 소스/설정 파일을 한 묶음으로 커밋한다.
+2. Admin 단순 목록 lazy 분리는 빌드 기준으로 통과했으므로, 추가 chunk 분리는 App index가 다시 커질 때 검토한다.
 3. self-hosted runner 장기 상주는 공인 스테이징 서버 준비 후 전용 계정으로 재검토한다.
 4. 공인 DNS 구매와 A 레코드 등록은 마지막 단계로 유지한다.
 
@@ -476,3 +482,6 @@
 - 2026-06-23: quick tunnel 실패 로그 저장 검증용 `QUICK_TUNNEL_FORCE_WORKFLOW_FAILURE` 모드를 추가했다.
 - 2026-06-23: quick tunnel 의도 실패 run `28006461269`에서 실패 로그 로컬 리포트 저장과 임시 secret/tunnel 정리를 검증했다.
 - 2026-06-23: GitHub Actions JUnit 외부 reporter는 보류하고 summary/artifact 기준으로 운영하기로 정리했다.
+- 2026-06-24: Admin 단순 목록 화면을 `AdminDataScreens` lazy module로 분리하고 Admin build를 통과했다.
+- 2026-06-24: Docker Desktop WSL 연결을 복구하고 smoke cleanup apply로 테스트 데이터 90건을 삭제한 뒤 잔여 0건을 확인했다.
+- 2026-06-24: 내부관리자 미커밋 변경 묶음의 커밋 포함/제외 기준을 정리했다.

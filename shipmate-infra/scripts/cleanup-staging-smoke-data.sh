@@ -13,6 +13,35 @@ SMOKE_CLEANUP_CONFIRM="${SMOKE_CLEANUP_CONFIRM:-}"
 SMOKE_CLEANUP_REPORT_FILE="${SMOKE_CLEANUP_REPORT_FILE:-shipmate-infra/reports/cleanup/staging-smoke-cleanup-report.json}"
 SMOKE_CLEANUP_JUNIT_FILE="${SMOKE_CLEANUP_JUNIT_FILE:-shipmate-infra/reports/cleanup/staging-smoke-cleanup-report.xml}"
 ARCHIVE_CLEANUP_REPORTS_SCRIPT="${ARCHIVE_CLEANUP_REPORTS_SCRIPT:-shipmate-infra/scripts/archive-cleanup-reports.sh}"
+DOCKER_MODE="${DOCKER_MODE:-auto}"
+
+windows_docker() {
+  cmd.exe /c docker "$@"
+}
+
+docker_cmd() {
+  case "${DOCKER_MODE}" in
+    linux)
+      docker "$@"
+      ;;
+    windows)
+      windows_docker "$@"
+      ;;
+    auto)
+      if docker version >/dev/null 2>&1; then
+        docker "$@"
+      elif command -v cmd.exe >/dev/null 2>&1 && windows_docker version >/dev/null 2>&1; then
+        windows_docker "$@"
+      else
+        docker "$@"
+      fi
+      ;;
+    *)
+      echo "지원하지 않는 DOCKER_MODE입니다: ${DOCKER_MODE}" >&2
+      exit 2
+      ;;
+  esac
+}
 
 json_escape() {
   printf "%s" "$1" | tr '\r\n\t' '   ' | sed 's/\\/\\\\/g; s/"/\\"/g'
@@ -85,7 +114,7 @@ archive_cleanup_reports() {
 }
 
 mysql_exec() {
-  docker exec -i "${MYSQL_CONTAINER}" mysql \
+  docker_cmd exec -i "${MYSQL_CONTAINER}" mysql \
     -u"${MYSQL_USER}" \
     -p"${MYSQL_PASSWORD}" \
     --database="${MYSQL_DATABASE}" \

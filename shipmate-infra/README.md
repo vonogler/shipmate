@@ -66,6 +66,12 @@ Docker Desktop > Settings > Resources > WSL Integration > Ubuntu 활성화
 ```
 
 적용 후 Docker Desktop을 재시작하고 WSL 터미널도 새로 열어 다시 확인한다.
+현재 WSL 배포판에 socket이 아직 노출되지 않았지만 Docker Desktop 자체는 실행 중인 경우에는 `DOCKER_MODE=windows`를 붙여 Windows Docker CLI 경유로 점검할 수 있다.
+
+```bash
+DOCKER_MODE=windows bash shipmate-infra/scripts/check-wsl-docker.sh
+DOCKER_MODE=windows bash shipmate-infra/scripts/cleanup-staging-smoke-data.sh
+```
 
 Codex sandbox 안에서만 `localhost:8080` 접근이 거부될 수 있다. 이 경우 실제 WSL 터미널 또는 권한 밖 실행에서 다음 순서로 확인한다.
 
